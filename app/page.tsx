@@ -1,19 +1,22 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { Clock, MapPin, Calendar, Globe, ChevronLeft, ChevronRight, ChevronDown } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 
 export default function BookingPage() {
+  const today = new Date()
   const [selectedDate, setSelectedDate] = useState<Date | null>(null)
   const [selectedTime, setSelectedTime] = useState<string | null>(null)
   const [selectedPeriod, setSelectedPeriod] = useState<"morning" | "afternoon" | null>(null)
   const [currentStep, setCurrentStep] = useState<1 | 2 | 3 | 4 | 5 | 6>(1)
   const [isSubmitting, setIsSubmitting] = useState(false)
-  const [currentMonth, setCurrentMonth] = useState(9) // October (0-indexed)
-  const [currentYear, setCurrentYear] = useState(2025)
+  const [submitError, setSubmitError] = useState<string | null>(null)
+  const [isRetrying, setIsRetrying] = useState(false)
+  const [currentMonth, setCurrentMonth] = useState(today.getMonth())
+  const [currentYear, setCurrentYear] = useState(today.getFullYear())
   const [formData, setFormData] = useState({
     firstName: "",
     lastName: "",
@@ -26,9 +29,63 @@ export default function BookingPage() {
   const [showCountryDropdown, setShowCountryDropdown] = useState(false)
   const [formErrors, setFormErrors] = useState<{[key: string]: string}>({})
   const [isValidating, setIsValidating] = useState(false)
+  const [availableDates, setAvailableDates] = useState<number[]>([])
+  const [isLoadingDates, setIsLoadingDates] = useState(true) // Commence en loading
+  const [morningAvailable, setMorningAvailable] = useState(true)
+  const [afternoonAvailable, setAfternoonAvailable] = useState(true)
+  const [isLoadingPeriods, setIsLoadingPeriods] = useState(false)
+  const [availableTimeSlots, setAvailableTimeSlots] = useState<{time: string, available: boolean}[]>([])
+  const [isLoadingTimeSlots, setIsLoadingTimeSlots] = useState(false)
 
-  // Available dates (21-31 October 2025)
-  const availableDates = [21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31]
+  // Charger les périodes disponibles quand une date est sélectionnée
+  useEffect(() => {
+    const loadAvailablePeriods = async () => {
+      if (!selectedDate) return
+      
+      setIsLoadingPeriods(true)
+      try {
+        const dateStr = selectedDate.toISOString()
+        const response = await fetch(`/api/availability/periods?date=${dateStr}`)
+        if (response.ok) {
+          const data = await response.json()
+          setMorningAvailable(data.morningAvailable)
+          setAfternoonAvailable(data.afternoonAvailable)
+          
+          // Si une seule période est disponible, la sélectionner automatiquement
+          if (data.morningAvailable && !data.afternoonAvailable) {
+            setSelectedPeriod('morning')
+          } else if (!data.morningAvailable && data.afternoonAvailable) {
+            setSelectedPeriod('afternoon')
+          }
+        }
+      } catch (error) {
+        console.error('Erreur chargement périodes:', error)
+      } finally {
+        setIsLoadingPeriods(false)
+      }
+    }
+    loadAvailablePeriods()
+  }, [selectedDate])
+
+  // Charger les dates disponibles depuis l'API
+  useEffect(() => {
+    const loadAvailableDates = async () => {
+      setIsLoadingDates(true)
+      setAvailableDates([]) // Vider les dates pendant le chargement
+      try {
+        const response = await fetch(`/api/availability/dates?month=${currentMonth}&year=${currentYear}`)
+        if (response.ok) {
+          const data = await response.json()
+          setAvailableDates(data.availableDates)
+        }
+      } catch (error) {
+        console.error('Erreur chargement dates:', error)
+      } finally {
+        setIsLoadingDates(false)
+      }
+    }
+    loadAvailableDates()
+  }, [currentMonth, currentYear])
 
   // Countries with phone codes and flags
   const countries = [
@@ -48,11 +105,37 @@ export default function BookingPage() {
 
   const selectedCountryData = countries.find(c => c.code === selectedCountry) || countries[0]
 
-  // Time slots
+  // Charger les créneaux disponibles quand une période est sélectionnée
+  useEffect(() => {
+    const loadAvailableTimeSlots = async () => {
+      if (!selectedDate || !selectedPeriod) return
+      
+      setIsLoadingTimeSlots(true)
+      try {
+        const dateStr = selectedDate.toISOString()
+        const response = await fetch(`/api/availability/slots?date=${dateStr}`)
+        if (response.ok) {
+          const data = await response.json()
+          const slots = selectedPeriod === "morning" ? data.morning : data.afternoon
+          setAvailableTimeSlots(slots)
+        }
+      } catch (error) {
+        console.error('Erreur chargement créneaux:', error)
+      } finally {
+        setIsLoadingTimeSlots(false)
+      }
+    }
+    loadAvailableTimeSlots()
+  }, [selectedDate, selectedPeriod])
+
+  // Time slots (fallback si pas de données)
   const morningSlots = ["09:00", "09:30", "10:00", "10:30", "11:00", "11:30", "12:00"]
   const afternoonSlots = ["12:30", "13:00", "13:30", "14:00", "14:30", "15:00", "15:30", "16:00", "16:30", "17:00"]
   
-  const timeSlots = selectedPeriod === "morning" ? morningSlots : selectedPeriod === "afternoon" ? afternoonSlots : []
+  // Convertir les créneaux avec statut en créneaux simples pour l'affichage
+  const timeSlots = availableTimeSlots.length > 0 
+    ? availableTimeSlots 
+    : (selectedPeriod === "morning" ? morningSlots.map(time => ({time, available: true})) : selectedPeriod === "afternoon" ? afternoonSlots.map(time => ({time, available: true})) : [])
 
   const monthNames = [
     "Janvier",
@@ -115,6 +198,57 @@ export default function BookingPage() {
 
   const handleBackToDate = () => {
     setCurrentStep(1)
+  }
+
+  // Validation en temps réel pour un champ
+  const validateField = (field: string, value: string) => {
+    const errors = { ...formErrors }
+    
+    switch (field) {
+      case 'firstName':
+        if (!value.trim()) {
+          errors.firstName = "Le prénom est requis"
+        } else if (value.trim().length < 2) {
+          errors.firstName = "Le prénom doit contenir au moins 2 caractères"
+        } else {
+          delete errors.firstName
+        }
+        break
+        
+      case 'lastName':
+        if (!value.trim()) {
+          errors.lastName = "Le nom est requis"
+        } else if (value.trim().length < 2) {
+          errors.lastName = "Le nom doit contenir au moins 2 caractères"
+        } else {
+          delete errors.lastName
+        }
+        break
+        
+      case 'email':
+        if (!value.trim()) {
+          errors.email = "L'email est requis"
+        } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value)) {
+          errors.email = "Veuillez entrer un email valide"
+        } else {
+          delete errors.email
+        }
+        break
+        
+      case 'phone':
+        if (!value.trim()) {
+          errors.phone = "Le numéro de téléphone est requis"
+        } else if (!/^[0-9\s\-\+\(\)]+$/.test(value)) {
+          errors.phone = "Le numéro ne peut contenir que des chiffres, espaces, tirets, + et parenthèses"
+        } else if (value.replace(/[^0-9]/g, '').length < 8) {
+          errors.phone = "Le numéro doit contenir au moins 8 chiffres"
+        } else {
+          delete errors.phone
+        }
+        break
+    }
+    
+    setFormErrors(errors)
   }
 
   // Fonction de validation du formulaire
@@ -211,34 +345,79 @@ export default function BookingPage() {
     }
     
     setIsSubmitting(true)
+    setSubmitError(null)
     
     try {
-      // Simulation d'une requête avec possibilité d'erreur
-      await new Promise((resolve, reject) => {
-        setTimeout(() => {
-          // Simulation d'erreur aléatoire (30% de chance d'échec)
-          if (Math.random() < 0.3) {
-            reject(new Error("Erreur de connexion au serveur"))
-          } else {
-            resolve("Succès")
-          }
-        }, 2000) // Simulation d'un délai de 2 secondes
+      // Appel API réel
+      const response = await fetch('/api/bookings', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          firstName: formData.firstName,
+          lastName: formData.lastName,
+          email: formData.email,
+          phone: formData.phone,
+          country: selectedCountry,
+          date: selectedDate?.toISOString(),
+          time: selectedTime,
+          period: selectedPeriod,
+          firstConsultation: formData.firstConsultation,
+          message: formData.message,
+        }),
       })
-      
-      // Succès
-      console.log("Réservation soumise:", {
-        date: selectedDate,
-        period: selectedPeriod,
-        time: selectedTime,
-        ...formData
-      })
-      setCurrentStep(5)
+
+      if (response.ok) {
+        const data = await response.json()
+        console.log('Réservation créée:', data)
+        setCurrentStep(5) // Succès
+      } else {
+        const error = await response.json()
+        throw new Error(error.error || 'Erreur lors de la création')
+      }
     } catch (error) {
-      // Échec
+      // Échec - afficher l'erreur à l'utilisateur
       console.error("Erreur lors de la soumission:", error)
+      setSubmitError(error instanceof Error ? error.message : 'Une erreur est survenue')
       setCurrentStep(6)
     } finally {
       setIsSubmitting(false)
+    }
+  }
+
+  // Fonction de retry en cas d'erreur
+  const handleRetry = async () => {
+    setIsRetrying(true)
+    setSubmitError(null)
+    
+    try {
+      const response = await fetch('/api/bookings', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          firstName: formData.firstName,
+          lastName: formData.lastName,
+          email: formData.email,
+          phone: formData.phone,
+          country: selectedCountry,
+          date: selectedDate?.toISOString(),
+          time: selectedTime,
+          period: selectedPeriod,
+          firstConsultation: formData.firstConsultation,
+          message: formData.message,
+        }),
+      })
+
+      if (response.ok) {
+        const data = await response.json()
+        setCurrentStep(5) // Succès
+      } else {
+        const error = await response.json()
+        throw new Error(error.error || 'Erreur lors de la création')
+      }
+    } catch (error) {
+      setSubmitError(error instanceof Error ? error.message : 'Une erreur est survenue')
+    } finally {
+      setIsRetrying(false)
     }
   }
 
@@ -318,20 +497,22 @@ export default function BookingPage() {
 
     // Days of the month
     for (let day = 1; day <= daysInMonth; day++) {
-      const isAvailable = currentMonth === 9 && availableDates.includes(day) // October only
-      const isSelected = selectedDate?.getDate() === day && selectedDate?.getMonth() === currentMonth
+      const isAvailable = availableDates.includes(day)
+      const isSelected = selectedDate?.getDate() === day && selectedDate?.getMonth() === currentMonth && selectedDate?.getFullYear() === currentYear
 
       days.push(
         <button
           key={day}
-          onClick={() => isAvailable && handleDateClick(day)}
-          disabled={!isAvailable}
+          onClick={() => isAvailable && !isLoadingDates && handleDateClick(day)}
+          disabled={!isAvailable || isLoadingDates}
           className={`h-10 sm:h-12 w-10 sm:w-12 rounded-xl text-base font-bold transition-all duration-200 hover:scale-105 focus:outline-none focus:ring-2 focus:ring-offset-1 ${
-            isSelected
-              ? "bg-[#0066FF] text-white shadow-lg scale-105 ring-2 ring-[#0066FF] ring-offset-2"
-              : isAvailable
-                ? "text-[#0066FF] bg-white border-2 border-[#0066FF] hover:bg-blue-50 hover:shadow-md focus:ring-[#0066FF]"
-                : "text-gray-300 bg-gray-50 border border-gray-200 cursor-not-allowed"
+            isLoadingDates
+              ? "text-gray-400 bg-gray-100 border border-gray-200 cursor-wait animate-pulse"
+              : isSelected
+                ? "bg-[#0066FF] text-white shadow-lg scale-105 ring-2 ring-[#0066FF] ring-offset-2"
+                : isAvailable
+                  ? "text-[#0066FF] bg-white border-2 border-[#0066FF] hover:bg-blue-50 hover:shadow-md focus:ring-[#0066FF]"
+                  : "text-gray-300 bg-gray-50 border border-gray-200 cursor-not-allowed"
           }`}
           aria-label={`${day} ${monthNames[currentMonth]}`}
         >
@@ -537,24 +718,34 @@ export default function BookingPage() {
                       {selectedDate && (
                         <div className="flex gap-3 mb-6">
                           <button
-                            onClick={() => handlePeriodClick("morning")}
+                            onClick={() => morningAvailable && !isLoadingPeriods && handlePeriodClick("morning")}
+                            disabled={!morningAvailable || isLoadingPeriods}
                             className={`flex-1 px-4 py-3 rounded-xl text-sm font-semibold transition-all duration-200 ${
-                              selectedPeriod === "morning"
-                                ? "bg-[#0066FF] text-white shadow-lg scale-105"
-                                : "bg-white text-[#0066FF] border-2 border-[#0066FF] hover:bg-blue-50 hover:shadow-md"
+                              isLoadingPeriods
+                                ? "bg-gray-100 text-gray-400 border-2 border-gray-200 cursor-wait animate-pulse"
+                                : !morningAvailable
+                                  ? "bg-gray-50 text-gray-400 border-2 border-gray-200 cursor-not-allowed opacity-50"
+                                  : selectedPeriod === "morning"
+                                    ? "bg-[#0066FF] text-white shadow-lg scale-105"
+                                    : "bg-white text-[#0066FF] border-2 border-[#0066FF] hover:bg-blue-50 hover:shadow-md"
                             }`}
                           >
-                            Matin
+                            Matin {!morningAvailable && !isLoadingPeriods && "(Complet)"}
                           </button>
                           <button
-                            onClick={() => handlePeriodClick("afternoon")}
+                            onClick={() => afternoonAvailable && !isLoadingPeriods && handlePeriodClick("afternoon")}
+                            disabled={!afternoonAvailable || isLoadingPeriods}
                             className={`flex-1 px-4 py-3 rounded-xl text-sm font-semibold transition-all duration-200 ${
-                              selectedPeriod === "afternoon"
-                                ? "bg-[#0066FF] text-white shadow-lg scale-105"
-                                : "bg-white text-[#0066FF] border-2 border-[#0066FF] hover:bg-blue-50 hover:shadow-md"
+                              isLoadingPeriods
+                                ? "bg-gray-100 text-gray-400 border-2 border-gray-200 cursor-wait animate-pulse"
+                                : !afternoonAvailable
+                                  ? "bg-gray-50 text-gray-400 border-2 border-gray-200 cursor-not-allowed opacity-50"
+                                  : selectedPeriod === "afternoon"
+                                    ? "bg-[#0066FF] text-white shadow-lg scale-105"
+                                    : "bg-white text-[#0066FF] border-2 border-[#0066FF] hover:bg-blue-50 hover:shadow-md"
                             }`}
                           >
-                            Après-midi
+                            Après-midi {!afternoonAvailable && !isLoadingPeriods && "(Complet)"}
                           </button>
                         </div>
                       )}
@@ -579,15 +770,25 @@ export default function BookingPage() {
                         </div>
 
                         <div className="space-y-2 sm:space-y-3 max-h-[400px] lg:max-h-[500px] overflow-y-auto pr-2 scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-gray-100">
-                          {timeSlots.map((time, index) => (
-                            <div key={time} className="animate-in fade-in slide-in-from-bottom" style={{ animationDelay: `${index * 30}ms` }}>
-                              {selectedTime === time ? (
+                          {isLoadingTimeSlots ? (
+                            <div className="flex items-center justify-center py-8">
+                              <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-[#0066FF]"></div>
+                              <span className="ml-3 text-gray-600">Chargement des créneaux...</span>
+                            </div>
+                          ) : timeSlots.length === 0 ? (
+                            <div className="text-center py-8 text-gray-500">
+                              Aucun créneau disponible pour cette période
+                            </div>
+                          ) : (
+                            timeSlots.map((slot, index) => (
+                            <div key={slot.time} className="animate-in fade-in slide-in-from-bottom" style={{ animationDelay: `${index * 30}ms` }}>
+                              {selectedTime === slot.time ? (
                                 <div className="flex gap-2 sm:gap-3">
                               <button
                                       className="flex-1 px-4 sm:px-6 py-3 sm:py-4 rounded-xl border-2 text-sm sm:text-base font-semibold bg-[#0066FF] text-white border-[#0066FF] shadow-lg scale-[1.02] transition-all duration-200"
                                       disabled
                                     >
-                                      ✓ {time}
+                                      ✓ {slot.time}
                               </button>
                               <Button
                                 onClick={handleNextClick}
@@ -598,15 +799,21 @@ export default function BookingPage() {
                             </div>
                               ) : (
                               <button
-                                onClick={() => handleTimeClick(time)}
-                                    className="w-full px-4 sm:px-6 py-3 sm:py-4 rounded-xl border-2 text-sm sm:text-base font-semibold transition-all duration-200 hover:scale-[1.02] focus:outline-none focus:ring-2 focus:ring-offset-2 bg-white text-[#0066FF] border-[#0066FF] hover:bg-blue-50 hover:shadow-md focus:ring-[#0066FF]"
-                                aria-label={`Créneau à ${time}`}
+                                onClick={() => slot.available && handleTimeClick(slot.time)}
+                                disabled={!slot.available}
+                                className={`w-full px-4 sm:px-6 py-3 sm:py-4 rounded-xl border-2 text-sm sm:text-base font-semibold transition-all duration-200 hover:scale-[1.02] focus:outline-none focus:ring-2 focus:ring-offset-2 ${
+                                  slot.available
+                                    ? "bg-white text-[#0066FF] border-[#0066FF] hover:bg-blue-50 hover:shadow-md focus:ring-[#0066FF]"
+                                    : "bg-gray-100 text-gray-400 border-gray-200 cursor-not-allowed opacity-60"
+                                }`}
+                                aria-label={`Créneau à ${slot.time}${!slot.available ? ' (Réservé)' : ''}`}
                               >
-                                {time}
+                                {slot.available ? slot.time : `${slot.time} (Réservé)`}
                               </button>
                               )}
                             </div>
-                          ))}
+                          ))
+                          )}
                         </div>
 
                       </div>
@@ -752,6 +959,18 @@ export default function BookingPage() {
                         Une erreur s'est produite lors de l'enregistrement de votre rendez-vous.
                       </p>
                       
+                      {submitError && (
+                        <div className="bg-red-50 border border-red-200 rounded-xl p-6 mb-8">
+                          <div className="flex items-center gap-3 mb-3">
+                            <svg className="w-5 h-5 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L3.732 16.5c-.77.833.192 2.5 1.732 2.5z" />
+                            </svg>
+                            <h3 className="text-lg font-semibold text-red-800">Détails de l'erreur</h3>
+                          </div>
+                          <p className="text-red-700">{submitError}</p>
+                        </div>
+                      )}
+                      
                       <div className="bg-red-50 border border-red-200 rounded-xl p-6 mb-8">
                         <h3 className="text-lg font-semibold text-red-800 mb-2">Que s'est-il passé ?</h3>
                         <p className="text-red-700 text-sm">
@@ -766,10 +985,22 @@ export default function BookingPage() {
                         </p>
                         <div className="flex flex-col sm:flex-row gap-3">
                           <button
-                            onClick={() => setCurrentStep(4)}
-                            className="flex-1 bg-[#0066FF] text-white py-3 px-6 rounded-xl font-semibold hover:bg-[#0052CC] transition-colors duration-200"
+                            onClick={handleRetry}
+                            disabled={isRetrying}
+                            className={`flex-1 py-3 px-6 rounded-xl font-semibold transition-colors duration-200 ${
+                              isRetrying
+                                ? 'bg-gray-400 text-white cursor-not-allowed'
+                                : 'bg-[#0066FF] text-white hover:bg-[#0052CC]'
+                            }`}
                           >
-                            Réessayer
+                            {isRetrying ? (
+                              <div className="flex items-center justify-center gap-2">
+                                <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
+                                Nouvelle tentative...
+                              </div>
+                            ) : (
+                              'Réessayer'
+                            )}
                           </button>
                           <button
                             onClick={() => {
@@ -828,10 +1059,9 @@ export default function BookingPage() {
                           type="text"
                           value={formData.firstName}
                           onChange={(e) => {
-                            setFormData({ ...formData, firstName: e.target.value })
-                            if (formErrors.firstName) {
-                              setFormErrors({ ...formErrors, firstName: "" })
-                            }
+                            const value = e.target.value
+                            setFormData({ ...formData, firstName: value })
+                            validateField('firstName', value)
                           }}
                           className={`w-full h-11 sm:h-12 px-4 rounded-xl border-2 focus:ring-2 focus:ring-offset-2 transition-all duration-200 ${
                             formErrors.firstName 
@@ -851,10 +1081,9 @@ export default function BookingPage() {
                           type="text"
                           value={formData.lastName}
                           onChange={(e) => {
-                            setFormData({ ...formData, lastName: e.target.value })
-                            if (formErrors.lastName) {
-                              setFormErrors({ ...formErrors, lastName: "" })
-                            }
+                            const value = e.target.value
+                            setFormData({ ...formData, lastName: value })
+                            validateField('lastName', value)
                           }}
                           className={`w-full h-11 sm:h-12 px-4 rounded-xl border-2 focus:ring-2 focus:ring-offset-2 transition-all duration-200 ${
                             formErrors.lastName 
@@ -874,10 +1103,9 @@ export default function BookingPage() {
                           type="email"
                           value={formData.email}
                           onChange={(e) => {
-                            setFormData({ ...formData, email: e.target.value })
-                            if (formErrors.email) {
-                              setFormErrors({ ...formErrors, email: "" })
-                            }
+                            const value = e.target.value
+                            setFormData({ ...formData, email: value })
+                            validateField('email', value)
                           }}
                           className={`w-full h-11 sm:h-12 px-4 rounded-xl border-2 focus:ring-2 focus:ring-offset-2 transition-all duration-200 ${
                             formErrors.email 
@@ -931,16 +1159,12 @@ export default function BookingPage() {
                             onChange={(e) => {
                               const phoneValue = e.target.value
                               setFormData({ ...formData, phone: phoneValue })
+                              validateField('phone', phoneValue)
                               
                               // Détection automatique du pays
                               const detectedCountry = detectCountryFromPhone(phoneValue)
                               if (detectedCountry !== selectedCountry) {
                                 setSelectedCountry(detectedCountry)
-                              }
-                              
-                              // Effacer l'erreur de validation
-                              if (formErrors.phone) {
-                                setFormErrors({ ...formErrors, phone: "" })
                               }
                             }}
                             className={`flex-1 h-11 sm:h-12 px-4 rounded-xl border-2 focus:ring-2 focus:ring-offset-2 transition-all duration-200 ${
@@ -1354,24 +1578,34 @@ export default function BookingPage() {
                       <p className="text-xs text-gray-500 mb-3 text-center">Choisissez une période</p>
                       <div className="flex gap-2 sm:gap-3">
                         <button
-                          onClick={() => handlePeriodClick("morning")}
+                          onClick={() => morningAvailable && !isLoadingPeriods && handlePeriodClick("morning")}
+                          disabled={!morningAvailable || isLoadingPeriods}
                           className={`flex-1 px-4 py-3 rounded-xl border-2 text-sm font-semibold transition-all duration-200 hover:scale-[1.02] focus:outline-none focus:ring-2 focus:ring-offset-2 ${
-                            selectedPeriod === "morning"
-                              ? "bg-[#0066FF] text-white border-[#0066FF] shadow-lg scale-[1.02]"
-                              : "bg-white text-[#0066FF] border-[#0066FF] hover:bg-blue-50 hover:shadow-md focus:ring-[#0066FF]"
+                            isLoadingPeriods
+                              ? "bg-gray-100 text-gray-400 border-gray-200 cursor-wait animate-pulse"
+                              : !morningAvailable
+                                ? "bg-gray-50 text-gray-400 border-gray-200 cursor-not-allowed opacity-50"
+                                : selectedPeriod === "morning"
+                                  ? "bg-[#0066FF] text-white border-[#0066FF] shadow-lg scale-[1.02]"
+                                  : "bg-white text-[#0066FF] border-[#0066FF] hover:bg-blue-50 hover:shadow-md focus:ring-[#0066FF]"
                           }`}
                         >
-                           Matin
+                           Matin {!morningAvailable && !isLoadingPeriods && "(Complet)"}
                         </button>
                         <button
-                          onClick={() => handlePeriodClick("afternoon")}
+                          onClick={() => afternoonAvailable && !isLoadingPeriods && handlePeriodClick("afternoon")}
+                          disabled={!afternoonAvailable || isLoadingPeriods}
                           className={`flex-1 px-4 py-3 rounded-xl border-2 text-sm font-semibold transition-all duration-200 hover:scale-[1.02] focus:outline-none focus:ring-2 focus:ring-offset-2 ${
-                            selectedPeriod === "afternoon"
-                              ? "bg-[#0066FF] text-white border-[#0066FF] shadow-lg scale-[1.02]"
-                              : "bg-white text-[#0066FF] border-[#0066FF] hover:bg-blue-50 hover:shadow-md focus:ring-[#0066FF]"
+                            isLoadingPeriods
+                              ? "bg-gray-100 text-gray-400 border-gray-200 cursor-wait animate-pulse"
+                              : !afternoonAvailable
+                                ? "bg-gray-50 text-gray-400 border-gray-200 cursor-not-allowed opacity-50"
+                                : selectedPeriod === "afternoon"
+                                  ? "bg-[#0066FF] text-white border-[#0066FF] shadow-lg scale-[1.02]"
+                                  : "bg-white text-[#0066FF] border-[#0066FF] hover:bg-blue-50 hover:shadow-md focus:ring-[#0066FF]"
                           }`}
                         >
-                           Après-midi
+                           Après-midi {!afternoonAvailable && !isLoadingPeriods && "(Complet)"}
                         </button>
                   </div>
                 </div>
@@ -1398,15 +1632,25 @@ export default function BookingPage() {
                     </div>
 
                     <div className="space-y-2 sm:space-y-3 max-h-[400px] lg:max-h-[500px] overflow-y-auto pr-2 scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-gray-100">
-                      {timeSlots.map((time, index) => (
-                        <div key={time} className="animate-in fade-in slide-in-from-bottom" style={{ animationDelay: `${index * 30}ms` }}>
-                          {selectedTime === time ? (
+                      {isLoadingTimeSlots ? (
+                        <div className="flex items-center justify-center py-8">
+                          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-[#0066FF]"></div>
+                          <span className="ml-3 text-gray-600">Chargement des créneaux...</span>
+                        </div>
+                      ) : timeSlots.length === 0 ? (
+                        <div className="text-center py-8 text-gray-500">
+                          Aucun créneau disponible pour cette période
+                        </div>
+                      ) : (
+                        timeSlots.map((slot, index) => (
+                        <div key={slot.time} className="animate-in fade-in slide-in-from-bottom" style={{ animationDelay: `${index * 30}ms` }}>
+                          {selectedTime === slot.time ? (
                             <div className="flex gap-2 sm:gap-3">
                         <button
                                 className="flex-1 px-4 sm:px-6 py-3 sm:py-4 rounded-xl border-2 text-sm sm:text-base font-semibold bg-[#0066FF] text-white border-[#0066FF] shadow-lg scale-[1.02] transition-all duration-200"
                                 disabled
                               >
-                                ✓ {time}
+                                ✓ {slot.time}
                         </button>
                         <Button
                           onClick={handleNextClick}
@@ -1417,15 +1661,21 @@ export default function BookingPage() {
                       </div>
                           ) : (
                         <button
-                          onClick={() => handleTimeClick(time)}
-                              className="w-full px-4 sm:px-6 py-3 sm:py-4 rounded-xl border-2 text-sm sm:text-base font-semibold transition-all duration-200 hover:scale-[1.02] focus:outline-none focus:ring-2 focus:ring-offset-2 bg-white text-[#0066FF] border-[#0066FF] hover:bg-blue-50 hover:shadow-md focus:ring-[#0066FF]"
-                          aria-label={`Créneau à ${time}`}
+                          onClick={() => slot.available && handleTimeClick(slot.time)}
+                          disabled={!slot.available}
+                          className={`w-full px-4 sm:px-6 py-3 sm:py-4 rounded-xl border-2 text-sm sm:text-base font-semibold transition-all duration-200 hover:scale-[1.02] focus:outline-none focus:ring-2 focus:ring-offset-2 ${
+                            slot.available
+                              ? "bg-white text-[#0066FF] border-[#0066FF] hover:bg-blue-50 hover:shadow-md focus:ring-[#0066FF]"
+                              : "bg-gray-100 text-gray-400 border-gray-200 cursor-not-allowed opacity-60"
+                          }`}
+                          aria-label={`Créneau à ${slot.time}${!slot.available ? ' (Réservé)' : ''}`}
                         >
-                          {time}
+                          {slot.available ? slot.time : `${slot.time} (Réservé)`}
                         </button>
                           )}
                         </div>
-                      ))}
+                      ))
+                      )}
                     </div>
 
                   </div>
@@ -1571,6 +1821,18 @@ export default function BookingPage() {
                     Une erreur s'est produite lors de l'enregistrement de votre rendez-vous.
                   </p>
                   
+                  {submitError && (
+                    <div className="bg-red-50 border border-red-200 rounded-xl p-6 mb-8">
+                      <div className="flex items-center gap-3 mb-3">
+                        <svg className="w-5 h-5 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L3.732 16.5c-.77.833.192 2.5 1.732 2.5z" />
+                        </svg>
+                        <h3 className="text-lg font-semibold text-red-800">Détails de l'erreur</h3>
+                      </div>
+                      <p className="text-red-700">{submitError}</p>
+                    </div>
+                  )}
+                  
                   <div className="bg-red-50 border border-red-200 rounded-xl p-6 mb-8">
                     <h3 className="text-lg font-semibold text-red-800 mb-2">Que s'est-il passé ?</h3>
                     <p className="text-red-700 text-sm">
@@ -1585,10 +1847,22 @@ export default function BookingPage() {
                     </p>
                     <div className="flex flex-col sm:flex-row gap-3">
                       <button
-                        onClick={() => setCurrentStep(4)}
-                        className="flex-1 bg-[#0066FF] text-white py-3 px-6 rounded-xl font-semibold hover:bg-[#0052CC] transition-colors duration-200"
+                        onClick={handleRetry}
+                        disabled={isRetrying}
+                        className={`flex-1 py-3 px-6 rounded-xl font-semibold transition-colors duration-200 ${
+                          isRetrying
+                            ? 'bg-gray-400 text-white cursor-not-allowed'
+                            : 'bg-[#0066FF] text-white hover:bg-[#0052CC]'
+                        }`}
                       >
-                        Réessayer
+                        {isRetrying ? (
+                          <div className="flex items-center justify-center gap-2">
+                            <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
+                            Nouvelle tentative...
+                          </div>
+                        ) : (
+                          'Réessayer'
+                        )}
                       </button>
                       <button
                         onClick={() => {
@@ -1750,16 +2024,12 @@ export default function BookingPage() {
                         onChange={(e) => {
                           const phoneValue = e.target.value
                           setFormData({ ...formData, phone: phoneValue })
+                          validateField('phone', phoneValue)
                           
                           // Détection automatique du pays
                           const detectedCountry = detectCountryFromPhone(phoneValue)
                           if (detectedCountry !== selectedCountry) {
                             setSelectedCountry(detectedCountry)
-                          }
-                          
-                          // Effacer l'erreur de validation
-                          if (formErrors.phone) {
-                            setFormErrors({ ...formErrors, phone: "" })
                           }
                         }}
                         className={`flex-1 h-11 sm:h-12 px-4 rounded-xl border-2 focus:ring-2 focus:ring-offset-2 transition-all duration-200 ${

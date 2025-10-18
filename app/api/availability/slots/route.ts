@@ -1,0 +1,102 @@
+// app/api/availability/slots/route.ts
+import { NextRequest, NextResponse } from 'next/server'
+import { prisma } from '@/lib/prisma'
+
+// Créneaux disponibles (de 9h à 18h, par tranches de 30 minutes)
+const generateTimeSlots = () => {
+  const slots = []
+  for (let hour = 9; hour < 18; hour++) {
+    slots.push(`${hour.toString().padStart(2, '0')}:00`)
+    slots.push(`${hour.toString().padStart(2, '0')}:30`)
+  }
+  return slots
+}
+
+// Vérifier si un créneau est disponible (pas de chevauchement direct)
+const isSlotAvailable = (slotTime: string, bookings: any[]) => {
+  const [slotHour, slotMinute] = slotTime.split(':').map(Number)
+  const slotStart = slotHour * 60 + slotMinute // en minutes
+  const slotEnd = slotStart + 60 // 1 heure après
+
+  // Vérifier les chevauchements directs
+  const hasDirectOverlap = bookings.some(booking => {
+    const [bookingHour, bookingMinute] = booking.time.split(':').map(Number)
+    const bookingStart = bookingHour * 60 + bookingMinute
+    const bookingEnd = bookingStart + 60 // 1 heure
+
+    return (slotStart < bookingEnd && slotEnd > bookingStart)
+  })
+
+  return !hasDirectOverlap
+}
+
+export async function GET(request: NextRequest) {
+  try {
+    const searchParams = request.nextUrl.searchParams
+    const dateParam = searchParams.get('date')
+
+    if (!dateParam) {
+      return NextResponse.json(
+        { error: "Date requise" },
+        { status: 400 }
+      )
+    }
+
+    // Récupérer toutes les réservations non annulées pour cette date
+    const date = new Date(dateParam)
+    const startOfDay = new Date(date)
+    startOfDay.setHours(0, 0, 0, 0)
+    const endOfDay = new Date(date)
+    endOfDay.setHours(23, 59, 59, 999)
+
+    const bookings = await prisma.booking.findMany({
+      where: {
+        date: {
+          gte: startOfDay,
+          lte: endOfDay,
+        },
+        status: {
+          notIn: ['CANCELLED']
+        }
+      },
+      select: {
+        time: true,
+      }
+    })
+
+        // Générer tous les créneaux et vérifier leur disponibilité
+        const allSlots = generateTimeSlots()
+        
+        // Créer des objets avec statut pour chaque créneau
+        const slotsWithStatus = allSlots.map(slot => ({
+          time: slot,
+          available: isSlotAvailable(slot, bookings)
+        }))
+
+        // Organiser par période avec statut
+        const morningSlots = slotsWithStatus.filter(slot => {
+          const hour = parseInt(slot.time.split(':')[0])
+          return hour < 12
+        })
+
+        const afternoonSlots = slotsWithStatus.filter(slot => {
+          const hour = parseInt(slot.time.split(':')[0])
+          return hour >= 12
+        })
+
+        return NextResponse.json({
+          date: dateParam,
+          morning: morningSlots,
+          afternoon: afternoonSlots,
+          all: slotsWithStatus,
+        })
+
+  } catch (error) {
+    console.error('Erreur récupération créneaux:', error)
+    return NextResponse.json(
+      { error: "Erreur lors de la récupération des créneaux" },
+      { status: 500 }
+    )
+  }
+}
+
