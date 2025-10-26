@@ -63,7 +63,28 @@ export async function GET(request: NextRequest) {
 
     // Générer tous les créneaux et vérifier leur disponibilité
     const allSlots = generateTimeSlots()
-    const availableSlots = allSlots.filter(slot => !isSlotOverlapping(slot, bookings))
+    
+    // Vérifier si c'est le jour actuel
+    const today = new Date()
+    const isToday = date.getDate() === today.getDate() && 
+                    date.getMonth() === today.getMonth() && 
+                    date.getFullYear() === today.getFullYear()
+    
+    let availableSlots = allSlots.filter(slot => !isSlotOverlapping(slot, bookings))
+    
+    // Si c'est le jour actuel, filtrer les créneaux passés
+    if (isToday) {
+      const now = new Date()
+      const currentHour = now.getHours()
+      const currentMinute = now.getMinutes()
+      const currentTime = currentHour * 60 + currentMinute
+      
+      availableSlots = availableSlots.filter(slot => {
+        const [hours, minutes] = slot.split(':').map(Number)
+        const slotTime = hours * 60 + minutes
+        return slotTime > currentTime
+      })
+    }
 
     // Organiser par période
     const morningSlots = availableSlots.filter(slot => {

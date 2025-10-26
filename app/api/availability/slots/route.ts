@@ -67,11 +67,35 @@ export async function GET(request: NextRequest) {
         // Générer tous les créneaux et vérifier leur disponibilité
         const allSlots = generateTimeSlots()
         
+        // Vérifier si c'est le jour actuel
+        const today = new Date()
+        const isToday = date.getDate() === today.getDate() && 
+                        date.getMonth() === today.getMonth() && 
+                        date.getFullYear() === today.getFullYear()
+        
         // Créer des objets avec statut pour chaque créneau
-        const slotsWithStatus = allSlots.map(slot => ({
-          time: slot,
-          available: isSlotAvailable(slot, bookings)
-        }))
+        const slotsWithStatus = allSlots.map(slot => {
+          let available = isSlotAvailable(slot, bookings)
+          
+          // Si c'est le jour actuel, vérifier que le créneau n'est pas passé
+          if (isToday && available) {
+            const now = new Date()
+            const currentHour = now.getHours()
+            const currentMinute = now.getMinutes()
+            const currentTime = currentHour * 60 + currentMinute
+            
+            const [hours, minutes] = slot.split(':').map(Number)
+            const slotTime = hours * 60 + minutes
+            
+            // Le créneau doit être dans le futur
+            available = slotTime > currentTime
+          }
+          
+          return {
+            time: slot,
+            available: available
+          }
+        })
 
         // Organiser par période avec statut
         const morningSlots = slotsWithStatus.filter(slot => {

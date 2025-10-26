@@ -23,6 +23,7 @@ export default function BookingPage() {
     email: "",
     phone: "",
     firstConsultation: null as boolean | null,
+    consultationReason: "",
     message: "",
   })
   const [selectedCountry, setSelectedCountry] = useState("FR")
@@ -30,12 +31,44 @@ export default function BookingPage() {
   const [formErrors, setFormErrors] = useState<{[key: string]: string}>({})
   const [isValidating, setIsValidating] = useState(false)
   const [availableDates, setAvailableDates] = useState<number[]>([])
-  const [isLoadingDates, setIsLoadingDates] = useState(true) // Commence en loading
   const [morningAvailable, setMorningAvailable] = useState(true)
   const [afternoonAvailable, setAfternoonAvailable] = useState(true)
   const [isLoadingPeriods, setIsLoadingPeriods] = useState(false)
   const [availableTimeSlots, setAvailableTimeSlots] = useState<{time: string, available: boolean}[]>([])
   const [isLoadingTimeSlots, setIsLoadingTimeSlots] = useState(false)
+
+  // Fonction pour obtenir l'heure actuelle en France
+  const getCurrentTimeInFrance = () => {
+    const now = new Date()
+    // France est en UTC+1 (hiver) ou UTC+2 (été)
+    const franceTime = new Date(now.toLocaleString("en-US", {timeZone: "Europe/Paris"}))
+    return franceTime
+  }
+
+  // Fonction pour filtrer les horaires du jour même après l'heure actuelle
+  const filterTodayTimeSlots = (slots: {time: string, available: boolean}[]) => {
+    if (!selectedDate) return slots
+    
+    const franceTime = getCurrentTimeInFrance()
+    const selectedDateOnly = new Date(selectedDate.getFullYear(), selectedDate.getMonth(), selectedDate.getDate())
+    const todayOnly = new Date(franceTime.getFullYear(), franceTime.getMonth(), franceTime.getDate())
+    
+    // Si ce n'est pas le jour même, retourner tous les créneaux
+    if (selectedDateOnly.getTime() !== todayOnly.getTime()) {
+      return slots
+    }
+    
+    // Si c'est le jour même, filtrer les créneaux passés
+    const currentHour = franceTime.getHours()
+    const currentMinute = franceTime.getMinutes()
+    const currentTime = currentHour * 60 + currentMinute
+    
+    return slots.filter(slot => {
+      const [hours, minutes] = slot.time.split(':').map(Number)
+      const slotTime = hours * 60 + minutes
+      return slotTime > currentTime
+    })
+  }
 
   // Charger les périodes disponibles quand une date est sélectionnée
   useEffect(() => {
@@ -70,8 +103,7 @@ export default function BookingPage() {
   // Charger les dates disponibles depuis l'API
   useEffect(() => {
     const loadAvailableDates = async () => {
-      setIsLoadingDates(true)
-      setAvailableDates([]) // Vider les dates pendant le chargement
+      // Pas de loading state - garder les dates précédentes
       try {
         const response = await fetch(`/api/availability/dates?month=${currentMonth}&year=${currentYear}`)
         if (response.ok) {
@@ -80,8 +112,6 @@ export default function BookingPage() {
         }
       } catch (error) {
         console.error('Erreur chargement dates:', error)
-      } finally {
-        setIsLoadingDates(false)
       }
     }
     loadAvailableDates()
@@ -133,9 +163,12 @@ export default function BookingPage() {
   const afternoonSlots = ["12:30", "13:00", "13:30", "14:00", "14:30", "15:00", "15:30", "16:00", "16:30", "17:00"]
   
   // Convertir les créneaux avec statut en créneaux simples pour l'affichage
-  const timeSlots = availableTimeSlots.length > 0 
+  const rawTimeSlots = availableTimeSlots.length > 0 
     ? availableTimeSlots 
     : (selectedPeriod === "morning" ? morningSlots.map(time => ({time, available: true})) : selectedPeriod === "afternoon" ? afternoonSlots.map(time => ({time, available: true})) : [])
+  
+  // Filtrer les créneaux du jour même après l'heure actuelle
+  const timeSlots = filterTodayTimeSlots(rawTimeSlots)
 
   const monthNames = [
     "Janvier",
@@ -246,6 +279,16 @@ export default function BookingPage() {
           delete errors.phone
         }
         break
+        
+      case 'consultationReason':
+        if (!value.trim()) {
+          errors.consultationReason = "Le motif de consultation est requis"
+        } else if (value.trim().length < 10) {
+          errors.consultationReason = "Veuillez décrire plus précisément votre motif (minimum 10 caractères)"
+        } else {
+          delete errors.consultationReason
+        }
+        break
     }
     
     setFormErrors(errors)
@@ -283,6 +326,12 @@ export default function BookingPage() {
     
     if (formData.firstConsultation === null) {
       errors.firstConsultation = "Veuillez indiquer si c'est votre première consultation"
+    }
+    
+    if (!formData.consultationReason.trim()) {
+      errors.consultationReason = "Le motif de consultation est requis"
+    } else if (formData.consultationReason.trim().length < 10) {
+      errors.consultationReason = "Veuillez décrire plus précisément votre motif (minimum 10 caractères)"
     }
     
     setFormErrors(errors)
@@ -362,6 +411,7 @@ export default function BookingPage() {
           time: selectedTime,
           period: selectedPeriod,
           firstConsultation: formData.firstConsultation,
+          consultationReason: formData.consultationReason,
           message: formData.message,
         }),
       })
@@ -403,6 +453,7 @@ export default function BookingPage() {
           time: selectedTime,
           period: selectedPeriod,
           firstConsultation: formData.firstConsultation,
+          consultationReason: formData.consultationReason,
           message: formData.message,
         }),
       })
@@ -422,6 +473,15 @@ export default function BookingPage() {
   }
 
   const handlePreviousMonth = () => {
+    const today = new Date()
+    const currentDate = new Date(currentYear, currentMonth)
+    const todayDate = new Date(today.getFullYear(), today.getMonth())
+    
+    // Empêcher de revenir aux mois passés
+    if (currentDate <= todayDate) {
+      return
+    }
+    
     if (currentMonth === 0) {
       setCurrentMonth(11)
       setCurrentYear(currentYear - 1)
@@ -437,6 +497,14 @@ export default function BookingPage() {
     } else {
       setCurrentMonth(currentMonth + 1)
     }
+  }
+
+  // Vérifier si on peut revenir au mois précédent
+  const canGoToPreviousMonth = () => {
+    const franceTime = getCurrentTimeInFrance()
+    const currentDate = new Date(currentYear, currentMonth)
+    const todayDate = new Date(franceTime.getFullYear(), franceTime.getMonth())
+    return currentDate > todayDate
   }
 
   const formatSelectedDate = () => {
@@ -503,16 +571,14 @@ export default function BookingPage() {
       days.push(
         <button
           key={day}
-          onClick={() => isAvailable && !isLoadingDates && handleDateClick(day)}
-          disabled={!isAvailable || isLoadingDates}
-          className={`h-10 sm:h-12 w-10 sm:w-12 rounded-xl text-base font-bold transition-all duration-200 hover:scale-105 focus:outline-none focus:ring-2 focus:ring-offset-1 ${
-            isLoadingDates
-              ? "text-gray-400 bg-gray-100 border border-gray-200 cursor-wait animate-pulse"
-              : isSelected
-                ? "bg-[#0066FF] text-white shadow-lg scale-105 ring-2 ring-[#0066FF] ring-offset-2"
-                : isAvailable
-                  ? "text-[#0066FF] bg-white border-2 border-[#0066FF] hover:bg-blue-50 hover:shadow-md focus:ring-[#0066FF]"
-                  : "text-gray-300 bg-gray-50 border border-gray-200 cursor-not-allowed"
+          onClick={() => isAvailable && handleDateClick(day)}
+          disabled={!isAvailable}
+          className={`h-10 sm:h-12 w-10 sm:w-12 rounded-xl text-base font-bold focus:outline-none focus:ring-2 focus:ring-offset-1 ${
+            isSelected
+              ? "bg-[#0066FF] text-white shadow-lg scale-105 ring-2 ring-[#0066FF] ring-offset-2"
+              : isAvailable
+                ? "text-[#0066FF] bg-white border-2 border-[#0066FF] hover:bg-blue-50 hover:shadow-md focus:ring-[#0066FF]"
+                : "text-gray-300 bg-gray-50 border border-gray-200 cursor-not-allowed"
           }`}
           aria-label={`${day} ${monthNames[currentMonth]}`}
         >
@@ -683,17 +749,24 @@ export default function BookingPage() {
                         <div className="flex items-center justify-between mb-3">
                           <button
                             onClick={handlePreviousMonth}
-                            className="p-2 hover:bg-gray-100 rounded-lg transition-colors duration-200"
+                            disabled={!canGoToPreviousMonth()}
+                            className={`p-2 rounded-lg ${
+                              canGoToPreviousMonth() 
+                                ? "hover:bg-gray-100 cursor-pointer" 
+                                : "cursor-not-allowed opacity-50"
+                            }`}
                             aria-label="Mois précédent"
                           >
-                            <ChevronLeft className="w-5 h-5 text-gray-600" />
+                            <ChevronLeft className={`w-5 h-5 ${
+                              canGoToPreviousMonth() ? "text-gray-600" : "text-gray-400"
+                            }`} />
                           </button>
                           <h2 className="text-lg font-bold text-gray-900">
                             {monthNames[currentMonth]} {currentYear}
                           </h2>
                           <button
                             onClick={handleNextMonth}
-                            className="p-2 hover:bg-gray-100 rounded-lg transition-colors duration-200"
+                            className="p-2 hover:bg-gray-100 rounded-lg"
                             aria-label="Mois suivant"
                           >
                             <ChevronRight className="w-5 h-5 text-gray-600" />
@@ -720,9 +793,9 @@ export default function BookingPage() {
                           <button
                             onClick={() => morningAvailable && !isLoadingPeriods && handlePeriodClick("morning")}
                             disabled={!morningAvailable || isLoadingPeriods}
-                            className={`flex-1 px-4 py-3 rounded-xl text-sm font-semibold transition-all duration-200 ${
+                            className={`flex-1 px-4 py-3 rounded-xl text-sm font-semibold ${
                               isLoadingPeriods
-                                ? "bg-gray-100 text-gray-400 border-2 border-gray-200 cursor-wait animate-pulse"
+                                ? "bg-gray-100 text-gray-400 border-2 border-gray-200 cursor-wait"
                                 : !morningAvailable
                                   ? "bg-gray-50 text-gray-400 border-2 border-gray-200 cursor-not-allowed opacity-50"
                                   : selectedPeriod === "morning"
@@ -735,9 +808,9 @@ export default function BookingPage() {
                           <button
                             onClick={() => afternoonAvailable && !isLoadingPeriods && handlePeriodClick("afternoon")}
                             disabled={!afternoonAvailable || isLoadingPeriods}
-                            className={`flex-1 px-4 py-3 rounded-xl text-sm font-semibold transition-all duration-200 ${
+                            className={`flex-1 px-4 py-3 rounded-xl text-sm font-semibold ${
                               isLoadingPeriods
-                                ? "bg-gray-100 text-gray-400 border-2 border-gray-200 cursor-wait animate-pulse"
+                                ? "bg-gray-100 text-gray-400 border-2 border-gray-200 cursor-wait"
                                 : !afternoonAvailable
                                   ? "bg-gray-50 text-gray-400 border-2 border-gray-200 cursor-not-allowed opacity-50"
                                   : selectedPeriod === "afternoon"
@@ -752,7 +825,7 @@ export default function BookingPage() {
                     </div>
 
                     {(currentStep === 2 || currentStep === 3) && selectedDate && selectedPeriod && (
-                      <div className="flex-1 animate-in fade-in slide-in-from-bottom lg:slide-in-from-right duration-500">
+                      <div className="flex-1">
                         {/* Titre pour mobile */}
                         <div className="lg:hidden mb-6">
                           <h2 className="text-xl font-bold text-[#0066FF] text-center">
@@ -772,7 +845,7 @@ export default function BookingPage() {
                         <div className="space-y-2 sm:space-y-3 max-h-[400px] lg:max-h-[500px] overflow-y-auto pr-2 scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-gray-100">
                           {isLoadingTimeSlots ? (
                             <div className="flex items-center justify-center py-8">
-                              <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-[#0066FF]"></div>
+                              <div className="rounded-full h-8 w-8 border-b-2 border-[#0066FF]"></div>
                               <span className="ml-3 text-gray-600">Chargement des créneaux...</span>
                             </div>
                           ) : timeSlots.length === 0 ? (
@@ -781,18 +854,18 @@ export default function BookingPage() {
                             </div>
                           ) : (
                             timeSlots.map((slot, index) => (
-                            <div key={slot.time} className="animate-in fade-in slide-in-from-bottom" style={{ animationDelay: `${index * 30}ms` }}>
+                            <div key={slot.time}>
                               {selectedTime === slot.time ? (
                                 <div className="flex gap-2 sm:gap-3">
                               <button
-                                      className="flex-1 px-4 sm:px-6 py-3 sm:py-4 rounded-xl border-2 text-sm sm:text-base font-semibold bg-[#0066FF] text-white border-[#0066FF] shadow-lg scale-[1.02] transition-all duration-200"
+                                      className="flex-1 px-4 sm:px-6 py-3 sm:py-4 rounded-xl border-2 text-sm sm:text-base font-semibold bg-[#0066FF] text-white border-[#0066FF] shadow-lg scale-[1.02]"
                                       disabled
                                     >
                                       ✓ {slot.time}
                               </button>
                               <Button
                                 onClick={handleNextClick}
-                                      className="flex-1 bg-white text-[#0066FF] border-2 border-[#0066FF] hover:bg-blue-50 hover:shadow-md py-3 sm:py-4 rounded-xl text-sm sm:text-base font-semibold transition-all duration-200 hover:scale-[1.02] focus:outline-none focus:ring-2 focus:ring-[#0066FF] focus:ring-offset-2 h-full"
+                                      className="flex-1 bg-white text-[#0066FF] border-2 border-[#0066FF] hover:bg-blue-50 hover:shadow-md py-3 sm:py-4 rounded-xl text-sm sm:text-base font-semibold hover:scale-[1.02] focus:outline-none focus:ring-2 focus:ring-[#0066FF] focus:ring-offset-2 h-full"
                               >
                                 Suivant
                               </Button>
@@ -801,7 +874,7 @@ export default function BookingPage() {
                               <button
                                 onClick={() => slot.available && handleTimeClick(slot.time)}
                                 disabled={!slot.available}
-                                className={`w-full px-4 sm:px-6 py-3 sm:py-4 rounded-xl border-2 text-sm sm:text-base font-semibold transition-all duration-200 hover:scale-[1.02] focus:outline-none focus:ring-2 focus:ring-offset-2 ${
+                                className={`w-full px-4 sm:px-6 py-3 sm:py-4 rounded-xl border-2 text-sm sm:text-base font-semibold hover:scale-[1.02] focus:outline-none focus:ring-2 focus:ring-offset-2 ${
                                   slot.available
                                     ? "bg-white text-[#0066FF] border-[#0066FF] hover:bg-blue-50 hover:shadow-md focus:ring-[#0066FF]"
                                     : "bg-gray-100 text-gray-400 border-gray-200 cursor-not-allowed opacity-60"
@@ -820,7 +893,7 @@ export default function BookingPage() {
                     )}
                   </div>
                 ) : currentStep === 5 ? (
-                  <div className="max-w-2xl mx-auto w-full animate-in fade-in slide-in-from-bottom duration-500">
+                  <div className="max-w-2xl mx-auto w-full">
                     {/* Titre pour mobile */}
                     <div className="lg:hidden mb-6">
                       <h2 className="text-xl font-bold text-[#0066FF] text-center">Confirmation</h2>
@@ -932,7 +1005,7 @@ export default function BookingPage() {
                               message: "",
                             })
                           }}
-                          className="w-full bg-[#0066FF] text-white py-3 px-6 rounded-xl font-semibold hover:bg-[#0052CC] transition-colors duration-200"
+                          className="w-full bg-[#0066FF] text-white py-3 px-6 rounded-xl font-semibold hover:bg-[#0052CC] "
                         >
                           Prendre un nouveau rendez-vous
                         </button>
@@ -940,7 +1013,7 @@ export default function BookingPage() {
                     </div>
                   </div>
                 ) : currentStep === 6 ? (
-                  <div className="max-w-2xl mx-auto w-full animate-in fade-in slide-in-from-bottom duration-500">
+                  <div className="max-w-2xl mx-auto w-full">
                     {/* Titre pour mobile */}
                     <div className="lg:hidden mb-6">
                       <h2 className="text-xl font-bold text-[#0066FF] text-center">Erreur</h2>
@@ -987,7 +1060,7 @@ export default function BookingPage() {
                           <button
                             onClick={handleRetry}
                             disabled={isRetrying}
-                            className={`flex-1 py-3 px-6 rounded-xl font-semibold transition-colors duration-200 ${
+                            className={`flex-1 py-3 px-6 rounded-xl font-semibold  ${
                               isRetrying
                                 ? 'bg-gray-400 text-white cursor-not-allowed'
                                 : 'bg-[#0066FF] text-white hover:bg-[#0052CC]'
@@ -995,7 +1068,7 @@ export default function BookingPage() {
                           >
                             {isRetrying ? (
                               <div className="flex items-center justify-center gap-2">
-                                <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
+                                <div className="rounded-full h-4 w-4 border-b-2 border-white"></div>
                                 Nouvelle tentative...
                               </div>
                             ) : (
@@ -1017,7 +1090,7 @@ export default function BookingPage() {
                                 message: "",
                               })
                             }}
-                            className="flex-1 bg-gray-100 text-gray-700 py-3 px-6 rounded-xl font-semibold hover:bg-gray-200 transition-colors duration-200"
+                            className="flex-1 bg-gray-100 text-gray-700 py-3 px-6 rounded-xl font-semibold hover:bg-gray-200 "
                           >
                             Recommencer
                           </button>
@@ -1026,7 +1099,7 @@ export default function BookingPage() {
                     </div>
                   </div>
                 ) : (
-                  <div className="max-w-2xl mx-auto w-full animate-in fade-in slide-in-from-bottom duration-500">
+                  <div className="max-w-2xl mx-auto w-full">
 
           <div className="mb-8">
                       <div className="flex items-center justify-between mb-4">
@@ -1038,7 +1111,7 @@ export default function BookingPage() {
                         </div>
                         <button
                           onClick={handleBack}
-                          className="flex items-center gap-1 px-2 py-1 text-xs font-medium text-[#0066FF] bg-blue-50 hover:bg-blue-100 rounded-md transition-colors duration-200"
+                          className="flex items-center gap-1 px-2 py-1 text-xs font-medium text-[#0066FF] bg-blue-50 hover:bg-blue-100 rounded-md "
                         >
                           <ChevronLeft className="w-3 h-3" />
                           Retour
@@ -1063,7 +1136,7 @@ export default function BookingPage() {
                             setFormData({ ...formData, firstName: value })
                             validateField('firstName', value)
                           }}
-                          className={`w-full h-11 sm:h-12 px-4 rounded-xl border-2 focus:ring-2 focus:ring-offset-2 transition-all duration-200 ${
+                          className={`w-full h-11 sm:h-12 px-4 rounded-xl border-2 focus:ring-2 focus:ring-offset-2  ${
                             formErrors.firstName 
                               ? 'border-red-300 focus:border-red-500 focus:ring-red-500' 
                               : 'border-gray-200 focus:border-[#0066FF] focus:ring-[#0066FF]'
@@ -1085,7 +1158,7 @@ export default function BookingPage() {
                             setFormData({ ...formData, lastName: value })
                             validateField('lastName', value)
                           }}
-                          className={`w-full h-11 sm:h-12 px-4 rounded-xl border-2 focus:ring-2 focus:ring-offset-2 transition-all duration-200 ${
+                          className={`w-full h-11 sm:h-12 px-4 rounded-xl border-2 focus:ring-2 focus:ring-offset-2  ${
                             formErrors.lastName 
                               ? 'border-red-300 focus:border-red-500 focus:ring-red-500' 
                               : 'border-gray-200 focus:border-[#0066FF] focus:ring-[#0066FF]'
@@ -1107,7 +1180,7 @@ export default function BookingPage() {
                             setFormData({ ...formData, email: value })
                             validateField('email', value)
                           }}
-                          className={`w-full h-11 sm:h-12 px-4 rounded-xl border-2 focus:ring-2 focus:ring-offset-2 transition-all duration-200 ${
+                          className={`w-full h-11 sm:h-12 px-4 rounded-xl border-2 focus:ring-2 focus:ring-offset-2  ${
                             formErrors.email 
                               ? 'border-red-300 focus:border-red-500 focus:ring-red-500' 
                               : 'border-gray-200 focus:border-[#0066FF] focus:ring-[#0066FF]'
@@ -1126,7 +1199,7 @@ export default function BookingPage() {
                             <button
                               type="button"
                               onClick={() => setShowCountryDropdown(!showCountryDropdown)}
-                              className="flex items-center gap-2 px-3 py-3 h-11 sm:h-12 border-2 border-gray-200 rounded-xl hover:border-[#0066FF] transition-colors duration-200 bg-white"
+                              className="flex items-center gap-2 px-3 py-3 h-11 sm:h-12 border-2 border-gray-200 rounded-xl hover:border-[#0066FF]  bg-white"
                             >
                               <span className="text-lg">{selectedCountryData.flag}</span>
                               <span className="text-sm font-medium text-gray-700">{selectedCountryData.phoneCode}</span>
@@ -1143,7 +1216,7 @@ export default function BookingPage() {
                                       setSelectedCountry(country.code)
                                       setShowCountryDropdown(false)
                                     }}
-                                    className="w-full flex items-center gap-3 px-4 py-3 text-left hover:bg-gray-50 transition-colors duration-200"
+                                    className="w-full flex items-center gap-3 px-4 py-3 text-left hover:bg-gray-50 "
                                   >
                                     <span className="text-lg">{country.flag}</span>
                                     <span className="text-sm font-medium text-gray-700">{country.phoneCode}</span>
@@ -1167,7 +1240,7 @@ export default function BookingPage() {
                                 setSelectedCountry(detectedCountry)
                               }
                             }}
-                            className={`flex-1 h-11 sm:h-12 px-4 rounded-xl border-2 focus:ring-2 focus:ring-offset-2 transition-all duration-200 ${
+                            className={`flex-1 h-11 sm:h-12 px-4 rounded-xl border-2 focus:ring-2 focus:ring-offset-2  ${
                               formErrors.phone 
                                 ? 'border-red-300 focus:border-red-500 focus:ring-red-500' 
                                 : 'border-gray-200 focus:border-[#0066FF] focus:ring-[#0066FF]'
@@ -1191,7 +1264,7 @@ export default function BookingPage() {
                                 setFormErrors({ ...formErrors, firstConsultation: "" })
                               }
                             }}
-                            className={`flex-1 py-3 px-4 rounded-xl text-sm font-semibold transition-all duration-200 ${
+                            className={`flex-1 py-3 px-4 rounded-xl text-sm font-semibold  ${
                               formData.firstConsultation === true
                                 ? "bg-[#0066FF] text-white shadow-lg scale-105"
                                 : "bg-white text-[#0066FF] border-2 border-[#0066FF] hover:bg-blue-50 hover:shadow-md"
@@ -1207,7 +1280,7 @@ export default function BookingPage() {
                                 setFormErrors({ ...formErrors, firstConsultation: "" })
                               }
                             }}
-                            className={`flex-1 py-3 px-4 rounded-xl text-sm font-semibold transition-all duration-200 ${
+                            className={`flex-1 py-3 px-4 rounded-xl text-sm font-semibold  ${
                               formData.firstConsultation === false
                                 ? "bg-[#0066FF] text-white shadow-lg scale-105"
                                 : "bg-white text-[#0066FF] border-2 border-[#0066FF] hover:bg-blue-50 hover:shadow-md"
@@ -1222,23 +1295,46 @@ export default function BookingPage() {
                       </div>
 
                       <div>
+                        <label className="block text-sm font-bold text-gray-900 mb-2">
+                          Motif de consultation <span className="text-red-500">*</span>
+                        </label>
+                        <textarea
+                          value={formData.consultationReason}
+                          onChange={(e) => {
+                            const value = e.target.value
+                            setFormData({ ...formData, consultationReason: value })
+                            validateField('consultationReason', value)
+                          }}
+                          className={`w-full h-24 px-4 py-3 rounded-xl border-2 focus:ring-2 focus:ring-offset-2 resize-none ${
+                            formErrors.consultationReason 
+                              ? 'border-red-300 focus:border-red-500 focus:ring-red-500' 
+                              : 'border-gray-200 focus:border-[#0066FF] focus:ring-[#0066FF]'
+                          }`}
+                          placeholder="Décrivez le motif de votre consultation (ex: douleur, suivi médical, bilan de santé, etc.)"
+                        />
+                        {formErrors.consultationReason && (
+                          <p className="mt-1 text-xs text-red-600">{formErrors.consultationReason}</p>
+                        )}
+                      </div>
+
+                      <div>
                         <label className="block text-sm font-bold text-gray-900 mb-2">Message (optionnel)</label>
                         <textarea
                           value={formData.message}
                           onChange={(e) => setFormData({ ...formData, message: e.target.value })}
-                          className="w-full h-24 px-4 py-3 rounded-xl border-2 border-gray-200 focus:border-[#0066FF] focus:ring-2 focus:ring-[#0066FF] focus:ring-offset-2 transition-all duration-200 resize-none"
-                          placeholder="Décrivez brièvement vos besoins ou questions..."
+                          className="w-full h-24 px-4 py-3 rounded-xl border-2 border-gray-200 focus:border-[#0066FF] focus:ring-2 focus:ring-[#0066FF] focus:ring-offset-2  resize-none"
+                          placeholder="Informations complémentaires ou questions spécifiques..."
                         />
                       </div>
 
                       <Button
                         type="submit"
                         disabled={isSubmitting}
-                        className="w-full bg-[#0066FF] text-white py-4 px-6 rounded-xl font-semibold hover:bg-[#0052CC] transition-colors duration-200 disabled:opacity-50 disabled:cursor-not-allowed mb-8"
+                        className="w-full bg-[#0066FF] text-white py-4 px-6 rounded-xl font-semibold hover:bg-[#0052CC]  disabled:opacity-50 disabled:cursor-not-allowed mb-8"
                       >
                         {isSubmitting ? (
                           <div className="flex items-center gap-2">
-                            <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                            <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full"></div>
                             Envoi en cours...
                           </div>
                         ) : (
@@ -1272,14 +1368,14 @@ export default function BookingPage() {
           </div>
 
           <div className="space-y-4 mb-8">
-            <div className="flex items-center gap-3 text-sm text-gray-700 p-3 rounded-lg hover:bg-white transition-colors duration-200">
+            <div className="flex items-center gap-3 text-sm text-gray-700 p-3 rounded-lg hover:bg-white ">
               <div className="w-8 h-8 rounded-full bg-blue-50 flex items-center justify-center flex-shrink-0">
                 <Clock className="w-4 h-4 text-[#0066FF]" />
               </div>
               <span className="font-medium">1h modulable selon le besoin</span>
             </div>
 
-            <div className="flex items-center gap-3 text-sm text-gray-700 p-3 rounded-lg hover:bg-white transition-colors duration-200">
+            <div className="flex items-center gap-3 text-sm text-gray-700 p-3 rounded-lg hover:bg-white ">
               <div className="w-8 h-8 rounded-full bg-blue-50 flex items-center justify-center flex-shrink-0">
                 <MapPin className="w-4 h-4 text-[#0066FF]" />
               </div>
@@ -1288,7 +1384,7 @@ export default function BookingPage() {
 
             {selectedDate && (
               <div className="space-y-4">
-                <div className="flex items-center gap-3 text-sm text-gray-700 p-3 rounded-lg hover:bg-white transition-colors duration-200">
+                <div className="flex items-center gap-3 text-sm text-gray-700 p-3 rounded-lg hover:bg-white ">
                   <div className="w-8 h-8 rounded-full bg-blue-50 flex items-center justify-center flex-shrink-0">
                     <Calendar className="w-4 h-4 text-[#0066FF]" />
                 </div>
@@ -1298,7 +1394,7 @@ export default function BookingPage() {
               </div>
 
                 {currentStep >= 4 && selectedTime && (
-            <div className="flex items-center gap-3 text-sm text-gray-700 p-3 rounded-lg hover:bg-white transition-colors duration-200">
+            <div className="flex items-center gap-3 text-sm text-gray-700 p-3 rounded-lg hover:bg-white ">
               <div className="w-8 h-8 rounded-full bg-blue-50 flex items-center justify-center flex-shrink-0">
                       <Clock className="w-4 h-4 text-[#0066FF]" />
               </div>
@@ -1412,7 +1508,7 @@ export default function BookingPage() {
           <div className="mt-auto pt-8 border-t border-gray-200">
             <a
               href="#"
-              className="text-xs text-[#0066FF] hover:text-[#0052CC] font-medium hover:underline transition-colors duration-200 inline-flex items-center gap-1"
+              className="text-xs text-[#0066FF] hover:text-[#0052CC] font-medium hover:underline  inline-flex items-center gap-1"
             >
               Paramètres des cookies
             </a>
@@ -1541,17 +1637,24 @@ export default function BookingPage() {
                     <div className="flex items-center justify-between mb-3">
                       <button
                         onClick={handlePreviousMonth}
-                        className="p-2 hover:bg-gray-100 rounded-lg transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-[#0066FF]"
+                        disabled={!canGoToPreviousMonth()}
+                        className={`p-2 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#0066FF] ${
+                          canGoToPreviousMonth() 
+                            ? "hover:bg-gray-100 cursor-pointer" 
+                            : "cursor-not-allowed opacity-50"
+                        }`}
                         aria-label="Mois précédent"
                       >
-                        <ChevronLeft className="w-5 h-5 text-gray-700" />
+                        <ChevronLeft className={`w-5 h-5 ${
+                          canGoToPreviousMonth() ? "text-gray-700" : "text-gray-400"
+                        }`} />
                       </button>
                       <h3 className="text-base sm:text-lg font-bold text-gray-900">
                         {monthNames[currentMonth]} {currentYear}
                       </h3>
                       <button
                         onClick={handleNextMonth}
-                        className="p-2 hover:bg-gray-100 rounded-lg transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-[#0066FF]"
+                        className="p-2 hover:bg-gray-100 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#0066FF]"
                         aria-label="Mois suivant"
                       >
                         <ChevronRight className="w-5 h-5 text-gray-700" />
@@ -1580,7 +1683,7 @@ export default function BookingPage() {
                         <button
                           onClick={() => morningAvailable && !isLoadingPeriods && handlePeriodClick("morning")}
                           disabled={!morningAvailable || isLoadingPeriods}
-                          className={`flex-1 px-4 py-3 rounded-xl border-2 text-sm font-semibold transition-all duration-200 hover:scale-[1.02] focus:outline-none focus:ring-2 focus:ring-offset-2 ${
+                          className={`flex-1 px-4 py-3 rounded-xl border-2 text-sm font-semibold  hover:scale-[1.02] focus:outline-none focus:ring-2 focus:ring-offset-2 ${
                             isLoadingPeriods
                               ? "bg-gray-100 text-gray-400 border-gray-200 cursor-wait animate-pulse"
                               : !morningAvailable
@@ -1595,7 +1698,7 @@ export default function BookingPage() {
                         <button
                           onClick={() => afternoonAvailable && !isLoadingPeriods && handlePeriodClick("afternoon")}
                           disabled={!afternoonAvailable || isLoadingPeriods}
-                          className={`flex-1 px-4 py-3 rounded-xl border-2 text-sm font-semibold transition-all duration-200 hover:scale-[1.02] focus:outline-none focus:ring-2 focus:ring-offset-2 ${
+                          className={`flex-1 px-4 py-3 rounded-xl border-2 text-sm font-semibold  hover:scale-[1.02] focus:outline-none focus:ring-2 focus:ring-offset-2 ${
                             isLoadingPeriods
                               ? "bg-gray-100 text-gray-400 border-gray-200 cursor-wait animate-pulse"
                               : !afternoonAvailable
@@ -1647,14 +1750,14 @@ export default function BookingPage() {
                           {selectedTime === slot.time ? (
                             <div className="flex gap-2 sm:gap-3">
                         <button
-                                className="flex-1 px-4 sm:px-6 py-3 sm:py-4 rounded-xl border-2 text-sm sm:text-base font-semibold bg-[#0066FF] text-white border-[#0066FF] shadow-lg scale-[1.02] transition-all duration-200"
+                                className="flex-1 px-4 sm:px-6 py-3 sm:py-4 rounded-xl border-2 text-sm sm:text-base font-semibold bg-[#0066FF] text-white border-[#0066FF] shadow-lg scale-[1.02] "
                                 disabled
                               >
                                 ✓ {slot.time}
                         </button>
                         <Button
                           onClick={handleNextClick}
-                                className="flex-1 bg-white text-[#0066FF] border-2 border-[#0066FF] hover:bg-blue-50 hover:shadow-md py-3 sm:py-4 rounded-xl text-sm sm:text-base font-semibold transition-all duration-200 hover:scale-[1.02] focus:outline-none focus:ring-2 focus:ring-[#0066FF] focus:ring-offset-2 h-full"
+                                className="flex-1 bg-white text-[#0066FF] border-2 border-[#0066FF] hover:bg-blue-50 hover:shadow-md py-3 sm:py-4 rounded-xl text-sm sm:text-base font-semibold  hover:scale-[1.02] focus:outline-none focus:ring-2 focus:ring-[#0066FF] focus:ring-offset-2 h-full"
                         >
                           Suivant
                         </Button>
@@ -1663,7 +1766,7 @@ export default function BookingPage() {
                         <button
                           onClick={() => slot.available && handleTimeClick(slot.time)}
                           disabled={!slot.available}
-                          className={`w-full px-4 sm:px-6 py-3 sm:py-4 rounded-xl border-2 text-sm sm:text-base font-semibold transition-all duration-200 hover:scale-[1.02] focus:outline-none focus:ring-2 focus:ring-offset-2 ${
+                          className={`w-full px-4 sm:px-6 py-3 sm:py-4 rounded-xl border-2 text-sm sm:text-base font-semibold  hover:scale-[1.02] focus:outline-none focus:ring-2 focus:ring-offset-2 ${
                             slot.available
                               ? "bg-white text-[#0066FF] border-[#0066FF] hover:bg-blue-50 hover:shadow-md focus:ring-[#0066FF]"
                               : "bg-gray-100 text-gray-400 border-gray-200 cursor-not-allowed opacity-60"
@@ -1794,7 +1897,7 @@ export default function BookingPage() {
                           message: "",
                         })
                       }}
-                      className="w-full bg-[#0066FF] text-white py-3 px-6 rounded-xl font-semibold hover:bg-[#0052CC] transition-colors duration-200"
+                      className="w-full bg-[#0066FF] text-white py-3 px-6 rounded-xl font-semibold hover:bg-[#0052CC] "
                     >
                       Prendre un nouveau rendez-vous
                     </button>
@@ -1849,7 +1952,7 @@ export default function BookingPage() {
                       <button
                         onClick={handleRetry}
                         disabled={isRetrying}
-                        className={`flex-1 py-3 px-6 rounded-xl font-semibold transition-colors duration-200 ${
+                        className={`flex-1 py-3 px-6 rounded-xl font-semibold  ${
                           isRetrying
                             ? 'bg-gray-400 text-white cursor-not-allowed'
                             : 'bg-[#0066FF] text-white hover:bg-[#0052CC]'
@@ -1879,7 +1982,7 @@ export default function BookingPage() {
                             message: "",
                           })
                         }}
-                        className="flex-1 bg-gray-100 text-gray-700 py-3 px-6 rounded-xl font-semibold hover:bg-gray-200 transition-colors duration-200"
+                        className="flex-1 bg-gray-100 text-gray-700 py-3 px-6 rounded-xl font-semibold hover:bg-gray-200 "
                       >
                         Recommencer
                       </button>
@@ -1900,7 +2003,7 @@ export default function BookingPage() {
                     </div>
                     <button
                       onClick={handleBack}
-                      className="flex items-center gap-1 px-2 py-1 text-xs font-medium text-[#0066FF] bg-blue-50 hover:bg-blue-100 rounded-md transition-colors duration-200"
+                      className="flex items-center gap-1 px-2 py-1 text-xs font-medium text-[#0066FF] bg-blue-50 hover:bg-blue-100 rounded-md "
                     >
                       <ChevronLeft className="w-3 h-3" />
                       Retour
@@ -1926,7 +2029,7 @@ export default function BookingPage() {
                           setFormErrors({ ...formErrors, firstName: "" })
                         }
                       }}
-                      className={`w-full h-11 sm:h-12 px-4 rounded-xl border-2 focus:ring-2 focus:ring-offset-2 transition-all duration-200 ${
+                      className={`w-full h-11 sm:h-12 px-4 rounded-xl border-2 focus:ring-2 focus:ring-offset-2  ${
                         formErrors.firstName 
                           ? 'border-red-300 focus:border-red-500 focus:ring-red-500' 
                           : 'border-gray-200 focus:border-[#0066FF] focus:ring-[#0066FF]'
@@ -1949,7 +2052,7 @@ export default function BookingPage() {
                           setFormErrors({ ...formErrors, lastName: "" })
                         }
                       }}
-                      className={`w-full h-11 sm:h-12 px-4 rounded-xl border-2 focus:ring-2 focus:ring-offset-2 transition-all duration-200 ${
+                      className={`w-full h-11 sm:h-12 px-4 rounded-xl border-2 focus:ring-2 focus:ring-offset-2  ${
                         formErrors.lastName 
                           ? 'border-red-300 focus:border-red-500 focus:ring-red-500' 
                           : 'border-gray-200 focus:border-[#0066FF] focus:ring-[#0066FF]'
@@ -1972,7 +2075,7 @@ export default function BookingPage() {
                           setFormErrors({ ...formErrors, email: "" })
                         }
                       }}
-                      className={`w-full h-11 sm:h-12 px-4 rounded-xl border-2 focus:ring-2 focus:ring-offset-2 transition-all duration-200 ${
+                      className={`w-full h-11 sm:h-12 px-4 rounded-xl border-2 focus:ring-2 focus:ring-offset-2  ${
                         formErrors.email 
                           ? 'border-red-300 focus:border-red-500 focus:ring-red-500' 
                           : 'border-gray-200 focus:border-[#0066FF] focus:ring-[#0066FF]'
@@ -1991,7 +2094,7 @@ export default function BookingPage() {
                         <button
                           type="button"
                           onClick={() => setShowCountryDropdown(!showCountryDropdown)}
-                          className="w-16 sm:w-18 h-11 sm:h-12 flex items-center justify-center gap-1 border-2 border-gray-200 rounded-xl bg-gray-50 hover:bg-gray-100 transition-colors duration-200"
+                          className="w-16 sm:w-18 h-11 sm:h-12 flex items-center justify-center gap-1 border-2 border-gray-200 rounded-xl bg-gray-50 hover:bg-gray-100 "
                         >
                           <span className="text-lg">{selectedCountryData.flag}</span>
                           <ChevronDown className="w-3 h-3 text-gray-500" />
@@ -2007,7 +2110,7 @@ export default function BookingPage() {
                                   setSelectedCountry(country.code)
                                   setShowCountryDropdown(false)
                                 }}
-                                className="w-full flex items-center gap-3 px-4 py-3 hover:bg-gray-50 transition-colors duration-200 text-left"
+                                className="w-full flex items-center gap-3 px-4 py-3 hover:bg-gray-50  text-left"
                               >
                                 <span className="text-lg">{country.flag}</span>
                                 <span className="text-sm font-medium text-gray-900">{country.name}</span>
@@ -2032,7 +2135,7 @@ export default function BookingPage() {
                             setSelectedCountry(detectedCountry)
                           }
                         }}
-                        className={`flex-1 h-11 sm:h-12 px-4 rounded-xl border-2 focus:ring-2 focus:ring-offset-2 transition-all duration-200 ${
+                        className={`flex-1 h-11 sm:h-12 px-4 rounded-xl border-2 focus:ring-2 focus:ring-offset-2  ${
                           formErrors.phone 
                             ? 'border-red-300 focus:border-red-500 focus:ring-red-500' 
                             : 'border-gray-200 focus:border-[#0066FF] focus:ring-[#0066FF]'
@@ -2053,7 +2156,7 @@ export default function BookingPage() {
                       Est-ce une première consultation ? *
                     </label>
                     <div className="flex flex-col sm:flex-row gap-3 sm:gap-4">
-                      <label className={`flex items-center gap-3 cursor-pointer p-4 rounded-xl border-2 transition-all duration-200 flex-1 ${
+                      <label className={`flex items-center gap-3 cursor-pointer p-4 rounded-xl border-2  flex-1 ${
                         formErrors.firstConsultation 
                           ? 'border-red-300 hover:border-red-400' 
                           : 'border-gray-200 hover:border-[#0066FF] hover:bg-blue-50'
@@ -2072,7 +2175,7 @@ export default function BookingPage() {
                         />
                         <span className="text-base font-medium text-gray-900">Oui</span>
                       </label>
-                      <label className={`flex items-center gap-3 cursor-pointer p-4 rounded-xl border-2 transition-all duration-200 flex-1 ${
+                      <label className={`flex items-center gap-3 cursor-pointer p-4 rounded-xl border-2  flex-1 ${
                         formErrors.firstConsultation 
                           ? 'border-red-300 hover:border-red-400' 
                           : 'border-gray-200 hover:border-[#0066FF] hover:bg-blue-50'
@@ -2099,12 +2202,35 @@ export default function BookingPage() {
 
                   <div>
                     <label className="block text-sm font-bold text-gray-900 mb-2">
+                      Motif de consultation <span className="text-red-500">*</span>
+                    </label>
+                    <textarea
+                      value={formData.consultationReason}
+                      onChange={(e) => {
+                        const value = e.target.value
+                        setFormData({ ...formData, consultationReason: value })
+                        validateField('consultationReason', value)
+                      }}
+                      className={`w-full h-24 px-4 py-3 rounded-xl border-2 focus:ring-2 focus:ring-offset-2 resize-none ${
+                        formErrors.consultationReason 
+                          ? 'border-red-300 focus:border-red-500 focus:ring-red-500' 
+                          : 'border-gray-200 focus:border-[#0066FF] focus:ring-[#0066FF]'
+                      }`}
+                      placeholder="Décrivez le motif de votre consultation (ex: douleur, suivi médical, bilan de santé, etc.)"
+                    />
+                    {formErrors.consultationReason && (
+                      <p className="mt-1 text-xs text-red-600">{formErrors.consultationReason}</p>
+                    )}
+                  </div>
+
+                  <div>
+                    <label className="block text-sm font-bold text-gray-900 mb-2">
                       Message (optionnel)
                     </label>
                     <textarea
                       value={formData.message}
                       onChange={(e) => setFormData({ ...formData, message: e.target.value })}
-                      className="w-full h-24 px-4 py-3 rounded-xl border-2 border-gray-200 focus:border-[#0066FF] focus:ring-2 focus:ring-[#0066FF] focus:ring-offset-2 transition-all duration-200 resize-none"
+                      className="w-full h-24 px-4 py-3 rounded-xl border-2 border-gray-200 focus:border-[#0066FF] focus:ring-2 focus:ring-[#0066FF] focus:ring-offset-2  resize-none"
                       placeholder="Ajoutez un message ou des informations supplémentaires..."
                     />
                   </div>
@@ -2114,7 +2240,7 @@ export default function BookingPage() {
                       En confirmant ce rendez-vous, vous acceptez nos{" "}
                       <a
                         href="#"
-                        className="text-[#0066FF] hover:text-[#0052CC] font-semibold hover:underline transition-colors duration-200"
+                        className="text-[#0066FF] hover:text-[#0052CC] font-semibold hover:underline "
                       >
                         conditions générales d'utilisation
                       </a>{" "}

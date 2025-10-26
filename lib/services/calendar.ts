@@ -4,13 +4,13 @@ import { google } from 'googleapis'
 // Configuration Google Calendar
 const getCalendar = () => {
   const oauth2Client = new google.auth.OAuth2(
-    process.env.GOOGLE_CLIENT_ID,
-    process.env.GOOGLE_CLIENT_SECRET,
+    process.env.GOOGLE_CALENDAR_CLIENT_ID,
+    process.env.GOOGLE_CALENDAR_CLIENT_SECRET,
     'https://developers.google.com/oauthplayground'
   )
 
   oauth2Client.setCredentials({
-    refresh_token: process.env.GOOGLE_REFRESH_TOKEN,
+    refresh_token: process.env.GOOGLE_CALENDAR_REFRESH_TOKEN,
   })
 
   return google.calendar({ version: 'v3', auth: oauth2Client })
@@ -74,7 +74,7 @@ ID Réservation: ${bookingData.id}
     }
 
     const response = await calendar.events.insert({
-      calendarId: process.env.GOOGLE_CALENDAR_ID || 'primary',
+      calendarId: process.env.GOOGLE_CALENDAR_CALENDAR_ID || 'primary',
       requestBody: event,
     })
 
@@ -134,7 +134,7 @@ ${bookingData.message ? `Message: ${bookingData.message}` : ''}
     }
 
     await calendar.events.update({
-      calendarId: process.env.GOOGLE_CALENDAR_ID || 'primary',
+      calendarId: process.env.GOOGLE_CALENDAR_CALENDAR_ID || 'primary',
       eventId: eventId,
       requestBody: event,
     })
@@ -153,7 +153,7 @@ export const deleteCalendarEvent = async (eventId: string) => {
     const calendar = getCalendar()
     
     await calendar.events.delete({
-      calendarId: process.env.GOOGLE_CALENDAR_ID || 'primary',
+      calendarId: process.env.GOOGLE_CALENDAR_CALENDAR_ID || 'primary',
       eventId: eventId,
     })
 
@@ -176,7 +176,7 @@ export const getEventsForDate = async (date: string) => {
     endOfDay.setHours(23, 59, 59, 999)
 
     const response = await calendar.events.list({
-      calendarId: process.env.GOOGLE_CALENDAR_ID || 'primary',
+      calendarId: process.env.GOOGLE_CALENDAR_CALENDAR_ID || 'primary',
       timeMin: startOfDay.toISOString(),
       timeMax: endOfDay.toISOString(),
       singleEvents: true,
@@ -201,7 +201,7 @@ export const syncCalendarToDatabase = async () => {
     thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30)
     
     const response = await calendar.events.list({
-      calendarId: process.env.GOOGLE_CALENDAR_ID || 'primary',
+      calendarId: process.env.GOOGLE_CALENDAR_CALENDAR_ID || 'primary',
       timeMin: thirtyDaysAgo.toISOString(),
       singleEvents: true,
       orderBy: 'startTime',

@@ -4,9 +4,33 @@ import { prisma } from '@/lib/prisma'
 import { createBookingSchema } from '@/lib/validations/booking'
 import { sendBookingConfirmation, sendDoctorNotification } from '@/lib/services/email'
 import { createCalendarEvent } from '@/lib/services/calendar'
+import { bookingRateLimit } from '@/lib/rate-limit'
+import { trackBooking, trackError, measureExecutionTime } from '@/lib/monitoring'
 import { z } from 'zod'
 
 export async function POST(request: NextRequest) {
+  const startTime = Date.now()
+  
+  // 🔒 Rate limiting - Temporairement désactivé pour debug
+  // const rateLimitResult = bookingRateLimit(request)
+  // if (!rateLimitResult.success) {
+  //   trackError(new Error('Rate limit exceeded'), { endpoint: '/api/bookings' })
+  //   return NextResponse.json(
+  //     { 
+  //       error: "Trop de tentatives de réservation. Veuillez réessayer plus tard.",
+  //       retryAfter: Math.ceil((rateLimitResult.resetTime! - Date.now()) / 1000)
+  //     },
+  //     { 
+  //       status: 429,
+  //       headers: {
+  //         'Retry-After': Math.ceil((rateLimitResult.resetTime! - Date.now()) / 1000).toString(),
+  //         'X-RateLimit-Remaining': '0',
+  //         'X-RateLimit-Reset': rateLimitResult.resetTime!.toString()
+  //       }
+  //     }
+  //   )
+  // }
+  
   try {
     // 1. Récupérer et valider les données
     const body = await request.json()
@@ -61,8 +85,8 @@ export async function POST(request: NextRequest) {
       //   firstConsultation: booking.firstConsultation,
       //   message: booking.message || undefined,
       // }),
-      // Créer l'événement Google Calendar
-      createCalendarEvent({
+      // Créer l'événement Google Calendar (optionnel)
+      process.env.GOOGLE_CLIENT_ID ? createCalendarEvent({
         id: booking.id,
         firstName: booking.firstName,
         lastName: booking.lastName,
@@ -82,12 +106,16 @@ export async function POST(request: NextRequest) {
             syncedWithGoogle: true 
           }
         })
-      }),
+      }) : Promise.resolve(),
       // TODO: sendTelegramNotification(booking),
     ]).catch(error => {
       console.error('Erreur lors des notifications:', error)
       // Ne pas bloquer la réponse si les notifications échouent
     })
+
+    // 📊 Tracking de la réservation réussie
+    const bookingTime = Date.now() - startTime
+    trackBooking(true, bookingTime, validatedData.time)
 
     // 5. Retourner la réservation créée
     return NextResponse.json(
@@ -98,11 +126,26 @@ export async function POST(request: NextRequest) {
           cancellationToken: booking.cancellationToken,
         }
       },
-      { status: 201 }
+      { 
+        status: 201,
+        headers: {
+          'X-Content-Type-Options': 'nosniff',
+          'X-Frame-Options': 'DENY',
+          'X-XSS-Protection': '1; mode=block'
+        }
+      }
     )
 
   } catch (error) {
     console.error('Erreur création réservation:', error)
+    
+    // 📊 Tracking de l'erreur
+    const bookingTime = Date.now() - startTime
+    trackBooking(false, bookingTime)
+    trackError(error instanceof Error ? error : new Error('Unknown error'), { 
+      endpoint: '/api/bookings',
+      operation: 'booking_creation'
+    })
     
     if (error instanceof z.ZodError) {
       return NextResponse.json(

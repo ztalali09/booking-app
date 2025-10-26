@@ -11,6 +11,7 @@ export const createBookingSchema = z.object({
   time: z.string().regex(/^([0-1][0-9]|2[0-3]):[0-5][0-9]$/, "Format d'heure invalide"),
   period: z.enum(["morning", "afternoon"]),
   firstConsultation: z.boolean(),
+  consultationReason: z.string().min(10, "Le motif de consultation doit contenir au moins 10 caractères"),
   message: z.string().optional(),
 })
 
