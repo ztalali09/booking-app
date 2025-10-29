@@ -40,11 +40,10 @@ export async function GET(request: NextRequest) {
     }
 
     // Récupérer toutes les réservations non annulées pour cette date
-    const date = new Date(dateParam)
-    const startOfDay = new Date(date)
-    startOfDay.setHours(0, 0, 0, 0)
-    const endOfDay = new Date(date)
-    endOfDay.setHours(23, 59, 59, 999)
+    // Convertir la date YYYY-MM-DD en Date avec fuseau horaire Europe/Paris
+    const date = new Date(`${dateParam}T00:00:00+01:00`)
+    const startOfDay = new Date(`${dateParam}T00:00:00+01:00`)
+    const endOfDay = new Date(`${dateParam}T23:59:59+01:00`)
 
     const bookings = await prisma.booking.findMany({
       where: {

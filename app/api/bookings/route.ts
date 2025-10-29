@@ -37,9 +37,11 @@ export async function POST(request: NextRequest) {
     const validatedData = createBookingSchema.parse(body)
 
     // 2. Vérifier la disponibilité du créneau
+    // Convertir la date YYYY-MM-DD en Date avec fuseau horaire Europe/Paris
+    const bookingDate = new Date(`${validatedData.date}T00:00:00+01:00`)
     const existingBooking = await prisma.booking.findFirst({
       where: {
-        date: new Date(validatedData.date),
+        date: bookingDate,
         time: validatedData.time,
         status: {
           notIn: ['CANCELLED']
@@ -55,7 +57,6 @@ export async function POST(request: NextRequest) {
     }
 
     // 3. Vérifier la règle des 15 minutes minimum
-    const bookingDate = new Date(validatedData.date)
     const now = new Date()
     const isToday = bookingDate.getDate() === now.getDate() && 
                    bookingDate.getMonth() === now.getMonth() && 
@@ -79,7 +80,7 @@ export async function POST(request: NextRequest) {
     const booking = await prisma.booking.create({
       data: {
         ...validatedData,
-        date: new Date(validatedData.date),
+        date: bookingDate,
       }
     })
 

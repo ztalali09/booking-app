@@ -94,7 +94,7 @@ export default function BookingPage() {
       
       setIsLoadingPeriods(true)
       try {
-        const dateStr = selectedDate.toISOString()
+        const dateStr = selectedDate.toISOString().split('T')[0]
         const response = await fetch(`/api/availability/periods?date=${dateStr}`)
         if (response.ok) {
           const data = await response.json()
@@ -159,7 +159,7 @@ export default function BookingPage() {
       
       setIsLoadingTimeSlots(true)
       try {
-        const dateStr = selectedDate.toISOString()
+        const dateStr = selectedDate.toISOString().split('T')[0]
         const response = await fetch(`/api/availability/slots?date=${dateStr}`)
         if (response.ok) {
           const data = await response.json()
@@ -430,7 +430,7 @@ export default function BookingPage() {
           email: formData.email,
           phone: formData.phone,
           country: selectedCountry,
-          date: selectedDate?.toISOString(),
+          date: selectedDate ? selectedDate.toISOString().split('T')[0] : undefined,
           time: selectedTime,
           period: selectedPeriod,
           firstConsultation: formData.firstConsultation,
@@ -472,7 +472,7 @@ export default function BookingPage() {
           email: formData.email,
           phone: formData.phone,
           country: selectedCountry,
-          date: selectedDate?.toISOString(),
+          date: selectedDate ? selectedDate.toISOString().split('T')[0] : undefined,
           time: selectedTime,
           period: selectedPeriod,
           firstConsultation: formData.firstConsultation,
