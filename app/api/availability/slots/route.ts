@@ -69,7 +69,7 @@ export async function GET(request: NextRequest) {
         const allSlots = generateTimeSlots()
         
         // Récupérer les créneaux bloqués depuis Google Calendar
-        let blockedSlots = []
+        let blockedSlots: any[] = []
         try {
           blockedSlots = await getBlockedSlots(date)
         } catch (error) {
