@@ -1,0 +1,57 @@
+
+> my-v0-project@0.1.0 build
+> next build
+
+ ⚠ Warning: Next.js inferred your workspace root, but it may not be correct.
+ We detected multiple lockfiles and selected the directory of /home/ztalali/package-lock.json as the root directory.
+ To silence this warning, set `outputFileTracingRoot` in your Next.js config, or consider removing one of the lockfiles if it's not needed.
+   See https://nextjs.org/docs/app/api-reference/config/next-config-js/output#caveats for more information.
+ Detected additional lockfiles: 
+   * /home/ztalali/Bureau/S3/freelance/booking-app/package-lock.json
+
+   ▲ Next.js 15.5.4
+   - Environments: .env.local
+
+   Creating an optimized production build ...
+ ✓ Compiled successfully in 16.9s
+   Linting and checking validity of types ...
+ ⨯ ESLint must be installed in order to run during builds: npm install --save-dev eslint
+   Collecting page data ...
+   Generating static pages (0/19) ...
+   Generating static pages (4/19) 
+   Generating static pages (9/19) 
+   Generating static pages (14/19) 
+ ✓ Generating static pages (19/19)
+   Finalizing page optimization ...
+   Collecting build traces ...
+
+Route (app)                                 Size  First Load JS
+┌ ○ /                                    23.1 kB         125 kB
+├ ○ /_not-found                            995 B         103 kB
+├ ƒ /api/availability                      155 B         102 kB
+├ ƒ /api/availability/dates                155 B         102 kB
+├ ƒ /api/availability/periods              155 B         102 kB
+├ ƒ /api/availability/slots                155 B         102 kB
+├ ƒ /api/bookings                          155 B         102 kB
+├ ƒ /api/bookings/[id]                     155 B         102 kB
+├ ƒ /api/bookings/[token]                  155 B         102 kB
+├ ƒ /api/bookings/by-token                 155 B         102 kB
+├ ƒ /api/bookings/cancel                   155 B         102 kB
+├ ƒ /api/bookings/doctor-cancel            155 B         102 kB
+├ ƒ /api/calendar/blocked-slots            155 B         102 kB
+├ ƒ /api/metrics                           155 B         102 kB
+├ ƒ /api/reminders/send                    155 B         102 kB
+├ ƒ /api/sync/calendar                     155 B         102 kB
+├ ○ /cancel                              2.36 kB         104 kB
+└ ○ /doctor/cancel                       2.62 kB         105 kB
++ First Load JS shared by all             102 kB
+  ├ chunks/255-4efeec91c7871d79.js       45.7 kB
+  ├ chunks/4bd1b696-c023c6e3521b1417.js  54.2 kB
+  └ other shared chunks (total)          1.92 kB
+
+
+ƒ Middleware                             34.3 kB
+
+○  (Static)   prerendered as static content
+ƒ  (Dynamic)  server-rendered on demand
+

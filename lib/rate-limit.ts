@@ -85,13 +85,8 @@ export const bookingRateLimit = rateLimit({
   windowMs: 15 * 60 * 1000, // 15 minutes
   maxRequests: 5, // 5 réservations par 15 minutes
   keyGenerator: (req) => {
-    // Utiliser l'email si disponible, sinon l'IP
-    try {
-      const body = req.json()
-      return body.email || getClientIP(req)
-    } catch {
-      return getClientIP(req)
-    }
+    // Utiliser l'IP pour le rate limiting
+    return getClientIP(req)
   }
 })
 

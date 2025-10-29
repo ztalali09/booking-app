@@ -27,12 +27,12 @@ export async function GET(request: NextRequest) {
     
     return NextResponse.json({
       date: date.toISOString(),
-      blockedSlots: blockedSlots.map(slot => ({
-        start: slot.start.toISOString(),
-        end: slot.end.toISOString(),
-        title: slot.title,
-        description: slot.description,
-        isAllDay: slot.isAllDay,
+      blockedSlots: blockedSlots.filter(slot => slot !== null).map(slot => ({
+        start: slot!.start.toISOString(),
+        end: slot!.end.toISOString(),
+        title: slot!.title,
+        description: slot!.description,
+        isAllDay: slot!.isAllDay,
       }))
     })
   } catch (error) {

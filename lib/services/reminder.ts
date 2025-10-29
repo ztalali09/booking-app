@@ -16,7 +16,7 @@ interface ReminderData {
   period: string
   firstConsultation: boolean
   consultationReason: string
-  message?: string
+  message: string | null
   cancellationToken: string
 }
 

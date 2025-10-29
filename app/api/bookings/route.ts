@@ -130,7 +130,7 @@ export async function POST(request: NextRequest) {
         }
       } catch (error) {
         console.error('❌ Erreur création événement Google Calendar:', error)
-        console.error('Stack trace:', error.stack)
+        console.error('Stack trace:', error instanceof Error ? error.stack : 'No stack trace')
       }
     } else {
       console.log('⚠️ Google Calendar non configuré (GOOGLE_SERVICE_ACCOUNT_EMAIL manquant)')

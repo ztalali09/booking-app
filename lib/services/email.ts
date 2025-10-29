@@ -16,7 +16,7 @@ const formatTimeRange = (time: string, period: string) => {
 }
 
 // Configuration du transporteur Gmail
-const createTransporter = () => {
+export const createTransporter = () => {
   return nodemailer.createTransport({
     host: process.env.SMTP_HOST || 'smtp.gmail.com',
     port: parseInt(process.env.SMTP_PORT || '587'),

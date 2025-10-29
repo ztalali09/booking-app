@@ -1122,6 +1122,7 @@ export default function BookingPage() {
                               email: "",
                               phone: "",
                               firstConsultation: null,
+                              consultationReason: "",
                               message: "",
                             })
                           }}
@@ -1207,6 +1208,7 @@ export default function BookingPage() {
                                 email: "",
                                 phone: "",
                                 firstConsultation: null,
+                                consultationReason: "",
                                 message: "",
                               })
                             }}
@@ -2021,6 +2023,7 @@ export default function BookingPage() {
                           email: "",
                           phone: "",
                           firstConsultation: null,
+                          consultationReason: "",
                           message: "",
                         })
                       }}
@@ -2106,6 +2109,7 @@ export default function BookingPage() {
                             email: "",
                             phone: "",
                             firstConsultation: null,
+                            consultationReason: "",
                             message: "",
                           })
                         }}
