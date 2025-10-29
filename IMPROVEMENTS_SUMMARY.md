@@ -173,3 +173,4 @@ npm run test:coverage # Couverture de code
 
 **Effort total :** 2 jours de développement
 **ROI :** Système 5x plus performant et sécurisé
+

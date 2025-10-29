@@ -1,6 +1,7 @@
 // app/api/availability/slots/route.ts
 import { NextRequest, NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
+import { getBlockedSlots, isSlotBlocked } from '@/lib/services/google-calendar'
 
 // Créneaux disponibles (de 9h à 18h, par tranches de 30 minutes)
 const generateTimeSlots = () => {
@@ -67,6 +68,15 @@ export async function GET(request: NextRequest) {
         // Générer tous les créneaux et vérifier leur disponibilité
         const allSlots = generateTimeSlots()
         
+        // Récupérer les créneaux bloqués depuis Google Calendar
+        let blockedSlots = []
+        try {
+          blockedSlots = await getBlockedSlots(date)
+        } catch (error) {
+          console.error('Erreur récupération créneaux bloqués:', error)
+          // Continuer sans les créneaux bloqués si Google Calendar échoue
+        }
+        
         // Vérifier si c'est le jour actuel
         const today = new Date()
         const isToday = date.getDate() === today.getDate() && 
@@ -76,6 +86,11 @@ export async function GET(request: NextRequest) {
         // Créer des objets avec statut pour chaque créneau
         const slotsWithStatus = allSlots.map(slot => {
           let available = isSlotAvailable(slot, bookings)
+          
+          // Vérifier si le créneau est bloqué dans Google Calendar
+          if (available && blockedSlots.length > 0) {
+            available = !isSlotBlocked(slot, date, blockedSlots)
+          }
           
           // Si c'est le jour actuel, vérifier que le créneau n'est pas passé
           if (isToday && available) {
@@ -87,8 +102,9 @@ export async function GET(request: NextRequest) {
             const [hours, minutes] = slot.split(':').map(Number)
             const slotTime = hours * 60 + minutes
             
-            // Le créneau doit être dans le futur
-            available = slotTime > currentTime
+            // Le créneau doit être dans le futur + 15 minutes minimum
+            const minimumAdvanceTime = currentTime + 15
+            available = slotTime > minimumAdvanceTime
           }
           
           return {

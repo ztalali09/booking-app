@@ -3,7 +3,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
 import { createBookingSchema } from '@/lib/validations/booking'
 import { sendBookingConfirmation, sendDoctorNotification } from '@/lib/services/email'
-import { createCalendarEvent } from '@/lib/services/calendar'
+import { createCalendarEvent } from '@/lib/services/google-calendar'
 import { bookingRateLimit } from '@/lib/rate-limit'
 import { trackBooking, trackError, measureExecutionTime } from '@/lib/monitoring'
 import { z } from 'zod'
@@ -54,7 +54,28 @@ export async function POST(request: NextRequest) {
       )
     }
 
-    // 3. Créer la réservation
+    // 3. Vérifier la règle des 15 minutes minimum
+    const bookingDate = new Date(validatedData.date)
+    const now = new Date()
+    const isToday = bookingDate.getDate() === now.getDate() && 
+                   bookingDate.getMonth() === now.getMonth() && 
+                   bookingDate.getFullYear() === now.getFullYear()
+
+    if (isToday) {
+      const [hours, minutes] = validatedData.time.split(':').map(Number)
+      const slotTime = hours * 60 + minutes
+      const currentTime = now.getHours() * 60 + now.getMinutes()
+      const minimumAdvanceTime = currentTime + 15
+
+      if (slotTime <= minimumAdvanceTime) {
+        return NextResponse.json(
+          { error: "Les réservations doivent être faites au moins 15 minutes à l'avance" },
+          { status: 400 }
+        )
+      }
+    }
+
+    // 4. Créer la réservation
     const booking = await prisma.booking.create({
       data: {
         ...validatedData,
@@ -62,32 +83,74 @@ export async function POST(request: NextRequest) {
       }
     })
 
-    // 4. Démarrer les tâches asynchrones (ne pas attendre)
+    // 4. Démarrer les tâches asynchrones (temporairement synchrone pour debug)
+    console.log('🔄 Démarrage des tâches de synchronisation...')
+    
+    // Synchronisation Google Calendar (synchrone pour debug)
+    console.log('🔍 Vérification de la configuration Google Calendar...')
+    console.log('GOOGLE_SERVICE_ACCOUNT_EMAIL:', process.env.GOOGLE_SERVICE_ACCOUNT_EMAIL ? '✅ Défini' : '❌ Manquant')
+    
+    if (process.env.GOOGLE_SERVICE_ACCOUNT_EMAIL) {
+      try {
+        console.log('📅 Création de l\'événement Google Calendar...')
+        console.log('Données de réservation:', {
+          firstName: booking.firstName,
+          lastName: booking.lastName,
+          email: booking.email,
+          date: booking.date,
+          time: booking.time
+        })
+        
+        const googleEventId = await createCalendarEvent({
+          firstName: booking.firstName,
+          lastName: booking.lastName,
+          email: booking.email,
+          phone: booking.phone,
+          date: booking.date,
+          time: booking.time,
+          consultationReason: booking.consultationReason,
+          message: booking.message || undefined,
+        })
+        
+        console.log('✅ Événement Google Calendar créé:', googleEventId)
+        
+        if (googleEventId) {
+          // Mettre à jour la réservation avec l'ID de l'événement Google
+          await prisma.booking.update({
+            where: { id: booking.id },
+            data: { 
+              googleCalendarEventId: googleEventId,
+              syncedWithGoogle: true 
+            }
+          })
+          
+          console.log('✅ Réservation mise à jour avec l\'ID Google Calendar')
+        } else {
+          console.log('⚠️ Aucun ID d\'événement retourné par createCalendarEvent')
+        }
+      } catch (error) {
+        console.error('❌ Erreur création événement Google Calendar:', error)
+        console.error('Stack trace:', error.stack)
+      }
+    } else {
+      console.log('⚠️ Google Calendar non configuré (GOOGLE_SERVICE_ACCOUNT_EMAIL manquant)')
+    }
+    
+    // Autres tâches asynchrones (emails)
     Promise.all([
-      // TODO: Email de confirmation au patient (désactivé temporairement)
-      // sendBookingConfirmation(booking.email, {
-      //   firstName: booking.firstName,
-      //   lastName: booking.lastName,
-      //   date: booking.date.toISOString(),
-      //   time: booking.time,
-      //   period: booking.period,
-      //   cancellationToken: booking.cancellationToken,
-      // }),
-      // TODO: Notification au médecin (désactivé temporairement)
-      // sendDoctorNotification({
-      //   firstName: booking.firstName,
-      //   lastName: booking.lastName,
-      //   email: booking.email,
-      //   phone: booking.phone,
-      //   date: booking.date.toISOString(),
-      //   time: booking.time,
-      //   period: booking.period,
-      //   firstConsultation: booking.firstConsultation,
-      //   message: booking.message || undefined,
-      // }),
-      // Créer l'événement Google Calendar (optionnel)
-      process.env.GOOGLE_CLIENT_ID ? createCalendarEvent({
-        id: booking.id,
+      // Email de confirmation au patient
+      sendBookingConfirmation(booking.email, {
+        firstName: booking.firstName,
+        lastName: booking.lastName,
+        date: booking.date.toISOString(),
+        time: booking.time,
+        period: booking.period,
+        cancellationToken: booking.cancellationToken,
+      }).catch(error => {
+        console.error('Erreur email confirmation:', error)
+      }),
+      // Notification au médecin
+      sendDoctorNotification({
         firstName: booking.firstName,
         lastName: booking.lastName,
         email: booking.email,
@@ -96,18 +159,12 @@ export async function POST(request: NextRequest) {
         time: booking.time,
         period: booking.period,
         firstConsultation: booking.firstConsultation,
+        consultationReason: booking.consultationReason,
         message: booking.message || undefined,
-      }).then(googleEventId => {
-        // Mettre à jour la réservation avec l'ID de l'événement Google
-        return prisma.booking.update({
-          where: { id: booking.id },
-          data: { 
-            googleCalendarEventId: googleEventId,
-            syncedWithGoogle: true 
-          }
-        })
-      }) : Promise.resolve(),
-      // TODO: sendTelegramNotification(booking),
+        cancellationToken: booking.cancellationToken,
+      }).catch(error => {
+        console.error('Erreur notification médecin:', error)
+      }),
     ]).catch(error => {
       console.error('Erreur lors des notifications:', error)
       // Ne pas bloquer la réponse si les notifications échouent

@@ -36,6 +36,7 @@ export default function BookingPage() {
   const [isLoadingPeriods, setIsLoadingPeriods] = useState(false)
   const [availableTimeSlots, setAvailableTimeSlots] = useState<{time: string, available: boolean}[]>([])
   const [isLoadingTimeSlots, setIsLoadingTimeSlots] = useState(false)
+  const [isDoctorInfoExpanded, setIsDoctorInfoExpanded] = useState(false)
 
   // Fonction pour obtenir l'heure actuelle en France
   const getCurrentTimeInFrance = () => {
@@ -43,6 +44,23 @@ export default function BookingPage() {
     // France est en UTC+1 (hiver) ou UTC+2 (été)
     const franceTime = new Date(now.toLocaleString("en-US", {timeZone: "Europe/Paris"}))
     return franceTime
+  }
+
+  // Fonction pour vérifier la règle des 15 minutes minimum
+  const isTimeSlotAvailableForBooking = (timeSlot: string, date: Date) => {
+    const now = getCurrentTimeInFrance()
+    const isToday = date.getDate() === now.getDate() && 
+                   date.getMonth() === now.getMonth() && 
+                   date.getFullYear() === now.getFullYear()
+
+    if (!isToday) return true
+
+    const [hours, minutes] = timeSlot.split(':').map(Number)
+    const slotTime = hours * 60 + minutes
+    const currentTime = now.getHours() * 60 + now.getMinutes()
+    const minimumAdvanceTime = currentTime + 15
+
+    return slotTime > minimumAdvanceTime
   }
 
   // Fonction pour filtrer les horaires du jour même après l'heure actuelle
@@ -64,9 +82,8 @@ export default function BookingPage() {
     const currentTime = currentHour * 60 + currentMinute
     
     return slots.filter(slot => {
-      const [hours, minutes] = slot.time.split(':').map(Number)
-      const slotTime = hours * 60 + minutes
-      return slotTime > currentTime
+      // Vérifier la disponibilité générale ET la règle des 15 minutes
+      return slot.available && isTimeSlotAvailableForBooking(slot.time, selectedDate)
     })
   }
 
@@ -392,6 +409,12 @@ export default function BookingPage() {
       setIsValidating(true)
       return
     }
+
+    // Validation de la règle des 15 minutes
+    if (selectedDate && selectedTime && !isTimeSlotAvailableForBooking(selectedTime, selectedDate)) {
+      setSubmitError("Les réservations doivent être faites au moins 15 minutes à l'avance")
+      return
+    }
     
     setIsSubmitting(true)
     setSubmitError(null)
@@ -602,25 +625,128 @@ export default function BookingPage() {
           {/* Contenu mobile */}
           <div className="relative z-10">
             <div className="w-full bg-white flex flex-col px-3 pt-6 pb-12">
-              {/* Version mobile - Informations du docteur */}
-              <div className={`${currentStep === 4 ? 'py-8' : 'mb-8'}`}>
-                {/* Photo et nom du docteur - Masqués à l'étape 4 */}
+              {/* Version mobile - Informations du docteur - Masquées à l'étape 4 */}
                 {currentStep !== 4 && (
+                <div className="mb-8">
+                  {/* Titre stylé */}
                   <div className="text-center mb-6">
-                    <Avatar className="w-20 h-20 mx-auto mb-4 ring-4 ring-blue-50 shadow-lg">
-                      <AvatarImage src="/professional-doctor.jpg" />
-                      <AvatarFallback className="bg-gradient-to-br from-[#0066FF] to-[#0052CC] text-white text-xl">
-                        DR
-                      </AvatarFallback>
-                    </Avatar>
-                    <h2 className="text-sm text-gray-500 mb-2 font-medium">Dr. Marie Dubois</h2>
-                    <h1 className="text-xl font-bold text-gray-900 mb-4">Consultation au cabinet</h1>
+                    <div className="bg-gradient-to-r from-[#0066FF] to-[#0052CC] text-white rounded-2xl p-6 shadow-lg">
+                      <h1 className="text-2xl font-bold mb-2">Consultation Médicale</h1>
+                      <p className="text-blue-100 text-sm">Dr. Marie Dubois - Médecine Générale</p>
+                      <div className="mt-3 flex items-center justify-center gap-2 text-blue-100">
+                        <Clock className="w-4 h-4" />
+                        <span className="text-sm">1h modulable selon le besoin</span>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Informations du médecin - Version mobile avec expansion */}
+                  <div className="mb-6 p-4 bg-gray-50 rounded-xl">
+                    <h3 className="text-base font-bold text-gray-900 mb-3">Bienvenue</h3>
+                    <p className="text-sm text-gray-600 leading-relaxed text-pretty mb-4">
+                      Je suis ravie de vous accueillir pour une consultation personnalisée. Ensemble, nous prendrons le temps
+                      d'écouter vos besoins et d'établir un plan de soins adapté à votre situation.
+                    </p>
+                    
+                    <h3 className="text-base font-bold text-gray-900 mb-3">Description du service</h3>
+                    <p className="text-sm text-gray-600 leading-relaxed text-pretty mb-3">
+                      Consultation complète incluant un examen approfondi, un diagnostic et des recommandations thérapeutiques
+                      personnalisées.
+                    </p>
+                    <ul className="space-y-2 text-sm text-gray-600 mb-4">
+                      <li className="flex items-start gap-2">
+                        <span className="text-[#0066FF] mt-1">•</span>
+                        <span>Examen clinique détaillé</span>
+                      </li>
+                      <li className="flex items-start gap-2">
+                        <span className="text-[#0066FF] mt-1">•</span>
+                        <span>Analyse de vos antécédents médicaux</span>
+                      </li>
+                      <li className="flex items-start gap-2">
+                        <span className="text-[#0066FF] mt-1">•</span>
+                        <span>Plan de traitement personnalisé</span>
+                      </li>
+                      <li className="flex items-start gap-2">
+                        <span className="text-[#0066FF] mt-1">•</span>
+                        <span>Réponses à toutes vos questions</span>
+                      </li>
+                    </ul>
+
+                    {/* Bouton d'expansion */}
+                    <div className="text-center">
+                      <button
+                        onClick={() => setIsDoctorInfoExpanded(!isDoctorInfoExpanded)}
+                        className="inline-flex items-center gap-2 px-4 py-2 text-sm font-medium text-[#0066FF] hover:text-[#0052CC] transition-colors"
+                      >
+                        {isDoctorInfoExpanded ? 'Afficher moins' : 'Afficher plus'}
+                        <ChevronDown className={`w-4 h-4 transition-transform ${isDoctorInfoExpanded ? 'rotate-180' : ''}`} />
+                      </button>
+                    </div>
+
+                    {/* Contenu expandable */}
+                    {isDoctorInfoExpanded && (
+                      <div className="mt-4 pt-4 border-t border-gray-200 space-y-4">
+                        <h3 className="text-base font-bold text-gray-900 mb-3">À propos du praticien</h3>
+                        <p className="text-sm text-gray-600 leading-relaxed text-pretty mb-3">
+                          Diplômée de la Faculté de Médecine de Paris, le Dr. Marie Dubois exerce depuis plus de 15 ans. Spécialisée
+                          en médecine générale, elle accompagne ses patients avec bienveillance et professionnalisme.
+                        </p>
+                        <p className="text-sm text-gray-600 leading-relaxed text-pretty">
+                          Son approche holistique et son écoute attentive permettent d'établir une relation de confiance durable
+                          avec chaque patient.
+                        </p>
+
+                        <h3 className="text-base font-bold text-gray-900 mb-3 mt-4">Informations pratiques</h3>
+                        <div className="space-y-3 text-sm text-gray-600">
+                          <div>
+                            <p className="font-semibold text-gray-900 mb-1">Accès</p>
+                            <p className="leading-relaxed">
+                              Métro ligne 6 - Station Glacière. Parking public à proximité. Accès PMR disponible.
+                            </p>
+                          </div>
+                          <div>
+                            <p className="font-semibold text-gray-900 mb-1">Paiement</p>
+                            <p className="leading-relaxed">
+                              Carte bancaire, espèces, chèque. Tiers payant accepté pour les patients en ALD.
+                            </p>
+                          </div>
+                          <div>
+                            <p className="font-semibold text-gray-900 mb-1">Annulation</p>
+                            <p className="leading-relaxed">Merci de prévenir au moins 24h à l'avance en cas d'empêchement.</p>
+                          </div>
+                        </div>
+
+                        <h3 className="text-base font-bold text-gray-900 mb-3 mt-4">Préparation de votre visite</h3>
+                        <p className="text-sm text-gray-600 leading-relaxed text-pretty mb-3">
+                          Pour optimiser votre consultation, pensez à apporter :
+                        </p>
+                        <ul className="space-y-2 text-sm text-gray-600">
+                          <li className="flex items-start gap-2">
+                            <span className="text-[#0066FF] mt-1">•</span>
+                            <span>Votre carte vitale et mutuelle</span>
+                          </li>
+                          <li className="flex items-start gap-2">
+                            <span className="text-[#0066FF] mt-1">•</span>
+                            <span>Vos ordonnances en cours</span>
+                          </li>
+                          <li className="flex items-start gap-2">
+                            <span className="text-[#0066FF] mt-1">•</span>
+                            <span>Vos derniers examens médicaux</span>
+                          </li>
+                          <li className="flex items-start gap-2">
+                            <span className="text-[#0066FF] mt-1">•</span>
+                            <span>Une liste de vos questions</span>
+                          </li>
+                        </ul>
+                      </div>
+                    )}
+                  </div>
             </div>
                 )}
 
                 {/* Titre principal pour mobile - Étape 4 */}
                 {currentStep === 4 && (
-                  <div className="text-center mb-6">
+                <div className="text-center mb-6 py-8">
                     <h2 className="text-2xl font-bold text-[#0066FF]">Finaliser votre rendez-vous</h2>
           </div>
                 )}
@@ -664,21 +790,6 @@ export default function BookingPage() {
                           return `${endHours.toString().padStart(2, "0")}:${minutes.toString().padStart(2, "0")}`
                         })()}
                       </span>
-                    </div>
-                  )}
-                </div>
-
-                {/* Section Bienvenue - Masquée à l'étape 4 */}
-                {currentStep !== 4 && (
-                  <div className="bg-gray-50 rounded-xl p-4 mb-6">
-                    <h3 className="text-base font-bold text-gray-900 mb-3">Bienvenue</h3>
-                    <p className="text-sm text-gray-600 leading-relaxed mb-3">
-                      Je suis ravie de vous accueillir pour une consultation personnalisée. Ensemble, nous prendrons le temps
-                      d'écouter vos besoins et d'établir un plan de soins adapté à votre situation.
-                    </p>
-                    <button className="text-sm text-[#0066FF] font-medium hover:underline mb-8">
-                      AFFICHER PLUS
-                    </button>
                   </div>
                 )}
               </div>
@@ -841,6 +952,15 @@ export default function BookingPage() {
                             {selectedPeriod === "morning" ? "Créneaux du matin" : "Créneaux de l'après-midi"}
                           </p>
                         </div>
+
+                        {/* Message informatif sur la règle des 15 minutes */}
+                        {selectedDate && isTimeSlotAvailableForBooking("09:00", selectedDate) && (
+                          <div className="bg-blue-50 border border-blue-200 rounded-lg p-3 mb-4">
+                            <p className="text-sm text-blue-600">
+                              Les réservations doivent être faites au moins 15 minutes à l'avance
+                            </p>
+                          </div>
+                        )}
 
                         <div className="space-y-2 sm:space-y-3 max-h-[400px] lg:max-h-[500px] overflow-y-auto pr-2 scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-gray-100">
                           {isLoadingTimeSlots ? (
@@ -1322,7 +1442,7 @@ export default function BookingPage() {
                         <textarea
                           value={formData.message}
                           onChange={(e) => setFormData({ ...formData, message: e.target.value })}
-                          className="w-full h-24 px-4 py-3 rounded-xl border-2 border-gray-200 focus:border-[#0066FF] focus:ring-2 focus:ring-[#0066FF] focus:ring-offset-2  resize-none"
+                          className="w-full h-24 px-4 py-3 rounded-xl border-2 border-gray-200 focus:border-[#0066FF] focus:ring-2 focus:ring-[#0066FF] focus:ring-offset-2 resize-none"
                           placeholder="Informations complémentaires ou questions spécifiques..."
                         />
                       </div>
@@ -1353,18 +1473,16 @@ export default function BookingPage() {
       {/* Version desktop */}
       <div className="hidden lg:flex w-full lg:max-w-6xl bg-white lg:rounded-2xl lg:shadow-2xl overflow-hidden flex-col lg:flex-row lg:max-h-[90vh]">
         <div className="lg:w-[35%] bg-gradient-to-b from-white to-gray-50 border-r border-gray-100 p-6 lg:p-8 flex-col overflow-y-auto scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-transparent">
-          <div className="mb-10">
-          </div>
-
+          {/* Titre stylé pour desktop */}
           <div className="mb-8">
-            <Avatar className="w-24 h-24 mb-5 ring-4 ring-blue-50 shadow-lg">
-              <AvatarImage src="/professional-doctor.jpg" />
-              <AvatarFallback className="bg-gradient-to-br from-[#0066FF] to-[#0052CC] text-white text-2xl">
-                DR
-              </AvatarFallback>
-            </Avatar>
-            <h2 className="text-sm text-gray-500 mb-2 font-medium">Dr. Marie Dubois</h2>
-            <h1 className="text-2xl font-bold text-gray-900 mb-4 text-balance">Consultation au cabinet</h1>
+            <div className="bg-gradient-to-r from-[#0066FF] to-[#0052CC] text-white rounded-2xl p-6 shadow-lg">
+              <h1 className="text-3xl font-bold mb-3">Consultation Médicale</h1>
+              <p className="text-blue-100 text-lg mb-4">Dr. Marie Dubois - Médecine Générale</p>
+              <div className="flex items-center gap-2 text-blue-100">
+                <Clock className="w-5 h-5" />
+                <span className="text-base">1h modulable selon le besoin</span>
+              </div>
+            </div>
           </div>
 
           <div className="space-y-4 mb-8">
@@ -1733,6 +1851,15 @@ export default function BookingPage() {
                         {selectedPeriod === "morning" ? "Créneaux du matin" : "Créneaux de l'après-midi"}
                       </p>
                     </div>
+
+                    {/* Message informatif sur la règle des 15 minutes - Version desktop */}
+                    {selectedDate && isTimeSlotAvailableForBooking("09:00", selectedDate) && (
+                      <div className="bg-blue-50 border border-blue-200 rounded-lg p-3 mb-4">
+                        <p className="text-sm text-blue-600">
+                          Les réservations doivent être faites au moins 15 minutes à l'avance
+                        </p>
+                      </div>
+                    )}
 
                     <div className="space-y-2 sm:space-y-3 max-h-[400px] lg:max-h-[500px] overflow-y-auto pr-2 scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-gray-100">
                       {isLoadingTimeSlots ? (

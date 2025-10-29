@@ -27,6 +27,11 @@ const envSchema = z.object({
   GOOGLE_CALENDAR_REFRESH_TOKEN: z.string().optional(),
   GOOGLE_CALENDAR_CALENDAR_ID: z.string().default("primary"),
   
+  // Google Service Account (pour l'authentification service account)
+  GOOGLE_SERVICE_ACCOUNT_EMAIL: z.string().email().optional(),
+  GOOGLE_SERVICE_ACCOUNT_PRIVATE_KEY: z.string().optional(),
+  GOOGLE_SERVICE_ACCOUNT_PROJECT_ID: z.string().optional(),
+  
   // Telegram (optionnel)
   TELEGRAM_BOT_TOKEN: z.string().optional(),
   TELEGRAM_CHAT_ID: z.string().optional(),
@@ -82,6 +87,12 @@ export const googleCalendarConfig = {
   clientSecret: env.GOOGLE_CALENDAR_CLIENT_SECRET,
   refreshToken: env.GOOGLE_CALENDAR_REFRESH_TOKEN,
   calendarId: env.GOOGLE_CALENDAR_CALENDAR_ID,
+}
+
+export const googleServiceAccountConfig = {
+  clientEmail: env.GOOGLE_SERVICE_ACCOUNT_EMAIL,
+  privateKey: env.GOOGLE_SERVICE_ACCOUNT_PRIVATE_KEY,
+  projectId: env.GOOGLE_SERVICE_ACCOUNT_PROJECT_ID,
 }
 
 export const telegramConfig = {

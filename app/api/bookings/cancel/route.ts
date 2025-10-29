@@ -1,7 +1,7 @@
 // app/api/bookings/cancel/route.ts
 import { NextRequest, NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
-import { sendBookingCancellation } from '@/lib/services/email'
+import { sendBookingCancellation, sendDoctorCancellationNotification } from '@/lib/services/email'
 import { deleteCalendarEvent } from '@/lib/services/calendar'
 
 export async function POST(request: NextRequest) {
@@ -52,15 +52,28 @@ export async function POST(request: NextRequest) {
       data: { status: 'CANCELLED' }
     })
 
-    // Envoyer email d'annulation et supprimer de Google Calendar
+    // Envoyer emails d'annulation et supprimer de Google Calendar
     try {
       await Promise.all([
-        // Email d'annulation
+        // Email d'annulation au patient
         sendBookingCancellation(updatedBooking.email, {
           firstName: updatedBooking.firstName,
           lastName: updatedBooking.lastName,
           date: updatedBooking.date.toISOString(),
           time: updatedBooking.time,
+          period: updatedBooking.period,
+        }),
+        // Notification d'annulation au médecin
+        sendDoctorCancellationNotification({
+          firstName: updatedBooking.firstName,
+          lastName: updatedBooking.lastName,
+          email: updatedBooking.email,
+          phone: updatedBooking.phone,
+          date: updatedBooking.date.toISOString(),
+          time: updatedBooking.time,
+          period: updatedBooking.period,
+          consultationReason: updatedBooking.consultationReason,
+          message: updatedBooking.message || undefined,
         }),
         // Supprimer de Google Calendar si l'événement existe
         updatedBooking.googleCalendarEventId 
