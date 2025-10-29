@@ -1,22 +1,6 @@
 import { google } from 'googleapis'
 import { googleServiceAccountConfig, googleCalendarConfig } from '../env'
-
-// Fonction utilitaire pour créer une date en Europe/Paris
-function createParisDate(dateStr: string, timeStr: string): Date {
-  // Créer une date en Europe/Paris en utilisant une approche plus simple
-  const dateTimeStr = `${dateStr}T${timeStr}:00`
-  
-  // Créer une date temporaire pour déterminer l'offset Europe/Paris
-  const tempDate = new Date(dateTimeStr)
-  const utcTime = new Date(tempDate.getTime() + tempDate.getTimezoneOffset() * 60000)
-  
-  // Déterminer l'offset Europe/Paris (CET = +1h, CEST = +2h)
-  const testDate = new Date(utcTime.getTime() + 60 * 60 * 1000) // +1h pour CET
-  const isDST = testDate.getTimezoneOffset() < 60 // Heure d'été si offset < 60 minutes
-  
-  const offset = isDST ? '+02:00' : '+01:00'
-  return new Date(`${dateTimeStr}${offset}`)
-}
+import { createGoogleCalendarDateTime, formatDateForAPI } from '../utils/date'
 
 // Configuration Google Calendar
 const GOOGLE_CALENDAR_ID = googleCalendarConfig.calendarId || 'primary'
@@ -51,8 +35,8 @@ export async function getBlockedSlots(date: Date) {
 
     // Créer les dates de début et fin pour la journée en Europe/Paris
     const dateStr = date.toISOString().split('T')[0] // YYYY-MM-DD
-    const startOfDay = createParisDate(dateStr, '00:00')
-    const endOfDay = createParisDate(dateStr, '23:59')
+    const startOfDay = new Date(`${dateStr}T00:00:00+01:00`) // 00:00 Europe/Paris
+    const endOfDay = new Date(`${dateStr}T23:59:59+01:00`)   // 23:59 Europe/Paris
 
     // Récupérer les événements de la journée
     const response = await calendar.events.list({
@@ -92,8 +76,8 @@ export async function getBlockedSlots(date: Date) {
 export function isSlotBlocked(timeSlot: string, date: Date, blockedSlots: any[]) {
   const [hours, minutes] = timeSlot.split(':').map(Number)
   const dateStr = date.toISOString().split('T')[0] // YYYY-MM-DD
-  const slotStart = createParisDate(dateStr, `${String(hours).padStart(2, '0')}:${String(minutes).padStart(2, '0')}`)
-  const slotEnd = createParisDate(dateStr, `${String(hours + 1).padStart(2, '0')}:${String(minutes).padStart(2, '0')}`)
+  const slotStart = new Date(`${dateStr}T${String(hours).padStart(2, '0')}:${String(minutes).padStart(2, '0')}:00+01:00`)
+  const slotEnd = new Date(`${dateStr}T${String(hours + 1).padStart(2, '0')}:${String(minutes).padStart(2, '0')}:00+01:00`)
 
   return blockedSlots.some(blocked => {
     if (blocked.isAllDay) {
@@ -125,12 +109,9 @@ export async function createCalendarEvent(bookingData: {
     const auth = getAuth()
     const calendar = google.calendar({ version: 'v3', auth })
 
-    const [hours, minutes] = bookingData.time.split(':').map(Number)
-    
-    // Créer les dates en utilisant le fuseau horaire Europe/Paris correctement
-    const dateStr = bookingData.date.toISOString().split('T')[0] // YYYY-MM-DD
-    const startTime = createParisDate(dateStr, bookingData.time)
-    const endTime = createParisDate(dateStr, `${String(hours + 1).padStart(2, '0')}:${String(minutes).padStart(2, '0')}`)
+    // Utiliser la fonction utilitaire pour créer les dates/heures
+    const dateStr = formatDateForAPI(bookingData.date)
+    const { start: startTime, end: endTime } = createGoogleCalendarDateTime(dateStr, bookingData.time)
     
     console.log('🕐 Création événement Google Calendar:')
     console.log('  - Date réservation:', bookingData.date)
@@ -218,12 +199,9 @@ export async function updateCalendarEvent(eventId: string, bookingData: {
     const auth = getAuth()
     const calendar = google.calendar({ version: 'v3', auth })
 
-    const [hours, minutes] = bookingData.time.split(':').map(Number)
-    
-    // Créer les dates en utilisant le fuseau horaire Europe/Paris correctement
-    const dateStr = bookingData.date.toISOString().split('T')[0] // YYYY-MM-DD
-    const startTime = createParisDate(dateStr, bookingData.time)
-    const endTime = createParisDate(dateStr, `${String(hours + 1).padStart(2, '0')}:${String(minutes).padStart(2, '0')}`)
+    // Utiliser la fonction utilitaire pour créer les dates/heures
+    const dateStr = formatDateForAPI(bookingData.date)
+    const { start: startTime, end: endTime } = createGoogleCalendarDateTime(dateStr, bookingData.time)
 
     const event = {
       summary: `Consultation - ${bookingData.firstName} ${bookingData.lastName}`,

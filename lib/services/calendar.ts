@@ -1,5 +1,6 @@
 // lib/services/calendar.ts
 import { google } from 'googleapis'
+import { createGoogleCalendarDateTime, formatDateForAPI } from '../utils/date'
 
 // Configuration Google Calendar
 const getCalendar = () => {
@@ -32,11 +33,9 @@ export const createCalendarEvent = async (bookingData: {
   try {
     const calendar = getCalendar()
     
-    // Formater la date et l'heure
-    // bookingData.date est déjà un ISO string, extraire juste la partie date
-    const dateOnly = new Date(bookingData.date).toISOString().split('T')[0]
-    const startDateTime = new Date(`${dateOnly}T${bookingData.time}:00`)
-    const endDateTime = new Date(startDateTime.getTime() + 60 * 60 * 1000) // 1 heure
+    // Formater la date et l'heure en utilisant les fonctions utilitaires
+    const dateOnly = formatDateForAPI(new Date(bookingData.date))
+    const { start: startDateTime, end: endDateTime } = createGoogleCalendarDateTime(dateOnly, bookingData.time)
 
     const event = {
       summary: `Rendez-vous - ${bookingData.firstName} ${bookingData.lastName}`,

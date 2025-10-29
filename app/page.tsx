@@ -5,6 +5,7 @@ import { Clock, MapPin, Calendar, Globe, ChevronLeft, ChevronRight, ChevronDown 
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
+import { createParisDate, formatDateForAPI, isTodayInParis } from "@/lib/utils/client-date"
 
 export default function BookingPage() {
   const today = new Date()
@@ -49,9 +50,7 @@ export default function BookingPage() {
   // Fonction pour vérifier la règle des 15 minutes minimum
   const isTimeSlotAvailableForBooking = (timeSlot: string, date: Date) => {
     const now = getCurrentTimeInFrance()
-    const isToday = date.getDate() === now.getDate() && 
-                   date.getMonth() === now.getMonth() && 
-                   date.getFullYear() === now.getFullYear()
+    const isToday = isTodayInParis(date)
 
     if (!isToday) return true
 
@@ -216,7 +215,8 @@ export default function BookingPage() {
   }
 
   const handleDateClick = (day: number) => {
-    const date = new Date(currentYear, currentMonth, day)
+    // Créer la date en tenant compte du fuseau horaire Europe/Paris
+    const date = createParisDate(currentYear, currentMonth, day)
     setSelectedDate(date)
     // Keep period and time if they exist
     setCurrentStep(2)
@@ -430,7 +430,7 @@ export default function BookingPage() {
           email: formData.email,
           phone: formData.phone,
           country: selectedCountry,
-          date: selectedDate ? selectedDate.toISOString().split('T')[0] : undefined,
+          date: selectedDate ? formatDateForAPI(selectedDate) : undefined,
           time: selectedTime,
           period: selectedPeriod,
           firstConsultation: formData.firstConsultation,
@@ -472,7 +472,7 @@ export default function BookingPage() {
           email: formData.email,
           phone: formData.phone,
           country: selectedCountry,
-          date: selectedDate ? selectedDate.toISOString().split('T')[0] : undefined,
+          date: selectedDate ? formatDateForAPI(selectedDate) : undefined,
           time: selectedTime,
           period: selectedPeriod,
           firstConsultation: formData.firstConsultation,
@@ -756,12 +756,6 @@ export default function BookingPage() {
 
                 {/* 4 lignes d'informations essentielles */}
                 <div className={`space-y-3 ${currentStep === 4 ? 'mb-8' : 'mb-6'}`}>
-                  <div className="flex items-center gap-3 text-sm text-gray-700 p-3 rounded-lg bg-gray-50">
-                    <div className="w-8 h-8 rounded-full bg-blue-50 flex items-center justify-center flex-shrink-0">
-                      <Clock className="w-4 h-4 text-[#0066FF]" />
-                    </div>
-                    <span className="font-medium">1h modulable selon le besoin</span>
-                  </div>
 
                   <div className="flex items-center gap-3 text-sm text-gray-700 p-3 rounded-lg bg-gray-50">
                     <div className="w-8 h-8 rounded-full bg-blue-50 flex items-center justify-center flex-shrink-0">
@@ -1491,12 +1485,6 @@ export default function BookingPage() {
           </div>
 
           <div className="space-y-4 mb-8">
-            <div className="flex items-center gap-3 text-sm text-gray-700 p-3 rounded-lg hover:bg-white ">
-              <div className="w-8 h-8 rounded-full bg-blue-50 flex items-center justify-center flex-shrink-0">
-                <Clock className="w-4 h-4 text-[#0066FF]" />
-              </div>
-              <span className="font-medium">1h modulable selon le besoin</span>
-            </div>
 
             <div className="flex items-center gap-3 text-sm text-gray-700 p-3 rounded-lg hover:bg-white ">
               <div className="w-8 h-8 rounded-full bg-blue-50 flex items-center justify-center flex-shrink-0">

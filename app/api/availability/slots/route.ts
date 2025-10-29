@@ -2,6 +2,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
 import { getBlockedSlots, isSlotBlocked } from '@/lib/services/google-calendar'
+import { createDateFromString } from '@/lib/utils/date'
 
 // Créneaux disponibles (de 9h à 18h, par tranches de 30 minutes)
 const generateTimeSlots = () => {
@@ -45,9 +46,10 @@ export async function GET(request: NextRequest) {
 
     // Récupérer toutes les réservations non annulées pour cette date
     // Convertir la date YYYY-MM-DD en Date avec fuseau horaire Europe/Paris
-    const date = new Date(`${dateParam}T00:00:00+01:00`)
-    const startOfDay = new Date(`${dateParam}T00:00:00+01:00`)
-    const endOfDay = new Date(`${dateParam}T23:59:59+01:00`)
+    const date = createDateFromString(dateParam)
+    const startOfDay = createDateFromString(dateParam)
+    const endOfDay = new Date(startOfDay)
+    endOfDay.setHours(23, 59, 59, 999)
 
     const bookings = await prisma.booking.findMany({
       where: {

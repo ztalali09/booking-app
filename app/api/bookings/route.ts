@@ -6,6 +6,7 @@ import { sendBookingConfirmation, sendDoctorNotification } from '@/lib/services/
 import { createCalendarEvent } from '@/lib/services/google-calendar'
 import { bookingRateLimit } from '@/lib/rate-limit'
 import { trackBooking, trackError, measureExecutionTime } from '@/lib/monitoring'
+import { formatDateForAPI, createDateFromString } from '@/lib/utils/date'
 import { z } from 'zod'
 
 export async function POST(request: NextRequest) {
@@ -38,7 +39,7 @@ export async function POST(request: NextRequest) {
 
     // 2. Vérifier la disponibilité du créneau
     // Convertir la date YYYY-MM-DD en Date avec fuseau horaire Europe/Paris
-    const bookingDate = new Date(`${validatedData.date}T00:00:00+01:00`)
+    const bookingDate = createDateFromString(validatedData.date)
     const existingBooking = await prisma.booking.findFirst({
       where: {
         date: bookingDate,
@@ -146,7 +147,7 @@ export async function POST(request: NextRequest) {
         return sendBookingConfirmation(booking.email, {
           firstName: booking.firstName,
           lastName: booking.lastName,
-          date: booking.date.toISOString(),
+          date: formatDateForAPI(booking.date), // YYYY-MM-DD format
           time: booking.time,
           period: booking.period,
           cancellationToken: booking.cancellationToken,
@@ -162,7 +163,7 @@ export async function POST(request: NextRequest) {
           lastName: booking.lastName,
           email: booking.email,
           phone: booking.phone,
-          date: booking.date.toISOString(),
+          date: formatDateForAPI(booking.date), // YYYY-MM-DD format
           time: booking.time,
           period: booking.period,
           firstConsultation: booking.firstConsultation,

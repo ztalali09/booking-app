@@ -1,5 +1,6 @@
 // lib/services/email.ts
 import nodemailer from 'nodemailer'
+import { formatDateForDisplay } from '../utils/date'
 
 // Fonction utilitaire pour formater l'heure avec plage horaire
 const formatTimeRange = (time: string, period: string) => {
@@ -48,12 +49,9 @@ export const sendBookingConfirmation = async (
 ) => {
   const transporter = createTransporter()
   
-  const formattedDate = new Date(bookingData.date).toLocaleDateString('fr-FR', {
-    weekday: 'long',
-    year: 'numeric',
-    month: 'long',
-    day: 'numeric',
-  })
+  // Utiliser la fonction utilitaire pour formater la date
+  const bookingDate = new Date(bookingData.date)
+  const formattedDate = formatDateForDisplay(bookingDate)
 
   const html = `
     <div style="font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; max-width: 600px; margin: 0 auto; background-color: #ffffff;">
@@ -159,12 +157,9 @@ export const sendBookingCancellation = async (
 ) => {
   const transporter = createTransporter()
   
-  const formattedDate = new Date(bookingData.date).toLocaleDateString('fr-FR', {
-    weekday: 'long',
-    year: 'numeric',
-    month: 'long',
-    day: 'numeric',
-  })
+  // Utiliser la fonction utilitaire pour formater la date
+  const bookingDate = new Date(bookingData.date)
+  const formattedDate = formatDateForDisplay(bookingDate)
 
   const html = `
     <div style="font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; max-width: 600px; margin: 0 auto; background-color: #ffffff;">
@@ -265,12 +260,9 @@ export const sendDoctorNotification = async (
 ) => {
   const transporter = createTransporter()
   
-  const formattedDate = new Date(bookingData.date).toLocaleDateString('fr-FR', {
-    weekday: 'long',
-    year: 'numeric',
-    month: 'long',
-    day: 'numeric',
-  })
+  // Utiliser la fonction utilitaire pour formater la date
+  const bookingDate = new Date(bookingData.date)
+  const formattedDate = formatDateForDisplay(bookingDate)
 
   const html = `
     <div style="font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; max-width: 600px; margin: 0 auto; background-color: #ffffff;">
@@ -435,11 +427,14 @@ export const sendPatientCancellationNotification = async (booking: {
     return
   }
   
-  const formattedDate = new Date(booking.date).toLocaleDateString('fr-FR', {
+  // S'assurer que la date est correctement formatée en Europe/Paris
+  const bookingDate = new Date(booking.date)
+  const formattedDate = bookingDate.toLocaleDateString('fr-FR', {
     weekday: 'long',
     year: 'numeric',
     month: 'long',
     day: 'numeric',
+    timeZone: 'Europe/Paris'
   })
   
   const timeRange = formatTimeRange(booking.time, booking.period)
@@ -604,12 +599,9 @@ export const sendDoctorCancellationNotification = async (
     return
   }
   
-  const formattedDate = new Date(bookingData.date).toLocaleDateString('fr-FR', {
-    weekday: 'long',
-    year: 'numeric',
-    month: 'long',
-    day: 'numeric',
-  })
+  // Utiliser la fonction utilitaire pour formater la date
+  const bookingDate = new Date(bookingData.date)
+  const formattedDate = formatDateForDisplay(bookingDate)
 
   const html = `
     <div style="font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; max-width: 600px; margin: 0 auto; background-color: #ffffff;">

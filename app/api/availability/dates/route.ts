@@ -1,6 +1,7 @@
 // app/api/availability/dates/route.ts
 import { NextRequest, NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
+import { getCurrentParisDate } from '@/lib/utils/date'
 
 // Vérifier si une date a encore des créneaux disponibles
 const hasAvailableSlots = async (date: Date, allBookings: Map<string, string[]>) => {
@@ -72,9 +73,7 @@ export async function GET(request: NextRequest) {
 
     // Générer les dates disponibles (du jour actuel jusqu'à 180 jours)
     // Utiliser le fuseau horaire français
-    const now = new Date()
-    const franceTime = new Date(now.toLocaleString("en-US", {timeZone: "Europe/Paris"}))
-    const today = new Date(franceTime.getFullYear(), franceTime.getMonth(), franceTime.getDate())
+    const today = getCurrentParisDate()
     
     const startDate = new Date(today) // Inclure le jour actuel
     

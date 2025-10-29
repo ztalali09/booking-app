@@ -3,6 +3,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
 import { sendBookingCancellation, sendDoctorCancellationNotification } from '@/lib/services/email'
 import { deleteCalendarEvent } from '@/lib/services/calendar'
+import { formatDateForAPI } from '@/lib/utils/date'
 
 export async function POST(request: NextRequest) {
   try {
@@ -59,7 +60,7 @@ export async function POST(request: NextRequest) {
         sendBookingCancellation(updatedBooking.email, {
           firstName: updatedBooking.firstName,
           lastName: updatedBooking.lastName,
-          date: updatedBooking.date.toISOString(),
+          date: formatDateForAPI(updatedBooking.date), // YYYY-MM-DD format
           time: updatedBooking.time,
           period: updatedBooking.period,
         }),
@@ -69,7 +70,7 @@ export async function POST(request: NextRequest) {
           lastName: updatedBooking.lastName,
           email: updatedBooking.email,
           phone: updatedBooking.phone,
-          date: updatedBooking.date.toISOString(),
+          date: formatDateForAPI(updatedBooking.date), // YYYY-MM-DD format
           time: updatedBooking.time,
           period: updatedBooking.period,
           consultationReason: updatedBooking.consultationReason,
