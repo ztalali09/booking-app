@@ -18,19 +18,29 @@ const formatTimeRange = (time: string, period: string) => {
 
 // Configuration du transporteur Gmail
 export const createTransporter = () => {
+  // Priorité aux variables SMTP standard, fallback sur Gmail
+  const smtpUser = process.env.SMTP_USER || process.env.GMAIL_USER
+  const smtpPassword = process.env.SMTP_PASSWORD || process.env.GMAIL_APP_PASSWORD
+  const smtpHost = process.env.SMTP_HOST || 'smtp.gmail.com'
+  const smtpPort = process.env.SMTP_PORT || '587'
+  
   console.log('🔧 Configuration SMTP:')
-  console.log('  - SMTP_HOST:', process.env.SMTP_HOST || 'smtp.gmail.com')
-  console.log('  - SMTP_PORT:', process.env.SMTP_PORT || '587')
-  console.log('  - GMAIL_USER:', process.env.GMAIL_USER ? '✅ Défini' : '❌ Manquant')
-  console.log('  - GMAIL_APP_PASSWORD:', process.env.GMAIL_APP_PASSWORD ? '✅ Défini' : '❌ Manquant')
+  console.log('  - SMTP_HOST:', smtpHost)
+  console.log('  - SMTP_PORT:', smtpPort)
+  console.log('  - SMTP_USER:', smtpUser ? '✅ Défini' : '❌ Manquant')
+  console.log('  - SMTP_PASSWORD:', smtpPassword ? '✅ Défini' : '❌ Manquant')
+  
+  if (!smtpUser || !smtpPassword) {
+    throw new Error('Configuration email manquante: SMTP_USER/SMTP_PASSWORD ou GMAIL_USER/GMAIL_APP_PASSWORD requis')
+  }
   
   return nodemailer.createTransport({
-    host: process.env.SMTP_HOST || 'smtp.gmail.com',
-    port: parseInt(process.env.SMTP_PORT || '587'),
+    host: smtpHost,
+    port: parseInt(smtpPort),
     secure: false, // true pour 465, false pour autres ports
     auth: {
-      user: process.env.GMAIL_USER,
-      pass: process.env.GMAIL_APP_PASSWORD,
+      user: smtpUser,
+      pass: smtpPassword,
     },
   })
 }
@@ -137,10 +147,19 @@ export const sendBookingConfirmation = async (
     const result = await transporter.sendMail(mailOptions)
     console.log(`✅ Email de confirmation envoyé à ${email}`)
     console.log(`✅ Message ID: ${result.messageId}`)
+    return result
   } catch (error) {
     console.error('❌ Erreur envoi email:', error)
     console.error('❌ Détails erreur:', error instanceof Error ? error.message : String(error))
-    throw new Error('Impossible d\'envoyer l\'email de confirmation')
+    
+    // Log détaillé pour le debugging en production
+    if (error instanceof Error) {
+      console.error('❌ Stack trace:', error.stack)
+    }
+    
+    // Ne pas faire échouer la réservation si l'email échoue
+    console.log('⚠️  Réservation créée mais email non envoyé')
+    return null
   }
 }
 
