@@ -20,16 +20,16 @@ export const createTransporter = () => {
   console.log('🔧 Configuration SMTP:')
   console.log('  - SMTP_HOST:', process.env.SMTP_HOST || 'smtp.gmail.com')
   console.log('  - SMTP_PORT:', process.env.SMTP_PORT || '587')
-  console.log('  - SMTP_USER:', process.env.SMTP_USER ? '✅ Défini' : '❌ Manquant')
-  console.log('  - SMTP_PASSWORD:', process.env.SMTP_PASSWORD ? '✅ Défini' : '❌ Manquant')
+  console.log('  - GMAIL_USER:', process.env.GMAIL_USER ? '✅ Défini' : '❌ Manquant')
+  console.log('  - GMAIL_APP_PASSWORD:', process.env.GMAIL_APP_PASSWORD ? '✅ Défini' : '❌ Manquant')
   
   return nodemailer.createTransport({
     host: process.env.SMTP_HOST || 'smtp.gmail.com',
     port: parseInt(process.env.SMTP_PORT || '587'),
     secure: false, // true pour 465, false pour autres ports
     auth: {
-      user: process.env.SMTP_USER,
-      pass: process.env.SMTP_PASSWORD,
+      user: process.env.GMAIL_USER,
+      pass: process.env.GMAIL_APP_PASSWORD,
     },
   })
 }
@@ -105,7 +105,7 @@ export const sendBookingConfirmation = async (
           <p style="color: #4a5568; font-size: 14px; margin: 0 0 15px 0;">
             Si vous devez annuler votre rendez-vous, vous pouvez le faire jusqu'à 24h avant en utilisant le lien ci-dessous :
           </p>
-          <a href="${process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000'}/cancel?token=${bookingData.cancellationToken}" 
+          <a href="${process.env.NEXT_PUBLIC_APP_URL || 'https://booking-pr0gs2hq4-hahababamama77-gmailcoms-projects.vercel.app'}/cancel?token=${bookingData.cancellationToken}" 
              style="background: #e53e3e; color: white; padding: 12px 24px; text-decoration: none; border-radius: 4px; display: inline-block; font-size: 14px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px;">
             Annuler le rendez-vous
           </a>
@@ -125,7 +125,7 @@ export const sendBookingConfirmation = async (
   `
 
   const mailOptions = {
-    from: `"${process.env.SMTP_FROM_NAME || 'Cabinet Médical'}" <${process.env.SMTP_USER}>`,
+    from: `"${process.env.SMTP_FROM_NAME || 'Cabinet Médical'}" <${process.env.GMAIL_USER}>`,
     to: email,
     subject: 'Confirmation de votre rendez-vous médical',
     html,
@@ -232,7 +232,7 @@ export const sendBookingCancellation = async (
   `
 
   const mailOptions = {
-    from: `"${process.env.SMTP_FROM_NAME || 'Cabinet Médical'}" <${process.env.SMTP_USER}>`,
+    from: `"${process.env.SMTP_FROM_NAME || 'Cabinet Médical'}" <${process.env.GMAIL_USER}>`,
     to: email,
     subject: 'Annulation de votre rendez-vous médical',
     html,
@@ -375,7 +375,7 @@ export const sendDoctorNotification = async (
             Actions disponibles
           </h3>
           <div style="text-align: center;">
-            <a href="${process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000'}/doctor/cancel?token=${bookingData.cancellationToken}" 
+            <a href="${process.env.NEXT_PUBLIC_APP_URL || 'https://booking-pr0gs2hq4-hahababamama77-gmailcoms-projects.vercel.app'}/doctor/cancel?token=${bookingData.cancellationToken}" 
                style="display: inline-block; background: linear-gradient(135deg, #dc2626, #b91c1c); color: #ffffff; text-decoration: none; padding: 15px 30px; border-radius: 8px; font-weight: 600; font-size: 16px; margin: 10px;">
               Annuler ce rendez-vous
             </a>
@@ -396,8 +396,8 @@ export const sendDoctorNotification = async (
   `
 
   const mailOptions = {
-    from: `"Système de Réservation" <${process.env.SMTP_USER}>`,
-    to: process.env.SMTP_USER, // Email du médecin
+    from: `"Système de Réservation" <${process.env.GMAIL_USER}>`,
+    to: process.env.GMAIL_USER, // Email du médecin
     subject: `Nouvelle réservation - ${bookingData.firstName} ${bookingData.lastName}`,
     html,
   }
@@ -570,7 +570,7 @@ export const sendPatientCancellationNotification = async (booking: {
 
   try {
     await transporter.sendMail({
-      from: process.env.SMTP_USER,
+      from: process.env.GMAIL_USER,
       to: booking.email,
       subject: subject,
       html: html,
@@ -715,8 +715,8 @@ export const sendDoctorCancellationNotification = async (
   `
 
   const mailOptions = {
-    from: `"Système de Réservation" <${process.env.SMTP_USER}>`,
-    to: process.env.SMTP_USER, // Email du médecin
+    from: `"Système de Réservation" <${process.env.GMAIL_USER}>`,
+    to: process.env.GMAIL_USER, // Email du médecin
     subject: `Annulation de réservation - ${bookingData.firstName} ${bookingData.lastName}`,
     html,
   }

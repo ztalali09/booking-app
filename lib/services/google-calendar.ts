@@ -114,18 +114,16 @@ export async function createCalendarEvent(bookingData: {
 
     const [hours, minutes] = bookingData.time.split(':').map(Number)
     
-    // Créer les dates en heure locale (Europe/Paris)
-    // La date bookingData.date est en UTC, on doit la convertir en heure locale
-    const localDate = new Date(bookingData.date.getTime() + (bookingData.date.getTimezoneOffset() * 60000))
-    const startTime = new Date(localDate)
+    // Créer les dates directement à partir de bookingData.date
+    // La date bookingData.date est déjà en heure locale
+    const startTime = new Date(bookingData.date)
     startTime.setHours(hours, minutes, 0, 0)
     
     const endTime = new Date(startTime)
     endTime.setHours(hours + 1, minutes, 0, 0)
     
     console.log('🕐 Création événement Google Calendar:')
-    console.log('  - Date réservation (UTC):', bookingData.date)
-    console.log('  - Date réservation (local):', localDate)
+    console.log('  - Date réservation:', bookingData.date)
     console.log('  - Heure réservation:', bookingData.time)
     console.log('  - Start time (local):', startTime.toLocaleString('fr-FR', { timeZone: 'Europe/Paris' }))
     console.log('  - End time (local):', endTime.toLocaleString('fr-FR', { timeZone: 'Europe/Paris' }))
@@ -212,10 +210,9 @@ export async function updateCalendarEvent(eventId: string, bookingData: {
 
     const [hours, minutes] = bookingData.time.split(':').map(Number)
     
-    // Créer les dates en heure locale (Europe/Paris)
-    // La date bookingData.date est en UTC, on doit la convertir en heure locale
-    const localDate = new Date(bookingData.date.getTime() + (bookingData.date.getTimezoneOffset() * 60000))
-    const startTime = new Date(localDate)
+    // Créer les dates directement à partir de bookingData.date
+    // La date bookingData.date est déjà en heure locale
+    const startTime = new Date(bookingData.date)
     startTime.setHours(hours, minutes, 0, 0)
     
     const endTime = new Date(startTime)
