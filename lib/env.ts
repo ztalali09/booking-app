@@ -4,15 +4,15 @@ import { z } from 'zod'
 // Schéma de validation des variables d'environnement
 const envSchema = z.object({
   // Base de données
-  DATABASE_URL: z.string().min(1, "DATABASE_URL est requis"),
+  DATABASE_URL: z.string().default("file:./dev.db"),
   
   // Application
   NEXT_PUBLIC_APP_URL: z.string().url().default("http://localhost:3000"),
   NODE_ENV: z.enum(["development", "production", "test"]).default("development"),
   
-  // Sécurité
-  ADMIN_PASSWORD: z.string().min(8, "ADMIN_PASSWORD doit contenir au moins 8 caractères"),
-  JWT_SECRET: z.string().min(32, "JWT_SECRET doit contenir au moins 32 caractères"),
+  // Sécurité (optionnel pour une app de réservation simple)
+  ADMIN_PASSWORD: z.string().optional(),
+  JWT_SECRET: z.string().optional(),
   
   // Email (optionnel en développement)
   SMTP_HOST: z.string().optional(),
