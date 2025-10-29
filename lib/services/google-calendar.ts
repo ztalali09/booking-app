@@ -32,12 +32,10 @@ export async function getBlockedSlots(date: Date) {
     const auth = getAuth()
     const calendar = google.calendar({ version: 'v3', auth })
 
-    // Créer les dates de début et fin pour la journée
-    const startOfDay = new Date(date)
-    startOfDay.setHours(0, 0, 0, 0)
-    
-    const endOfDay = new Date(date)
-    endOfDay.setHours(23, 59, 59, 999)
+    // Créer les dates de début et fin pour la journée en Europe/Paris
+    const dateStr = date.toISOString().split('T')[0] // YYYY-MM-DD
+    const startOfDay = new Date(`${dateStr}T00:00:00+01:00`) // 00:00 Europe/Paris
+    const endOfDay = new Date(`${dateStr}T23:59:59+01:00`)   // 23:59 Europe/Paris
 
     // Récupérer les événements de la journée
     const response = await calendar.events.list({
@@ -76,11 +74,9 @@ export async function getBlockedSlots(date: Date) {
 // Vérifier si un créneau est bloqué
 export function isSlotBlocked(timeSlot: string, date: Date, blockedSlots: any[]) {
   const [hours, minutes] = timeSlot.split(':').map(Number)
-  const slotStart = new Date(date)
-  slotStart.setHours(hours, minutes, 0, 0)
-  
-  const slotEnd = new Date(slotStart)
-  slotEnd.setHours(hours + 1, minutes, 0, 0) // Créneau d'1 heure
+  const dateStr = date.toISOString().split('T')[0] // YYYY-MM-DD
+  const slotStart = new Date(`${dateStr}T${String(hours).padStart(2, '0')}:${String(minutes).padStart(2, '0')}:00+01:00`)
+  const slotEnd = new Date(`${dateStr}T${String(hours + 1).padStart(2, '0')}:${String(minutes).padStart(2, '0')}:00+01:00`)
 
   return blockedSlots.some(blocked => {
     if (blocked.isAllDay) {
@@ -114,13 +110,11 @@ export async function createCalendarEvent(bookingData: {
 
     const [hours, minutes] = bookingData.time.split(':').map(Number)
     
-    // Créer les dates directement à partir de bookingData.date
-    // La date bookingData.date est déjà en heure locale
-    const startTime = new Date(bookingData.date)
-    startTime.setHours(hours, minutes, 0, 0)
-    
-    const endTime = new Date(startTime)
-    endTime.setHours(hours + 1, minutes, 0, 0)
+    // Créer les dates en spécifiant explicitement le fuseau horaire Europe/Paris
+    // Cela évite les problèmes de décalage entre local (Europe/Paris) et production (UTC)
+    const dateStr = bookingData.date.toISOString().split('T')[0] // YYYY-MM-DD
+    const startTime = new Date(`${dateStr}T${bookingData.time}:00+01:00`) // Force Europe/Paris
+    const endTime = new Date(`${dateStr}T${String(hours + 1).padStart(2, '0')}:${String(minutes).padStart(2, '0')}:00+01:00`)
     
     console.log('🕐 Création événement Google Calendar:')
     console.log('  - Date réservation:', bookingData.date)
@@ -210,13 +204,11 @@ export async function updateCalendarEvent(eventId: string, bookingData: {
 
     const [hours, minutes] = bookingData.time.split(':').map(Number)
     
-    // Créer les dates directement à partir de bookingData.date
-    // La date bookingData.date est déjà en heure locale
-    const startTime = new Date(bookingData.date)
-    startTime.setHours(hours, minutes, 0, 0)
-    
-    const endTime = new Date(startTime)
-    endTime.setHours(hours + 1, minutes, 0, 0)
+    // Créer les dates en spécifiant explicitement le fuseau horaire Europe/Paris
+    // Cela évite les problèmes de décalage entre local (Europe/Paris) et production (UTC)
+    const dateStr = bookingData.date.toISOString().split('T')[0] // YYYY-MM-DD
+    const startTime = new Date(`${dateStr}T${bookingData.time}:00+01:00`) // Force Europe/Paris
+    const endTime = new Date(`${dateStr}T${String(hours + 1).padStart(2, '0')}:${String(minutes).padStart(2, '0')}:00+01:00`)
 
     const event = {
       summary: `Consultation - ${bookingData.firstName} ${bookingData.lastName}`,
