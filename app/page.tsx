@@ -548,9 +548,8 @@ export default function BookingPage() {
       "décembre",
     ]
     
-    // Convertir la date UTC en heure locale pour l'affichage
-    const localDate = new Date(selectedDate.getTime() + (selectedDate.getTimezoneOffset() * 60000))
-    return `${days[localDate.getDay()]}, ${localDate.getDate()} ${months[localDate.getMonth()]}`
+    // La date selectedDate est déjà en heure locale, pas besoin de conversion
+    return `${days[selectedDate.getDay()]}, ${selectedDate.getDate()} ${months[selectedDate.getMonth()]}`
   }
 
   const formatFullDateTime = () => {
@@ -576,9 +575,8 @@ export default function BookingPage() {
     const endHours = hours + 1
     const endTime = `${endHours.toString().padStart(2, "0")}:${minutes.toString().padStart(2, "0")}`
 
-    // Convertir la date UTC en heure locale pour l'affichage
-    const localDate = new Date(selectedDate.getTime() + (selectedDate.getTimezoneOffset() * 60000))
-    return `${selectedTime} - ${endTime}, ${days[localDate.getDay()]}, ${localDate.getDate()} ${months[localDate.getMonth()]} ${localDate.getFullYear()}`
+    // La date selectedDate est déjà en heure locale, pas besoin de conversion
+    return `${selectedTime} - ${endTime}, ${days[selectedDate.getDay()]}, ${selectedDate.getDate()} ${months[selectedDate.getMonth()]} ${selectedDate.getFullYear()}`
   }
 
   const renderCalendar = () => {
