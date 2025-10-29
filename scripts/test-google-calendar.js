@@ -146,3 +146,4 @@ async function testGoogleCalendarConnection() {
 
 // Exécuter le test
 testGoogleCalendarConnection()
+

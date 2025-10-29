@@ -170,3 +170,4 @@ async function runDoctorEmailTest() {
 
 // Exécuter le test
 runDoctorEmailTest().catch(console.error)
+

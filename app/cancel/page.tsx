@@ -82,7 +82,10 @@ function CancelContent() {
   }
 
   const formatDate = (dateString: string) => {
-    return new Date(dateString).toLocaleDateString('fr-FR', {
+    const date = new Date(dateString)
+    // Convertir la date UTC en heure locale pour l'affichage
+    const localDate = new Date(date.getTime() + (date.getTimezoneOffset() * 60000))
+    return localDate.toLocaleDateString('fr-FR', {
       weekday: 'long',
       year: 'numeric',
       month: 'long',

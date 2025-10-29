@@ -137,34 +137,41 @@ export async function POST(request: NextRequest) {
     }
     
     // Autres tâches asynchrones (emails)
+    console.log('📧 Démarrage des tâches d\'envoi d\'emails...')
     Promise.all([
       // Email de confirmation au patient
-      sendBookingConfirmation(booking.email, {
-        firstName: booking.firstName,
-        lastName: booking.lastName,
-        date: booking.date.toISOString(),
-        time: booking.time,
-        period: booking.period,
-        cancellationToken: booking.cancellationToken,
-      }).catch(error => {
-        console.error('Erreur email confirmation:', error)
-      }),
+      (async () => {
+        console.log('📧 Envoi email confirmation patient...')
+        return sendBookingConfirmation(booking.email, {
+          firstName: booking.firstName,
+          lastName: booking.lastName,
+          date: booking.date.toISOString(),
+          time: booking.time,
+          period: booking.period,
+          cancellationToken: booking.cancellationToken,
+        }).catch(error => {
+          console.error('❌ Erreur email confirmation:', error)
+        })
+      })(),
       // Notification au médecin
-      sendDoctorNotification({
-        firstName: booking.firstName,
-        lastName: booking.lastName,
-        email: booking.email,
-        phone: booking.phone,
-        date: booking.date.toISOString(),
-        time: booking.time,
-        period: booking.period,
-        firstConsultation: booking.firstConsultation,
-        consultationReason: booking.consultationReason,
-        message: booking.message || undefined,
-        cancellationToken: booking.cancellationToken,
-      }).catch(error => {
-        console.error('Erreur notification médecin:', error)
-      }),
+      (async () => {
+        console.log('📧 Envoi notification médecin...')
+        return sendDoctorNotification({
+          firstName: booking.firstName,
+          lastName: booking.lastName,
+          email: booking.email,
+          phone: booking.phone,
+          date: booking.date.toISOString(),
+          time: booking.time,
+          period: booking.period,
+          firstConsultation: booking.firstConsultation,
+          consultationReason: booking.consultationReason,
+          message: booking.message || undefined,
+          cancellationToken: booking.cancellationToken,
+        }).catch(error => {
+          console.error('❌ Erreur notification médecin:', error)
+        })
+      })(),
     ]).catch(error => {
       console.error('Erreur lors des notifications:', error)
       // Ne pas bloquer la réponse si les notifications échouent

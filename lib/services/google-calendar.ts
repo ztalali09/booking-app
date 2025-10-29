@@ -113,11 +113,24 @@ export async function createCalendarEvent(bookingData: {
     const calendar = google.calendar({ version: 'v3', auth })
 
     const [hours, minutes] = bookingData.time.split(':').map(Number)
-    const startTime = new Date(bookingData.date)
+    
+    // Créer les dates en heure locale (Europe/Paris)
+    // La date bookingData.date est en UTC, on doit la convertir en heure locale
+    const localDate = new Date(bookingData.date.getTime() + (bookingData.date.getTimezoneOffset() * 60000))
+    const startTime = new Date(localDate)
     startTime.setHours(hours, minutes, 0, 0)
     
     const endTime = new Date(startTime)
     endTime.setHours(hours + 1, minutes, 0, 0)
+    
+    console.log('🕐 Création événement Google Calendar:')
+    console.log('  - Date réservation (UTC):', bookingData.date)
+    console.log('  - Date réservation (local):', localDate)
+    console.log('  - Heure réservation:', bookingData.time)
+    console.log('  - Start time (local):', startTime.toLocaleString('fr-FR', { timeZone: 'Europe/Paris' }))
+    console.log('  - End time (local):', endTime.toLocaleString('fr-FR', { timeZone: 'Europe/Paris' }))
+    console.log('  - Start time (ISO):', startTime.toISOString())
+    console.log('  - End time (ISO):', endTime.toISOString())
 
     const event = {
       summary: `Consultation - ${bookingData.firstName} ${bookingData.lastName}`,
@@ -198,7 +211,11 @@ export async function updateCalendarEvent(eventId: string, bookingData: {
     const calendar = google.calendar({ version: 'v3', auth })
 
     const [hours, minutes] = bookingData.time.split(':').map(Number)
-    const startTime = new Date(bookingData.date)
+    
+    // Créer les dates en heure locale (Europe/Paris)
+    // La date bookingData.date est en UTC, on doit la convertir en heure locale
+    const localDate = new Date(bookingData.date.getTime() + (bookingData.date.getTimezoneOffset() * 60000))
+    const startTime = new Date(localDate)
     startTime.setHours(hours, minutes, 0, 0)
     
     const endTime = new Date(startTime)

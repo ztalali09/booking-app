@@ -384,3 +384,4 @@ async function runEmailCalendarTests() {
 
 // Exécuter les tests
 runEmailCalendarTests().catch(console.error)
+

@@ -96,3 +96,4 @@ async function createBookingCalendar() {
 
 // Exécuter le script
 createBookingCalendar()
+

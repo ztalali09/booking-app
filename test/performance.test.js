@@ -305,3 +305,4 @@ async function runPerformanceTests() {
 
 // Exécuter les tests de performance
 runPerformanceTests().catch(console.error)
+

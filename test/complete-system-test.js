@@ -240,3 +240,4 @@ async function runCompleteSystemTest() {
 
 // Exécuter le test complet
 runCompleteSystemTest().catch(console.error)
+

@@ -17,6 +17,12 @@ const formatTimeRange = (time: string, period: string) => {
 
 // Configuration du transporteur Gmail
 export const createTransporter = () => {
+  console.log('🔧 Configuration SMTP:')
+  console.log('  - SMTP_HOST:', process.env.SMTP_HOST || 'smtp.gmail.com')
+  console.log('  - SMTP_PORT:', process.env.SMTP_PORT || '587')
+  console.log('  - SMTP_USER:', process.env.SMTP_USER ? '✅ Défini' : '❌ Manquant')
+  console.log('  - SMTP_PASSWORD:', process.env.SMTP_PASSWORD ? '✅ Défini' : '❌ Manquant')
+  
   return nodemailer.createTransport({
     host: process.env.SMTP_HOST || 'smtp.gmail.com',
     port: parseInt(process.env.SMTP_PORT || '587'),
@@ -99,7 +105,7 @@ export const sendBookingConfirmation = async (
           <p style="color: #4a5568; font-size: 14px; margin: 0 0 15px 0;">
             Si vous devez annuler votre rendez-vous, vous pouvez le faire jusqu'à 24h avant en utilisant le lien ci-dessous :
           </p>
-          <a href="${process.env.NEXTAUTH_URL || 'http://localhost:3000'}/cancel?token=${bookingData.cancellationToken}" 
+          <a href="${process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000'}/cancel?token=${bookingData.cancellationToken}" 
              style="background: #e53e3e; color: white; padding: 12px 24px; text-decoration: none; border-radius: 4px; display: inline-block; font-size: 14px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px;">
             Annuler le rendez-vous
           </a>
@@ -126,10 +132,16 @@ export const sendBookingConfirmation = async (
   }
 
   try {
-    await transporter.sendMail(mailOptions)
-    console.log(`Email de confirmation envoyé à ${email}`)
+    console.log(`📧 Tentative d'envoi email à: ${email}`)
+    console.log(`📧 Sujet: ${mailOptions.subject}`)
+    console.log(`📧 De: ${mailOptions.from}`)
+    
+    const result = await transporter.sendMail(mailOptions)
+    console.log(`✅ Email de confirmation envoyé à ${email}`)
+    console.log(`✅ Message ID: ${result.messageId}`)
   } catch (error) {
-    console.error('Erreur envoi email:', error)
+    console.error('❌ Erreur envoi email:', error)
+    console.error('❌ Détails erreur:', error instanceof Error ? error.message : String(error))
     throw new Error('Impossible d\'envoyer l\'email de confirmation')
   }
 }
@@ -363,7 +375,7 @@ export const sendDoctorNotification = async (
             Actions disponibles
           </h3>
           <div style="text-align: center;">
-            <a href="${process.env.NEXTAUTH_URL || 'http://localhost:3000'}/doctor/cancel?token=${bookingData.cancellationToken}" 
+            <a href="${process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000'}/doctor/cancel?token=${bookingData.cancellationToken}" 
                style="display: inline-block; background: linear-gradient(135deg, #dc2626, #b91c1c); color: #ffffff; text-decoration: none; padding: 15px 30px; border-radius: 8px; font-weight: 600; font-size: 16px; margin: 10px;">
               Annuler ce rendez-vous
             </a>
@@ -391,10 +403,16 @@ export const sendDoctorNotification = async (
   }
 
   try {
-    await transporter.sendMail(mailOptions)
-    console.log(`Notification médecin envoyée`)
+    console.log(`📧 Tentative d'envoi notification médecin`)
+    console.log(`📧 Sujet: ${mailOptions.subject}`)
+    console.log(`📧 À: ${mailOptions.to}`)
+    
+    const result = await transporter.sendMail(mailOptions)
+    console.log(`✅ Notification médecin envoyée`)
+    console.log(`✅ Message ID: ${result.messageId}`)
   } catch (error) {
-    console.error('Erreur envoi notification médecin:', error)
+    console.error('❌ Erreur envoi notification médecin:', error)
+    console.error('❌ Détails erreur:', error instanceof Error ? error.message : String(error))
     // Ne pas faire échouer la réservation si l'email échoue
   }
 }
@@ -518,7 +536,7 @@ export const sendPatientCancellationNotification = async (booking: {
             </p>
             ${!isDoctorCancellation && `
               <div style="text-align: center; margin-top: 20px;">
-                <a href="${process.env.NEXTAUTH_URL || 'http://localhost:3000'}" 
+                <a href="${process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000'}" 
                    style="display: inline-block; background: linear-gradient(135deg, #059669, #047857); color: #ffffff; text-decoration: none; padding: 15px 30px; border-radius: 8px; font-weight: 600; font-size: 16px;">
                   Prendre un nouveau rendez-vous
                 </a>

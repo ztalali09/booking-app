@@ -109,3 +109,4 @@ emailVars.forEach(varName => {
 
 console.log('\n🎉 Configuration email prête!')
 console.log('📧 Les emails devraient maintenant être envoyés correctement.')
+

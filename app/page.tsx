@@ -547,7 +547,10 @@ export default function BookingPage() {
       "novembre",
       "décembre",
     ]
-    return `${days[selectedDate.getDay()]}, ${selectedDate.getDate()} ${months[selectedDate.getMonth()]}`
+    
+    // Convertir la date UTC en heure locale pour l'affichage
+    const localDate = new Date(selectedDate.getTime() + (selectedDate.getTimezoneOffset() * 60000))
+    return `${days[localDate.getDay()]}, ${localDate.getDate()} ${months[localDate.getMonth()]}`
   }
 
   const formatFullDateTime = () => {
@@ -573,7 +576,9 @@ export default function BookingPage() {
     const endHours = hours + 1
     const endTime = `${endHours.toString().padStart(2, "0")}:${minutes.toString().padStart(2, "0")}`
 
-    return `${selectedTime} - ${endTime}, ${days[selectedDate.getDay()]}, ${selectedDate.getDate()} ${months[selectedDate.getMonth()]} ${selectedDate.getFullYear()}`
+    // Convertir la date UTC en heure locale pour l'affichage
+    const localDate = new Date(selectedDate.getTime() + (selectedDate.getTimezoneOffset() * 60000))
+    return `${selectedTime} - ${endTime}, ${days[localDate.getDay()]}, ${localDate.getDate()} ${months[localDate.getMonth()]} ${localDate.getFullYear()}`
   }
 
   const renderCalendar = () => {

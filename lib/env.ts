@@ -86,13 +86,13 @@ export const googleCalendarConfig = {
   clientId: env.GOOGLE_CALENDAR_CLIENT_ID,
   clientSecret: env.GOOGLE_CALENDAR_CLIENT_SECRET,
   refreshToken: env.GOOGLE_CALENDAR_REFRESH_TOKEN,
-  calendarId: env.GOOGLE_CALENDAR_CALENDAR_ID,
+  calendarId: process.env.GOOGLE_CALENDAR_ID || 'primary',
 }
 
 export const googleServiceAccountConfig = {
   clientEmail: env.GOOGLE_SERVICE_ACCOUNT_EMAIL,
-  privateKey: env.GOOGLE_SERVICE_ACCOUNT_PRIVATE_KEY,
-  projectId: env.GOOGLE_SERVICE_ACCOUNT_PROJECT_ID,
+  privateKey: process.env.GOOGLE_PRIVATE_KEY,
+  projectId: process.env.GOOGLE_PROJECT_ID,
 }
 
 export const telegramConfig = {
