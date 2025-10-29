@@ -1,8 +1,7 @@
 {
   "version": 2,
   "env": {
-    "NODE_ENV": "production",
-    "TZ": "Europe/Paris"
+    "NODE_ENV": "production"
   },
   "functions": {
     "app/api/**/*.ts": {

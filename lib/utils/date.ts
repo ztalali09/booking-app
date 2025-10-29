@@ -87,7 +87,11 @@ export function createGoogleCalendarDateTime(dateString: string, timeString: str
  * Obtient la date actuelle en Europe/Paris
  */
 export function getCurrentParisDate(): Date {
-  return new Date(new Date().toLocaleString("en-US", { timeZone: "Europe/Paris" }))
+  // Utiliser toLocaleString pour forcer le fuseau horaire Europe/Paris
+  // même si le serveur est en UTC
+  const now = new Date()
+  const parisTime = new Date(now.toLocaleString("en-US", { timeZone: "Europe/Paris" }))
+  return parisTime
 }
 
 /**
