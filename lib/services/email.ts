@@ -167,7 +167,7 @@ export const sendBookingConfirmation = async (
     console.log(`📧 Début de l'envoi d'email...`)
     
     // Wrapper avec timeout forcé
-    const sendEmailWithTimeout = async () => {
+    const sendEmailWithTimeout = async (): Promise<{ messageId: string; response: string }> => {
       return new Promise((resolve, reject) => {
         const timeout = setTimeout(() => {
           reject(new Error('Timeout: Email sending took too long'))
@@ -176,7 +176,7 @@ export const sendBookingConfirmation = async (
         transporter.sendMail(mailOptions)
           .then(result => {
             clearTimeout(timeout)
-            resolve(result)
+            resolve(result as { messageId: string; response: string })
           })
           .catch(error => {
             clearTimeout(timeout)
@@ -472,7 +472,7 @@ export const sendDoctorNotification = async (
     console.log(`📧 Début de l'envoi d'email...`)
     
     // Wrapper avec timeout forcé
-    const sendEmailWithTimeout = async () => {
+    const sendEmailWithTimeout = async (): Promise<{ messageId: string; response: string }> => {
       return new Promise((resolve, reject) => {
         const timeout = setTimeout(() => {
           reject(new Error('Timeout: Email sending took too long'))
@@ -481,7 +481,7 @@ export const sendDoctorNotification = async (
         transporter.sendMail(mailOptions)
           .then(result => {
             clearTimeout(timeout)
-            resolve(result)
+            resolve(result as { messageId: string; response: string })
           })
           .catch(error => {
             clearTimeout(timeout)
