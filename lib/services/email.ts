@@ -158,7 +158,7 @@ export const sendBookingConfirmation = async (
           <p style="color: #4a5568; font-size: 14px; margin: 0 0 15px 0;">
             Si vous devez annuler votre rendez-vous, vous pouvez le faire jusqu'à 24h avant en utilisant le lien ci-dessous :
           </p>
-          <a href="${process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000'}/cancel?token=${bookingData.cancellationToken}" 
+          <a href="${process.env.NEXT_PUBLIC_APP_URL || 'https://booking-p70q1smkx-hahababamama77-gmailcoms-projects.vercel.app'}/cancel?token=${bookingData.cancellationToken}" 
              style="background: #e53e3e; color: white; padding: 12px 24px; text-decoration: none; border-radius: 4px; display: inline-block; font-size: 14px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px;">
             Annuler le rendez-vous
           </a>
