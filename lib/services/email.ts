@@ -162,7 +162,7 @@ export const sendBookingConfirmation = async (
     
     // Timeout de 30 secondes pour l'envoi d'email
     const emailPromise = transporter.sendMail(mailOptions)
-    const timeoutPromise = new Promise((_, reject) => 
+    const timeoutPromise = new Promise<never>((_, reject) => 
       setTimeout(() => reject(new Error('Timeout: Email sending took too long')), 30000)
     )
     
@@ -446,7 +446,7 @@ export const sendDoctorNotification = async (
     
     // Timeout de 30 secondes pour l'envoi d'email
     const emailPromise = transporter.sendMail(mailOptions)
-    const timeoutPromise = new Promise((_, reject) => 
+    const timeoutPromise = new Promise<never>((_, reject) => 
       setTimeout(() => reject(new Error('Timeout: Email sending took too long')), 30000)
     )
     
