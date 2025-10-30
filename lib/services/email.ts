@@ -22,16 +22,21 @@ export const createTransporter = () => {
   const smtpUser = process.env.GMAIL_USER || process.env.SMTP_USER
   const smtpPassword = process.env.GMAIL_APP_PASSWORD || process.env.SMTP_PASSWORD
   const smtpHost = process.env.SMTP_HOST || 'smtp.gmail.com'
-  const smtpPort = process.env.SMTP_PORT || '587'
-  
+  // En production, utiliser 465 par défaut (TLS direct) si non précisé
+  const smtpPort = process.env.SMTP_PORT || (process.env.NODE_ENV === 'production' ? '465' : '587')
+  const secure = smtpPort === '465'
+  const emailDebug = process.env.EMAIL_DEBUG === 'true'
+
   console.log('🔧 Configuration SMTP:')
   console.log('  - SMTP_HOST:', smtpHost)
   console.log('  - SMTP_PORT:', smtpPort)
+  console.log('  - SECURE:', secure)
   console.log('  - GMAIL_USER:', process.env.GMAIL_USER ? '✅ Défini' : '❌ Manquant')
   console.log('  - GMAIL_APP_PASSWORD:', process.env.GMAIL_APP_PASSWORD ? '✅ Défini' : '❌ Manquant')
   console.log('  - SMTP_USER (fallback):', process.env.SMTP_USER ? '✅ Défini' : '❌ Manquant')
   console.log('  - NODE_ENV:', process.env.NODE_ENV)
-  
+  console.log('  - EMAIL_DEBUG:', emailDebug ? '✅' : '❌')
+
   if (!smtpUser || !smtpPassword) {
     console.error('❌ Variables d\'environnement manquantes:')
     console.error('   - GMAIL_USER:', process.env.GMAIL_USER ? '✅' : '❌')
@@ -40,26 +45,46 @@ export const createTransporter = () => {
     console.error('   - SMTP_PASSWORD (fallback):', process.env.SMTP_PASSWORD ? '✅' : '❌')
     throw new Error('Configuration email manquante: GMAIL_USER/GMAIL_APP_PASSWORD requis')
   }
-  
-  return nodemailer.createTransport({
+
+  const transporter = nodemailer.createTransport({
     host: smtpHost,
     port: parseInt(smtpPort),
-    secure: false, // true pour 465, false pour autres ports
+    secure, // true pour 465, false pour autres ports
     auth: {
       user: smtpUser,
       pass: smtpPassword,
     },
-    // Configuration optimisée pour Vercel
-    connectionTimeout: 5000,  // 5 secondes
-    greetingTimeout: 3000,    // 3 secondes
-    socketTimeout: 5000,      // 5 secondes
-    // Configuration TLS standard
+    // Fiabiliser dans les environnements serverless
+    connectionTimeout: 20000, // 20s
+    greetingTimeout: 10000,   // 10s
+    socketTimeout: 20000,     // 20s
+    requireTLS: !secure,      // forcer STARTTLS sur 587
+    // Utiliser IPv4 pour éviter les soucis IPv6 sur certaines plateformes
+    family: 4,
+    // TLS strict compatible cloud
     tls: {
-      rejectUnauthorized: false
+      minVersion: 'TLSv1.2',
+      // Certaines plateformes proxy peuvent poser problème avec la validation stricte
+      rejectUnauthorized: false,
     },
     // Désactiver le pool pour éviter les blocages
-    pool: false
+    pool: false,
+    // Logs détaillés optionnels
+    logger: emailDebug,
+    debug: emailDebug,
   } as any)
+
+  // Vérifier la connexion SMTP (meilleure surface d\'erreur)
+  ;(async () => {
+    try {
+      await transporter.verify()
+      if (emailDebug) console.log('✅ Vérification SMTP réussie')
+    } catch (e) {
+      console.error('❌ Échec vérification SMTP:', (e as any)?.message || e)
+    }
+  })()
+
+  return transporter
 }
 
 // Template pour confirmation de réservation

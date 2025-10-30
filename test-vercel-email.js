@@ -46,14 +46,26 @@ async function testVercelEmailConfig() {
   console.log('\n🔧 Test de connexion SMTP...')
   
   try {
-    const transporter = nodemailer.createTransporter({
+    const transporter = nodemailer.createTransport({
       host: config.host,
       port: parseInt(config.port),
-      secure: false,
+      secure: config.port === '465',
       auth: {
         user: config.user,
         pass: config.password,
       },
+      connectionTimeout: 20000,
+      greetingTimeout: 10000,
+      socketTimeout: 20000,
+      requireTLS: config.port !== '465',
+      family: 4,
+      tls: {
+        minVersion: 'TLSv1.2',
+        rejectUnauthorized: false,
+      },
+      pool: false,
+      logger: process.env.EMAIL_DEBUG === 'true',
+      debug: process.env.EMAIL_DEBUG === 'true',
     })
     
     await transporter.verify()
