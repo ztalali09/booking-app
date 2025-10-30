@@ -125,7 +125,7 @@ export const sendBookingConfirmation = async (
         </p>
         
         <p style="color: #4a5568; font-size: 16px; line-height: 1.6; margin: 0 0 30px 0;">
-          Nous vous confirmons votre rendez-vous médical. Veuillez trouver ci-dessous les détails de votre consultation :
+          Votre rendez-vous avec M. Cyril est confirmé. Retrouvez ci-dessous les détails de votre consultation :
         </p>
         
         <!-- Appointment Details -->
@@ -162,6 +162,11 @@ export const sendBookingConfirmation = async (
              style="background: #e53e3e; color: white; padding: 12px 24px; text-decoration: none; border-radius: 4px; display: inline-block; font-size: 14px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px;">
             Annuler le rendez-vous
           </a>
+          <div style="color:#6b7280; font-size:12px; margin-top:10px; word-break:break-all;">
+            Si le bouton ne s'affiche pas, copiez ce lien dans votre navigateur :
+            <br />
+            ${process.env.NEXT_PUBLIC_APP_URL || 'https://booking-p70q1smkx-hahababamama77-gmailcoms-projects.vercel.app'}/cancel?token=${bookingData.cancellationToken}
+          </div>
         </div>
         
         <!-- Footer -->
