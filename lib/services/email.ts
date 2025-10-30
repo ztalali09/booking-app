@@ -49,14 +49,19 @@ export const createTransporter = () => {
       user: smtpUser,
       pass: smtpPassword,
     },
-    // Configuration pour Vercel/production
-    connectionTimeout: 60000, // 60 secondes
-    greetingTimeout: 30000,   // 30 secondes
-    socketTimeout: 60000,     // 60 secondes
-    // Configuration TLS
+    // Configuration optimisée pour Vercel
+    connectionTimeout: 5000,  // 5 secondes
+    greetingTimeout: 3000,    // 3 secondes
+    socketTimeout: 5000,      // 5 secondes
+    // Configuration TLS standard
     tls: {
       rejectUnauthorized: false
-    }
+    },
+    // Désactiver le pool pour éviter les blocages
+    pool: false,
+    // Configuration de retry
+    retries: 1,
+    retryDelay: 1000
   })
 }
 
@@ -148,7 +153,7 @@ export const sendBookingConfirmation = async (
   `
 
   const mailOptions = {
-    from: `"${process.env.SMTP_FROM_NAME || 'Cabinet Médical'}" <${process.env.GMAIL_USER}>`,
+    from: `"${process.env.SMTP_FROM_NAME || 'Cabinet Médical'}" <${smtpUser}>`,
     to: email,
     subject: 'Confirmation de votre rendez-vous médical',
     html,
@@ -159,14 +164,29 @@ export const sendBookingConfirmation = async (
     console.log(`📧 Sujet: ${mailOptions.subject}`)
     console.log(`📧 De: ${mailOptions.from}`)
     console.log(`📧 Configuration utilisée: GMAIL_USER=${!!process.env.GMAIL_USER}, GMAIL_APP_PASSWORD=${!!process.env.GMAIL_APP_PASSWORD}`)
+    console.log(`📧 Début de l'envoi d'email...`)
     
-    // Timeout de 30 secondes pour l'envoi d'email
-    const emailPromise = transporter.sendMail(mailOptions)
-    const timeoutPromise = new Promise<never>((_, reject) => 
-      setTimeout(() => reject(new Error('Timeout: Email sending took too long')), 30000)
-    )
+    // Wrapper avec timeout forcé
+    const sendEmailWithTimeout = async () => {
+      return new Promise((resolve, reject) => {
+        const timeout = setTimeout(() => {
+          reject(new Error('Timeout: Email sending took too long'))
+        }, 8000) // 8 secondes
+        
+        transporter.sendMail(mailOptions)
+          .then(result => {
+            clearTimeout(timeout)
+            resolve(result)
+          })
+          .catch(error => {
+            clearTimeout(timeout)
+            reject(error)
+          })
+      })
+    }
     
-    const result = await Promise.race([emailPromise, timeoutPromise])
+    console.log(`📧 Envoi avec timeout de 8 secondes...`)
+    const result = await sendEmailWithTimeout()
     console.log(`✅ Email de confirmation envoyé à ${email}`)
     console.log(`✅ Message ID: ${result.messageId}`)
     console.log(`✅ Response: ${result.response}`)
@@ -271,7 +291,7 @@ export const sendBookingCancellation = async (
   `
 
   const mailOptions = {
-    from: `"${process.env.SMTP_FROM_NAME || 'Cabinet Médical'}" <${process.env.GMAIL_USER}>`,
+    from: `"${process.env.SMTP_FROM_NAME || 'Cabinet Médical'}" <${smtpUser}>`,
     to: email,
     subject: 'Annulation de votre rendez-vous médical',
     html,
@@ -432,8 +452,8 @@ export const sendDoctorNotification = async (
   `
 
   const mailOptions = {
-    from: `"Système de Réservation" <${process.env.GMAIL_USER}>`,
-    to: process.env.GMAIL_USER, // Email du médecin
+    from: `"Système de Réservation" <${smtpUser}>`,
+    to: smtpUser, // Email du médecin
     subject: `Nouvelle réservation - ${bookingData.firstName} ${bookingData.lastName}`,
     html,
   }
@@ -443,14 +463,29 @@ export const sendDoctorNotification = async (
     console.log(`📧 Sujet: ${mailOptions.subject}`)
     console.log(`📧 À: ${mailOptions.to}`)
     console.log(`📧 Configuration utilisée: GMAIL_USER=${!!process.env.GMAIL_USER}, GMAIL_APP_PASSWORD=${!!process.env.GMAIL_APP_PASSWORD}`)
+    console.log(`📧 Début de l'envoi d'email...`)
     
-    // Timeout de 30 secondes pour l'envoi d'email
-    const emailPromise = transporter.sendMail(mailOptions)
-    const timeoutPromise = new Promise<never>((_, reject) => 
-      setTimeout(() => reject(new Error('Timeout: Email sending took too long')), 30000)
-    )
+    // Wrapper avec timeout forcé
+    const sendEmailWithTimeout = async () => {
+      return new Promise((resolve, reject) => {
+        const timeout = setTimeout(() => {
+          reject(new Error('Timeout: Email sending took too long'))
+        }, 8000) // 8 secondes
+        
+        transporter.sendMail(mailOptions)
+          .then(result => {
+            clearTimeout(timeout)
+            resolve(result)
+          })
+          .catch(error => {
+            clearTimeout(timeout)
+            reject(error)
+          })
+      })
+    }
     
-    const result = await Promise.race([emailPromise, timeoutPromise])
+    console.log(`📧 Envoi avec timeout de 8 secondes...`)
+    const result = await sendEmailWithTimeout()
     console.log(`✅ Notification médecin envoyée`)
     console.log(`✅ Message ID: ${result.messageId}`)
     console.log(`✅ Response: ${result.response}`)
@@ -485,6 +520,9 @@ export const sendPatientCancellationNotification = async (booking: {
     console.log('📧 Notification annulation patient ignorée (configuration manquante)')
     return
   }
+  
+  // Récupérer les variables d'environnement
+  const smtpUser = process.env.GMAIL_USER || process.env.SMTP_USER
   
   // S'assurer que la date est correctement formatée en Europe/Paris
   const bookingDate = new Date(booking.date)
@@ -624,7 +662,7 @@ export const sendPatientCancellationNotification = async (booking: {
 
   try {
     await transporter.sendMail({
-      from: process.env.GMAIL_USER,
+      from: smtpUser,
       to: booking.email,
       subject: subject,
       html: html,
@@ -657,6 +695,9 @@ export const sendDoctorCancellationNotification = async (
     console.log('📧 Notification annulation médecin ignorée (configuration manquante)')
     return
   }
+  
+  // Récupérer les variables d'environnement
+  const smtpUser = process.env.GMAIL_USER || process.env.SMTP_USER
   
   // Utiliser la fonction utilitaire pour formater la date
   const bookingDate = new Date(bookingData.date)
@@ -766,8 +807,8 @@ export const sendDoctorCancellationNotification = async (
   `
 
   const mailOptions = {
-    from: `"Système de Réservation" <${process.env.GMAIL_USER}>`,
-    to: process.env.GMAIL_USER, // Email du médecin
+    from: `"Système de Réservation" <${smtpUser}>`,
+    to: smtpUser, // Email du médecin
     subject: `Annulation de réservation - ${bookingData.firstName} ${bookingData.lastName}`,
     html,
   }
