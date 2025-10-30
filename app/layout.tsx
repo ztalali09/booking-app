@@ -4,8 +4,8 @@ import { Analytics } from "@vercel/analytics/next"
 import "./globals.css"
 
 export const metadata: Metadata = {
-  title: "Réservation de rendez-vous",
-  description: "Prenez rendez-vous en ligne",
+  title: "Cyril Hudelot — Médecine Traditionnelle Chinoise",
+  description: "Séances de MTC avec Cyril Hudelot — bilan énergétique, soins adaptés, conseils.",
   generator: "v0.app",
 }
 

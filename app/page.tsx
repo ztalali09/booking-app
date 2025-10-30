@@ -601,9 +601,9 @@ export default function BookingPage() {
           disabled={!isAvailable}
           className={`h-10 sm:h-12 w-10 sm:w-12 rounded-xl text-base font-bold focus:outline-none focus:ring-2 focus:ring-offset-1 ${
             isSelected
-              ? "bg-[#0066FF] text-white shadow-lg scale-105 ring-2 ring-[#0066FF] ring-offset-2"
+              ? "bg-[#2d5a27] text-white shadow-lg scale-105 ring-2 ring-[#2d5a27] ring-offset-2"
               : isAvailable
-                ? "text-[#0066FF] bg-white border-2 border-[#0066FF] hover:bg-blue-50 hover:shadow-md focus:ring-[#0066FF]"
+                ? "text-[#2d5a27] bg-white border-2 border-[#2d5a27] hover:bg-green-50 hover:shadow-md focus:ring-[#2d5a27]"
                 : "text-gray-300 bg-gray-50 border border-gray-200 cursor-not-allowed"
           }`}
           aria-label={`${day} ${monthNames[currentMonth]}`}
@@ -622,8 +622,8 @@ export default function BookingPage() {
       <div className="lg:hidden py-8 px-1.5">
         <div className="max-w-md mx-auto bg-white rounded-3xl shadow-2xl overflow-hidden relative">
           {/* Reflets sur les côtés */}
-          <div className="absolute inset-y-0 left-0 w-1 bg-gradient-to-b from-transparent via-blue-200 to-transparent opacity-60"></div>
-          <div className="absolute inset-y-0 right-0 w-1 bg-gradient-to-b from-transparent via-blue-200 to-transparent opacity-60"></div>
+          <div className="absolute inset-y-0 left-0 w-1 bg-gradient-to-b from-transparent via-green-200 to-transparent opacity-60"></div>
+          <div className="absolute inset-y-0 right-0 w-1 bg-gradient-to-b from-transparent via-green-200 to-transparent opacity-60"></div>
           
           {/* Contenu mobile */}
           <div className="relative z-10">
@@ -633,10 +633,10 @@ export default function BookingPage() {
                 <div className="mb-8">
                   {/* Titre stylé */}
                   <div className="text-center mb-6">
-                    <div className="bg-gradient-to-r from-[#0066FF] to-[#0052CC] text-white rounded-2xl p-6 shadow-lg">
-                      <h1 className="text-2xl font-bold mb-2">Consultation Médicale</h1>
-                      <p className="text-blue-100 text-sm">Dr. Marie Dubois - Médecine Générale</p>
-                      <div className="mt-3 flex items-center justify-center gap-2 text-blue-100">
+                    <div className="bg-gradient-to-r from-[#2d5a27] to-[#4a7c59] text-white rounded-2xl p-6 shadow-lg">
+                      <h1 className="text-2xl font-bold mb-2">Séance de Médecine Traditionnelle Chinoise</h1>
+                      <p className="text-green-100 text-sm">Cyril Hudelot - Praticien en Médecine Traditionnelle Chinoise</p>
+                      <div className="mt-3 flex items-center justify-center gap-2 text-green-100">
                         <Clock className="w-4 h-4" />
                         <span className="text-sm">1h modulable selon le besoin</span>
                       </div>
@@ -647,31 +647,30 @@ export default function BookingPage() {
                   <div className="mb-6 p-4 bg-gray-50 rounded-xl">
                     <h3 className="text-base font-bold text-gray-900 mb-3">Bienvenue</h3>
                     <p className="text-sm text-gray-600 leading-relaxed text-pretty mb-4">
-                      Je suis ravie de vous accueillir pour une consultation personnalisée. Ensemble, nous prendrons le temps
-                      d'écouter vos besoins et d'établir un plan de soins adapté à votre situation.
+                      Bonjour et bienvenue,<br/><br/>
+                      Je m'appelle Cyril Hudelot, praticien en médecine traditionnelle chinoise depuis maintenant quatre ans. Je vous accompagne dans une démarche de bien-être et d'équilibre, en m'appuyant sur les principes millénaires de cette médecine holistique.
                     </p>
                     
                     <h3 className="text-base font-bold text-gray-900 mb-3">Description du service</h3>
                     <p className="text-sm text-gray-600 leading-relaxed text-pretty mb-3">
-                      Consultation complète incluant un examen approfondi, un diagnostic et des recommandations thérapeutiques
-                      personnalisées.
+                      Séance personnalisée incluant un bilan énergétique, des techniques de soin adaptées et des conseils pour votre quotidien.
                     </p>
                     <ul className="space-y-2 text-sm text-gray-600 mb-4">
                       <li className="flex items-start gap-2">
-                        <span className="text-[#0066FF] mt-1">•</span>
-                        <span>Examen clinique détaillé</span>
+                        <span className="text-[#2d5a27] mt-1">•</span>
+                        <span>Bilan énergétique selon les principes de la MTC</span>
                       </li>
                       <li className="flex items-start gap-2">
-                        <span className="text-[#0066FF] mt-1">•</span>
-                        <span>Analyse de vos antécédents médicaux</span>
+                        <span className="text-[#2d5a27] mt-1">•</span>
+                        <span>Techniques de soin (acupuncture, massage, moxibustion...)</span>
                       </li>
                       <li className="flex items-start gap-2">
-                        <span className="text-[#0066FF] mt-1">•</span>
-                        <span>Plan de traitement personnalisé</span>
+                        <span className="text-[#2d5a27] mt-1">•</span>
+                        <span>Conseils en diététique chinoise et hygiène de vie</span>
                       </li>
                       <li className="flex items-start gap-2">
-                        <span className="text-[#0066FF] mt-1">•</span>
-                        <span>Réponses à toutes vos questions</span>
+                        <span className="text-[#2d5a27] mt-1">•</span>
+                        <span>Accompagnement bienveillant et à l'écoute</span>
                       </li>
                     </ul>
 
@@ -679,7 +678,7 @@ export default function BookingPage() {
                     <div className="text-center">
                       <button
                         onClick={() => setIsDoctorInfoExpanded(!isDoctorInfoExpanded)}
-                        className="inline-flex items-center gap-2 px-4 py-2 text-sm font-medium text-[#0066FF] hover:text-[#0052CC] transition-colors"
+                        className="inline-flex items-center gap-2 px-4 py-2 text-sm font-medium text-[#2d5a27] hover:text-[#4a7c59] transition-colors"
                       >
                         {isDoctorInfoExpanded ? 'Afficher moins' : 'Afficher plus'}
                         <ChevronDown className={`w-4 h-4 transition-transform ${isDoctorInfoExpanded ? 'rotate-180' : ''}`} />
@@ -691,26 +690,28 @@ export default function BookingPage() {
                       <div className="mt-4 pt-4 border-t border-gray-200 space-y-4">
                         <h3 className="text-base font-bold text-gray-900 mb-3">À propos du praticien</h3>
                         <p className="text-sm text-gray-600 leading-relaxed text-pretty mb-3">
-                          Diplômée de la Faculté de Médecine de Paris, le Dr. Marie Dubois exerce depuis plus de 15 ans. Spécialisée
-                          en médecine générale, elle accompagne ses patients avec bienveillance et professionnalisme.
+                          Passionné par la médecine traditionnelle chinoise, je pratique depuis quatre ans avec l'envie de transmettre les bienfaits de cette approche ancestrale. Ma pratique s'inscrit dans une démarche d'équilibre et de respect du corps.
                         </p>
-                        <p className="text-sm text-gray-600 leading-relaxed text-pretty">
-                          Son approche holistique et son écoute attentive permettent d'établir une relation de confiance durable
-                          avec chaque patient.
+                        <p className="text-sm text-gray-600 leading-relaxed text-pretty mb-3">
+                          Mon approche se veut humaine, à l'écoute de chaque personne, en considérant l'individu dans sa globalité pour un accompagnement sur-mesure.
+                        </p>
+                        <p className="text-sm text-gray-600 leading-relaxed text-pretty font-semibold">
+                           Important : Je ne suis pas médecin. Mes pratiques ne se substituent en aucun cas à un avis médical et ne remplacent pas un traitement prescrit par un professionnel de santé.
                         </p>
 
                         <h3 className="text-base font-bold text-gray-900 mb-3 mt-4">Informations pratiques</h3>
                         <div className="space-y-3 text-sm text-gray-600">
                           <div>
-                            <p className="font-semibold text-gray-900 mb-1">Accès</p>
+                            <p className="font-semibold text-gray-900 mb-1">Tarif</p>
                             <p className="leading-relaxed">
-                              Métro ligne 6 - Station Glacière. Parking public à proximité. Accès PMR disponible.
+                              50 € la séance<br/>
+                              Ce tarif reflète le temps, le soin et l'engagement que je consacre à chaque accompagnement. Je reste néanmoins ouvert à une adaptation ponctuelle en fonction de certaines situations particulières — toujours dans un esprit d'équilibre et de respect mutuel.
                             </p>
                           </div>
                           <div>
-                            <p className="font-semibold text-gray-900 mb-1">Paiement</p>
+                            <p className="font-semibold text-gray-900 mb-1">Modalités</p>
                             <p className="leading-relaxed">
-                              Carte bancaire, espèces, chèque. Tiers payant accepté pour les patients en ALD.
+                              Séances à domicile ou en cabinet selon disponibilité. Paiement en espèces ou par virement.
                             </p>
                           </div>
                           <div>
@@ -719,26 +720,26 @@ export default function BookingPage() {
                           </div>
                         </div>
 
-                        <h3 className="text-base font-bold text-gray-900 mb-3 mt-4">Préparation de votre visite</h3>
+                        <h3 className="text-base font-bold text-gray-900 mb-3 mt-4">Préparation de votre séance</h3>
                         <p className="text-sm text-gray-600 leading-relaxed text-pretty mb-3">
-                          Pour optimiser votre consultation, pensez à apporter :
+                          Pour profiter pleinement de votre séance, pensez à :
                         </p>
                         <ul className="space-y-2 text-sm text-gray-600">
                           <li className="flex items-start gap-2">
-                            <span className="text-[#0066FF] mt-1">•</span>
-                            <span>Votre carte vitale et mutuelle</span>
+                            <span className="text-[#2d5a27] mt-1">•</span>
+                            <span>Porter des vêtements confortables</span>
                           </li>
                           <li className="flex items-start gap-2">
-                            <span className="text-[#0066FF] mt-1">•</span>
-                            <span>Vos ordonnances en cours</span>
+                            <span className="text-[#2d5a27] mt-1">•</span>
+                            <span>Prévoir un temps calme après la séance</span>
                           </li>
                           <li className="flex items-start gap-2">
-                            <span className="text-[#0066FF] mt-1">•</span>
-                            <span>Vos derniers examens médicaux</span>
+                            <span className="text-[#2d5a27] mt-1">•</span>
+                            <span>Noter vos questions ou préoccupations</span>
                           </li>
                           <li className="flex items-start gap-2">
-                            <span className="text-[#0066FF] mt-1">•</span>
-                            <span>Une liste de vos questions</span>
+                            <span className="text-[#2d5a27] mt-1">•</span>
+                            <span>Mentionner tout traitement médical en cours</span>
                           </li>
                         </ul>
                       </div>
@@ -750,7 +751,7 @@ export default function BookingPage() {
                 {/* Titre principal pour mobile - Étape 4 */}
                 {currentStep === 4 && (
                 <div className="text-center mb-6 py-8">
-                    <h2 className="text-2xl font-bold text-[#0066FF]">Finaliser votre rendez-vous</h2>
+                    <h2 className="text-2xl font-bold text-[#2d5a27]">Finaliser votre rendez-vous</h2>
           </div>
                 )}
 
@@ -758,16 +759,16 @@ export default function BookingPage() {
                 <div className={`space-y-3 ${currentStep === 4 ? 'mb-8' : 'mb-6'}`}>
 
                   <div className="flex items-center gap-3 text-sm text-gray-700 p-3 rounded-lg bg-gray-50">
-                    <div className="w-8 h-8 rounded-full bg-blue-50 flex items-center justify-center flex-shrink-0">
-                      <MapPin className="w-4 h-4 text-[#0066FF]" />
+                    <div className="w-8 h-8 rounded-full bg-green-50 flex items-center justify-center flex-shrink-0">
+                      <MapPin className="w-4 h-4 text-[#2d5a27]" />
                     </div>
                     <span className="font-medium">15 Rue de la Santé, 75014 Paris</span>
                   </div>
 
                   {selectedDate && (
                     <div className="flex items-center gap-3 text-sm text-gray-700 p-3 rounded-lg bg-gray-50">
-                      <div className="w-8 h-8 rounded-full bg-blue-50 flex items-center justify-center flex-shrink-0">
-                        <Calendar className="w-4 h-4 text-[#0066FF]" />
+                      <div className="w-8 h-8 rounded-full bg-green-50 flex items-center justify-center flex-shrink-0">
+                        <Calendar className="w-4 h-4 text-[#2d5a27]" />
                       </div>
                       <span className="font-medium">
                         {currentStep === 3 ? formatFullDateTime() : formatSelectedDate()}
@@ -777,8 +778,8 @@ export default function BookingPage() {
 
                   {currentStep >= 4 && selectedTime && (
                     <div className="flex items-center gap-3 text-sm text-gray-700 p-3 rounded-lg bg-gray-50">
-                      <div className="w-8 h-8 rounded-full bg-blue-50 flex items-center justify-center flex-shrink-0">
-                        <Clock className="w-4 h-4 text-[#0066FF]" />
+                      <div className="w-8 h-8 rounded-full bg-green-50 flex items-center justify-center flex-shrink-0">
+                        <Clock className="w-4 h-4 text-[#2d5a27]" />
                       </div>
                       <span className="font-medium">
                         {selectedTime} - {(() => {
@@ -798,51 +799,51 @@ export default function BookingPage() {
                       <div className={`${currentStep === 2 || currentStep === 3 ? "lg:w-1/2" : "w-full max-w-2xl mx-auto"}`}>
                        {/* Titre et workflow pour mobile */}
                        <div className="lg:hidden mb-6">
-                         <h1 className="text-2xl font-bold text-[#0066FF] text-center mb-4">Prendre un rendez-vous</h1>
+                         <h1 className="text-2xl font-bold text-[#2d5a27] text-center mb-4">Prendre un rendez-vous</h1>
                          
                          {/* Workflow mobile */}
                          <div className="flex justify-center items-center gap-2 mb-6">
                            <div className={`w-6 h-6 rounded-full flex items-center justify-center text-xs font-bold ${
-                             currentStep >= 1 ? 'bg-[#0066FF] text-white' : 'bg-gray-200 text-gray-500'
+                             currentStep >= 1 ? 'bg-[#2d5a27] text-white' : 'bg-gray-200 text-gray-500'
                            }`}>
                              1
                            </div>
-                           <div className={`w-8 h-0.5 ${currentStep >= 2 ? 'bg-[#0066FF]' : 'bg-gray-200'}`}></div>
+                           <div className={`w-8 h-0.5 ${currentStep >= 2 ? 'bg-[#2d5a27]' : 'bg-gray-200'}`}></div>
                            <div className={`w-6 h-6 rounded-full flex items-center justify-center text-xs font-bold ${
-                             currentStep >= 2 ? 'bg-[#0066FF] text-white' : 'bg-gray-200 text-gray-500'
+                             currentStep >= 2 ? 'bg-[#2d5a27] text-white' : 'bg-gray-200 text-gray-500'
                            }`}>
                              2
                            </div>
-                           <div className={`w-8 h-0.5 ${currentStep >= 3 ? 'bg-[#0066FF]' : 'bg-gray-200'}`}></div>
+                           <div className={`w-8 h-0.5 ${currentStep >= 3 ? 'bg-[#2d5a27]' : 'bg-gray-200'}`}></div>
                            <div className={`w-6 h-6 rounded-full flex items-center justify-center text-xs font-bold ${
-                             currentStep >= 3 ? 'bg-[#0066FF] text-white' : 'bg-gray-200 text-gray-500'
+                             currentStep >= 3 ? 'bg-[#2d5a27] text-white' : 'bg-gray-200 text-gray-500'
                            }`}>
                              3
                            </div>
-                           <div className={`w-8 h-0.5 ${currentStep >= 4 ? 'bg-[#0066FF]' : 'bg-gray-200'}`}></div>
+                           <div className={`w-8 h-0.5 ${currentStep >= 4 ? 'bg-[#2d5a27]' : 'bg-gray-200'}`}></div>
                            <div className={`w-6 h-6 rounded-full flex items-center justify-center text-xs font-bold ${
-                             currentStep >= 4 ? 'bg-[#0066FF] text-white' : 'bg-gray-200 text-gray-500'
+                             currentStep >= 4 ? 'bg-[#2d5a27] text-white' : 'bg-gray-200 text-gray-500'
                            }`}>
                              4
                            </div>
                          </div>
                          
-                         <h2 className="text-xl font-bold text-[#0066FF] text-center">Choisissez un jour</h2>
+                         <h2 className="text-xl font-bold text-[#2d5a27] text-center">Choisissez un jour</h2>
                        </div>
                        
                        {/* Récapitulatif mobile des sélections */}
                        {(selectedDate || selectedTime) && (
-                         <div className="lg:hidden mb-4 p-4 bg-blue-50 border border-blue-200 rounded-xl">
-                           <h3 className="text-sm font-semibold text-[#0066FF] mb-2">Votre sélection</h3>
+                         <div className="lg:hidden mb-4 p-4 bg-green-50 border border-green-200 rounded-xl">
+                           <h3 className="text-sm font-semibold text-[#2d5a27] mb-2">Votre sélection</h3>
                            {selectedDate && (
                              <div className="flex items-center gap-2 text-sm text-gray-700 mb-1">
-                               <Calendar className="w-4 h-4 text-[#0066FF]" />
+                               <Calendar className="w-4 h-4 text-[#2d5a27]" />
                                <span>{formatSelectedDate()}</span>
                              </div>
                            )}
                            {selectedTime && (
                              <div className="flex items-center gap-2 text-sm text-gray-700">
-                               <Clock className="w-4 h-4 text-[#0066FF]" />
+                               <Clock className="w-4 h-4 text-[#2d5a27]" />
                                <span>{selectedTime} - {(() => {
                                  const [hours, minutes] = selectedTime.split(":").map(Number)
                                  const endHours = hours + 1
@@ -907,8 +908,8 @@ export default function BookingPage() {
                                 : !morningAvailable
                                   ? "bg-gray-50 text-gray-400 border-2 border-gray-200 cursor-not-allowed opacity-50"
                                   : selectedPeriod === "morning"
-                                    ? "bg-[#0066FF] text-white shadow-lg scale-105"
-                                    : "bg-white text-[#0066FF] border-2 border-[#0066FF] hover:bg-blue-50 hover:shadow-md"
+                                    ? "bg-[#2d5a27] text-white shadow-lg scale-105"
+                                    : "bg-white text-[#2d5a27] border-2 border-[#2d5a27] hover:bg-green-50 hover:shadow-md"
                             }`}
                           >
                             Matin {!morningAvailable && !isLoadingPeriods && "(Complet)"}
@@ -922,8 +923,8 @@ export default function BookingPage() {
                                 : !afternoonAvailable
                                   ? "bg-gray-50 text-gray-400 border-2 border-gray-200 cursor-not-allowed opacity-50"
                                   : selectedPeriod === "afternoon"
-                                    ? "bg-[#0066FF] text-white shadow-lg scale-105"
-                                    : "bg-white text-[#0066FF] border-2 border-[#0066FF] hover:bg-blue-50 hover:shadow-md"
+                                    ? "bg-[#2d5a27] text-white shadow-lg scale-105"
+                                    : "bg-white text-[#2d5a27] border-2 border-[#2d5a27] hover:bg-green-50 hover:shadow-md"
                             }`}
                           >
                             Après-midi {!afternoonAvailable && !isLoadingPeriods && "(Complet)"}
@@ -936,7 +937,7 @@ export default function BookingPage() {
                       <div className="flex-1">
                         {/* Titre pour mobile */}
                         <div className="lg:hidden mb-6">
-                          <h2 className="text-xl font-bold text-[#0066FF] text-center">
+                          <h2 className="text-xl font-bold text-[#2d5a27] text-center">
                             {currentStep === 2 ? "Choisissez une période" : "Choisissez un horaire"}
                           </h2>
                         </div>
@@ -952,8 +953,8 @@ export default function BookingPage() {
 
                         {/* Message informatif sur la règle des 15 minutes */}
                         {selectedDate && isTimeSlotAvailableForBooking("09:00", selectedDate) && (
-                          <div className="bg-blue-50 border border-blue-200 rounded-lg p-3 mb-4">
-                            <p className="text-sm text-blue-600">
+                          <div className="bg-green-50 border border-green-200 rounded-lg p-3 mb-4">
+                            <p className="text-sm text-green-600">
                               Les réservations doivent être faites au moins 15 minutes à l'avance
                             </p>
                           </div>
@@ -962,7 +963,7 @@ export default function BookingPage() {
                         <div className="space-y-2 sm:space-y-3 max-h-[400px] lg:max-h-[500px] overflow-y-auto pr-2 scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-gray-100">
                           {isLoadingTimeSlots ? (
                             <div className="flex items-center justify-center py-8">
-                              <div className="rounded-full h-8 w-8 border-b-2 border-[#0066FF]"></div>
+                              <div className="rounded-full h-8 w-8 border-b-2 border-[#2d5a27]"></div>
                               <span className="ml-3 text-gray-600">Chargement des créneaux...</span>
                             </div>
                           ) : timeSlots.length === 0 ? (
@@ -975,14 +976,14 @@ export default function BookingPage() {
                               {selectedTime === slot.time ? (
                                 <div className="flex gap-2 sm:gap-3">
                               <button
-                                      className="flex-1 px-4 sm:px-6 py-3 sm:py-4 rounded-xl border-2 text-sm sm:text-base font-semibold bg-[#0066FF] text-white border-[#0066FF] shadow-lg scale-[1.02]"
+                                      className="flex-1 px-4 sm:px-6 py-3 sm:py-4 rounded-xl border-2 text-sm sm:text-base font-semibold bg-[#2d5a27] text-white border-[#2d5a27] shadow-lg scale-[1.02]"
                                       disabled
                                     >
                                       ✓ {slot.time}
                               </button>
                               <Button
                                 onClick={handleNextClick}
-                                      className="flex-1 bg-white text-[#0066FF] border-2 border-[#0066FF] hover:bg-blue-50 hover:shadow-md py-3 sm:py-4 rounded-xl text-sm sm:text-base font-semibold hover:scale-[1.02] focus:outline-none focus:ring-2 focus:ring-[#0066FF] focus:ring-offset-2 h-full"
+                                      className="flex-1 bg-white text-[#2d5a27] border-2 border-[#2d5a27] hover:bg-green-50 hover:shadow-md py-3 sm:py-4 rounded-xl text-sm sm:text-base font-semibold hover:scale-[1.02] focus:outline-none focus:ring-2 focus:ring-[#2d5a27] focus:ring-offset-2 h-full"
                               >
                                 Suivant
                               </Button>
@@ -993,7 +994,7 @@ export default function BookingPage() {
                                 disabled={!slot.available}
                                 className={`w-full px-4 sm:px-6 py-3 sm:py-4 rounded-xl border-2 text-sm sm:text-base font-semibold hover:scale-[1.02] focus:outline-none focus:ring-2 focus:ring-offset-2 ${
                                   slot.available
-                                    ? "bg-white text-[#0066FF] border-[#0066FF] hover:bg-blue-50 hover:shadow-md focus:ring-[#0066FF]"
+                                    ? "bg-white text-[#2d5a27] border-[#2d5a27] hover:bg-green-50 hover:shadow-md focus:ring-[#2d5a27]"
                                     : "bg-gray-100 text-gray-400 border-gray-200 cursor-not-allowed opacity-60"
                                 }`}
                                 aria-label={`Créneau à ${slot.time}${!slot.available ? ' (Réservé)' : ''}`}
@@ -1013,7 +1014,7 @@ export default function BookingPage() {
                   <div className="max-w-2xl mx-auto w-full">
                     {/* Titre pour mobile */}
                     <div className="lg:hidden mb-6">
-                      <h2 className="text-xl font-bold text-[#0066FF] text-center">Confirmation</h2>
+                      <h2 className="text-xl font-bold text-[#2d5a27] text-center">Confirmation</h2>
                     </div>
                     
                     <div className="text-center">
@@ -1029,38 +1030,38 @@ export default function BookingPage() {
                         Votre réservation a été enregistrée avec succès.
                       </p>
                       
-                      <div className="bg-gradient-to-br from-blue-50 to-indigo-50 border border-blue-200 rounded-xl p-6 mb-8 text-left">
+                      <div className="bg-gradient-to-br from-green-50 to-green-100 border border-green-200 rounded-xl p-6 mb-8 text-left">
                         <div className="flex items-center gap-3 mb-4">
-                          <div className="w-8 h-8 bg-[#0066FF] rounded-full flex items-center justify-center">
+                          <div className="w-8 h-8 bg-[#2d5a27] rounded-full flex items-center justify-center">
                             <Calendar className="w-4 h-4 text-white" />
                           </div>
                           <h3 className="text-lg font-semibold text-gray-900">Détails de votre rendez-vous</h3>
                         </div>
                         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                          <div className="bg-white rounded-lg p-4 border border-blue-100">
+                          <div className="bg-white rounded-lg p-4 border border-green-100">
                             <div className="flex items-center gap-2 mb-2">
-                              <Calendar className="w-4 h-4 text-[#0066FF]" />
+                              <Calendar className="w-4 h-4 text-[#2d5a27]" />
                               <span className="text-sm font-medium text-gray-600">Date</span>
                             </div>
                             <p className="text-lg font-semibold text-gray-900">{formatSelectedDate()}</p>
                           </div>
-                          <div className="bg-white rounded-lg p-4 border border-blue-100">
+                          <div className="bg-white rounded-lg p-4 border border-green-100">
                             <div className="flex items-center gap-2 mb-2">
-                              <Clock className="w-4 h-4 text-[#0066FF]" />
+                              <Clock className="w-4 h-4 text-[#2d5a27]" />
                               <span className="text-sm font-medium text-gray-600">Horaire</span>
                             </div>
                             <p className="text-lg font-semibold text-gray-900">{selectedTime}</p>
                           </div>
-                          <div className="bg-white rounded-lg p-4 border border-blue-100">
+                          <div className="bg-white rounded-lg p-4 border border-green-100">
                             <div className="flex items-center gap-2 mb-2">
-                              <Globe className="w-4 h-4 text-[#0066FF]" />
+                              <Globe className="w-4 h-4 text-[#2d5a27]" />
                               <span className="text-sm font-medium text-gray-600">Période</span>
                             </div>
                             <p className="text-lg font-semibold text-gray-900">{selectedPeriod === "morning" ? "Matin" : "Après-midi"}</p>
                           </div>
-                          <div className="bg-white rounded-lg p-4 border border-blue-100">
+                          <div className="bg-white rounded-lg p-4 border border-green-100">
                             <div className="flex items-center gap-2 mb-2">
-                              <div className="w-4 h-4 bg-[#0066FF] rounded-full flex items-center justify-center">
+                              <div className="w-4 h-4 bg-[#2d5a27] rounded-full flex items-center justify-center">
                                 <span className="text-xs text-white font-bold">P</span>
                               </div>
                               <span className="text-sm font-medium text-gray-600">Patient</span>
@@ -1123,7 +1124,7 @@ export default function BookingPage() {
                               message: "",
                             })
                           }}
-                          className="w-full bg-[#0066FF] text-white py-3 px-6 rounded-xl font-semibold hover:bg-[#0052CC] "
+                          className="w-full bg-[#2d5a27] text-white py-3 px-6 rounded-xl font-semibold hover:bg-[#4a7c59] "
                         >
                           Prendre un nouveau rendez-vous
                         </button>
@@ -1134,7 +1135,7 @@ export default function BookingPage() {
                   <div className="max-w-2xl mx-auto w-full">
                     {/* Titre pour mobile */}
                     <div className="lg:hidden mb-6">
-                      <h2 className="text-xl font-bold text-[#0066FF] text-center">Erreur</h2>
+                      <h2 className="text-xl font-bold text-[#2d5a27] text-center">Erreur</h2>
                     </div>
                     
                     <div className="text-center">
@@ -1181,7 +1182,7 @@ export default function BookingPage() {
                             className={`flex-1 py-3 px-6 rounded-xl font-semibold  ${
                               isRetrying
                                 ? 'bg-gray-400 text-white cursor-not-allowed'
-                                : 'bg-[#0066FF] text-white hover:bg-[#0052CC]'
+                                : 'bg-[#2d5a27] text-white hover:bg-[#4a7c59]'
                             }`}
                           >
                             {isRetrying ? (
@@ -1223,14 +1224,14 @@ export default function BookingPage() {
           <div className="mb-8">
                       <div className="flex items-center justify-between mb-4">
                         <div className="flex items-center gap-3">
-                        <div className="w-8 h-8 rounded-full bg-[#0066FF] text-white flex items-center justify-center text-sm font-bold shadow-md">
+                        <div className="w-8 h-8 rounded-full bg-[#2d5a27] text-white flex items-center justify-center text-sm font-bold shadow-md">
                             4
                         </div>
                           <span className="text-sm font-medium text-gray-500">Étape 4 sur 4</span>
                         </div>
                         <button
                           onClick={handleBack}
-                          className="flex items-center gap-1 px-2 py-1 text-xs font-medium text-[#0066FF] bg-blue-50 hover:bg-blue-100 rounded-md "
+                          className="flex items-center gap-1 px-2 py-1 text-xs font-medium text-[#2d5a27] bg-green-50 hover:bg-green-100 rounded-md "
                         >
                           <ChevronLeft className="w-3 h-3" />
                           Retour
@@ -1258,7 +1259,7 @@ export default function BookingPage() {
                           className={`w-full h-11 sm:h-12 px-4 rounded-xl border-2 focus:ring-2 focus:ring-offset-2  ${
                             formErrors.firstName 
                               ? 'border-red-300 focus:border-red-500 focus:ring-red-500' 
-                              : 'border-gray-200 focus:border-[#0066FF] focus:ring-[#0066FF]'
+                              : 'border-gray-200 focus:border-[#2d5a27] focus:ring-[#2d5a27]'
                           }`}
                           placeholder="Entrez votre prénom"
                         />
@@ -1280,7 +1281,7 @@ export default function BookingPage() {
                           className={`w-full h-11 sm:h-12 px-4 rounded-xl border-2 focus:ring-2 focus:ring-offset-2  ${
                             formErrors.lastName 
                               ? 'border-red-300 focus:border-red-500 focus:ring-red-500' 
-                              : 'border-gray-200 focus:border-[#0066FF] focus:ring-[#0066FF]'
+                              : 'border-gray-200 focus:border-[#2d5a27] focus:ring-[#2d5a27]'
                           }`}
                           placeholder="Entrez votre nom"
                         />
@@ -1302,7 +1303,7 @@ export default function BookingPage() {
                           className={`w-full h-11 sm:h-12 px-4 rounded-xl border-2 focus:ring-2 focus:ring-offset-2  ${
                             formErrors.email 
                               ? 'border-red-300 focus:border-red-500 focus:ring-red-500' 
-                              : 'border-gray-200 focus:border-[#0066FF] focus:ring-[#0066FF]'
+                              : 'border-gray-200 focus:border-[#2d5a27] focus:ring-[#2d5a27]'
                           }`}
                           placeholder="Entrez votre email"
                         />
@@ -1318,7 +1319,7 @@ export default function BookingPage() {
                             <button
                               type="button"
                               onClick={() => setShowCountryDropdown(!showCountryDropdown)}
-                              className="flex items-center gap-2 px-3 py-3 h-11 sm:h-12 border-2 border-gray-200 rounded-xl hover:border-[#0066FF]  bg-white"
+                              className="flex items-center gap-2 px-3 py-3 h-11 sm:h-12 border-2 border-gray-200 rounded-xl hover:border-[#2d5a27]  bg-white"
                             >
                               <span className="text-lg">{selectedCountryData.flag}</span>
                               <span className="text-sm font-medium text-gray-700">{selectedCountryData.phoneCode}</span>
@@ -1362,7 +1363,7 @@ export default function BookingPage() {
                             className={`flex-1 h-11 sm:h-12 px-4 rounded-xl border-2 focus:ring-2 focus:ring-offset-2  ${
                               formErrors.phone 
                                 ? 'border-red-300 focus:border-red-500 focus:ring-red-500' 
-                                : 'border-gray-200 focus:border-[#0066FF] focus:ring-[#0066FF]'
+                                : 'border-gray-200 focus:border-[#2d5a27] focus:ring-[#2d5a27]'
                             }`}
                             placeholder="Numéro de téléphone"
                           />
@@ -1385,8 +1386,8 @@ export default function BookingPage() {
                             }}
                             className={`flex-1 py-3 px-4 rounded-xl text-sm font-semibold  ${
                               formData.firstConsultation === true
-                                ? "bg-[#0066FF] text-white shadow-lg scale-105"
-                                : "bg-white text-[#0066FF] border-2 border-[#0066FF] hover:bg-blue-50 hover:shadow-md"
+                                ? "bg-[#2d5a27] text-white shadow-lg scale-105"
+                                : "bg-white text-[#2d5a27] border-2 border-[#2d5a27] hover:bg-green-50 hover:shadow-md"
                             }`}
                           >
                             Oui
@@ -1401,8 +1402,8 @@ export default function BookingPage() {
                             }}
                             className={`flex-1 py-3 px-4 rounded-xl text-sm font-semibold  ${
                               formData.firstConsultation === false
-                                ? "bg-[#0066FF] text-white shadow-lg scale-105"
-                                : "bg-white text-[#0066FF] border-2 border-[#0066FF] hover:bg-blue-50 hover:shadow-md"
+                                ? "bg-[#2d5a27] text-white shadow-lg scale-105"
+                                : "bg-white text-[#2d5a27] border-2 border-[#2d5a27] hover:bg-green-50 hover:shadow-md"
                             }`}
                           >
                             Non
@@ -1427,7 +1428,7 @@ export default function BookingPage() {
                           className={`w-full h-24 px-4 py-3 rounded-xl border-2 focus:ring-2 focus:ring-offset-2 resize-none ${
                             formErrors.consultationReason 
                               ? 'border-red-300 focus:border-red-500 focus:ring-red-500' 
-                              : 'border-gray-200 focus:border-[#0066FF] focus:ring-[#0066FF]'
+                              : 'border-gray-200 focus:border-[#2d5a27] focus:ring-[#2d5a27]'
                           }`}
                           placeholder="Décrivez le motif de votre consultation (ex: douleur, suivi médical, bilan de santé, etc.)"
                         />
@@ -1441,7 +1442,7 @@ export default function BookingPage() {
                         <textarea
                           value={formData.message}
                           onChange={(e) => setFormData({ ...formData, message: e.target.value })}
-                          className="w-full h-24 px-4 py-3 rounded-xl border-2 border-gray-200 focus:border-[#0066FF] focus:ring-2 focus:ring-[#0066FF] focus:ring-offset-2 resize-none"
+                          className="w-full h-24 px-4 py-3 rounded-xl border-2 border-gray-200 focus:border-[#2d5a27] focus:ring-2 focus:ring-[#2d5a27] focus:ring-offset-2 resize-none"
                           placeholder="Informations complémentaires ou questions spécifiques..."
                         />
                       </div>
@@ -1449,7 +1450,7 @@ export default function BookingPage() {
                       <Button
                         type="submit"
                         disabled={isSubmitting}
-                        className="w-full bg-[#0066FF] text-white py-4 px-6 rounded-xl font-semibold hover:bg-[#0052CC]  disabled:opacity-50 disabled:cursor-not-allowed mb-8"
+                        className="w-full bg-[#2d5a27] text-white py-4 px-6 rounded-xl font-semibold hover:bg-[#4a7c59]  disabled:opacity-50 disabled:cursor-not-allowed mb-8"
                       >
                         {isSubmitting ? (
                           <div className="flex items-center gap-2">
@@ -1474,10 +1475,10 @@ export default function BookingPage() {
         <div className="lg:w-[35%] bg-gradient-to-b from-white to-gray-50 border-r border-gray-100 p-6 lg:p-8 flex-col overflow-y-auto scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-transparent">
           {/* Titre stylé pour desktop */}
           <div className="mb-8">
-            <div className="bg-gradient-to-r from-[#0066FF] to-[#0052CC] text-white rounded-2xl p-6 shadow-lg">
-              <h1 className="text-3xl font-bold mb-3">Consultation Médicale</h1>
-              <p className="text-blue-100 text-lg mb-4">Dr. Marie Dubois - Médecine Générale</p>
-              <div className="flex items-center gap-2 text-blue-100">
+            <div className="bg-gradient-to-r from-[#2d5a27] to-[#4a7c59] text-white rounded-2xl p-6 shadow-lg">
+              <h1 className="text-3xl font-bold mb-3">Séance de Médecine Traditionnelle Chinoise</h1>
+              <p className="text-green-100 text-lg mb-4">Cyril Hudelot - Praticien en Médecine Traditionnelle Chinoise</p>
+              <div className="flex items-center gap-2 text-green-100">
                 <Clock className="w-5 h-5" />
                 <span className="text-base">1h modulable selon le besoin</span>
               </div>
@@ -1487,8 +1488,8 @@ export default function BookingPage() {
           <div className="space-y-4 mb-8">
 
             <div className="flex items-center gap-3 text-sm text-gray-700 p-3 rounded-lg hover:bg-white ">
-              <div className="w-8 h-8 rounded-full bg-blue-50 flex items-center justify-center flex-shrink-0">
-                <MapPin className="w-4 h-4 text-[#0066FF]" />
+              <div className="w-8 h-8 rounded-full bg-green-50 flex items-center justify-center flex-shrink-0">
+                <MapPin className="w-4 h-4 text-[#2d5a27]" />
               </div>
               <span className="font-medium">15 Rue de la Santé, 75014 Paris</span>
             </div>
@@ -1496,8 +1497,8 @@ export default function BookingPage() {
             {selectedDate && (
               <div className="space-y-4">
                 <div className="flex items-center gap-3 text-sm text-gray-700 p-3 rounded-lg hover:bg-white ">
-                  <div className="w-8 h-8 rounded-full bg-blue-50 flex items-center justify-center flex-shrink-0">
-                    <Calendar className="w-4 h-4 text-[#0066FF]" />
+                  <div className="w-8 h-8 rounded-full bg-green-50 flex items-center justify-center flex-shrink-0">
+                    <Calendar className="w-4 h-4 text-[#2d5a27]" />
                 </div>
                   <span className="font-medium">
                   {currentStep === 3 ? formatFullDateTime() : formatSelectedDate()}
@@ -1506,8 +1507,8 @@ export default function BookingPage() {
 
                 {currentStep >= 4 && selectedTime && (
             <div className="flex items-center gap-3 text-sm text-gray-700 p-3 rounded-lg hover:bg-white ">
-              <div className="w-8 h-8 rounded-full bg-blue-50 flex items-center justify-center flex-shrink-0">
-                      <Clock className="w-4 h-4 text-[#0066FF]" />
+              <div className="w-8 h-8 rounded-full bg-green-50 flex items-center justify-center flex-shrink-0">
+                      <Clock className="w-4 h-4 text-[#2d5a27]" />
               </div>
                     <span className="font-medium">
                       {selectedTime} - {(() => {
@@ -1526,33 +1527,32 @@ export default function BookingPage() {
           <div className="mb-8 pt-8 border-t border-gray-200">
             <h3 className="text-base font-bold text-gray-900 mb-3">Bienvenue</h3>
             <p className="text-sm text-gray-600 leading-relaxed text-pretty">
-              Je suis ravie de vous accueillir pour une consultation personnalisée. Ensemble, nous prendrons le temps
-              d'écouter vos besoins et d'établir un plan de soins adapté à votre situation.
+              Bonjour et bienvenue,<br/><br/>
+              Je m'appelle Cyril Hudelot, praticien en médecine traditionnelle chinoise depuis maintenant quatre ans. Je vous accompagne dans une démarche de bien-être et d'équilibre, en m'appuyant sur les principes millénaires de cette médecine holistique.
             </p>
           </div>
 
           <div className="mb-8 pt-6 border-t border-gray-200">
             <h3 className="text-base font-bold text-gray-900 mb-3">Description du service</h3>
             <p className="text-sm text-gray-600 leading-relaxed text-pretty mb-4">
-              Consultation complète incluant un examen approfondi, un diagnostic et des recommandations thérapeutiques
-              personnalisées.
+              Séance personnalisée incluant un bilan énergétique, des techniques de soin adaptées et des conseils pour votre quotidien.
             </p>
             <ul className="space-y-2 text-sm text-gray-600">
               <li className="flex items-start gap-2">
-                <span className="text-[#0066FF] mt-1">•</span>
-                <span>Examen clinique détaillé</span>
+                <span className="text-[#2d5a27] mt-1">•</span>
+                <span>Bilan énergétique selon les principes de la MTC</span>
               </li>
               <li className="flex items-start gap-2">
-                <span className="text-[#0066FF] mt-1">•</span>
-                <span>Analyse de vos antécédents médicaux</span>
+                <span className="text-[#2d5a27] mt-1">•</span>
+                <span>Techniques de soin (acupuncture, massage, moxibustion...)</span>
               </li>
               <li className="flex items-start gap-2">
-                <span className="text-[#0066FF] mt-1">•</span>
-                <span>Plan de traitement personnalisé</span>
+                <span className="text-[#2d5a27] mt-1">•</span>
+                <span>Conseils en diététique chinoise et hygiène de vie</span>
               </li>
               <li className="flex items-start gap-2">
-                <span className="text-[#0066FF] mt-1">•</span>
-                <span>Réponses à toutes vos questions</span>
+                <span className="text-[#2d5a27] mt-1">•</span>
+                <span>Accompagnement bienveillant et à l'écoute</span>
               </li>
             </ul>
           </div>
@@ -1560,12 +1560,13 @@ export default function BookingPage() {
           <div className="mb-8 pt-6 border-t border-gray-200">
             <h3 className="text-base font-bold text-gray-900 mb-3">À propos du praticien</h3>
             <p className="text-sm text-gray-600 leading-relaxed text-pretty mb-3">
-              Diplômée de la Faculté de Médecine de Paris, le Dr. Marie Dubois exerce depuis plus de 15 ans. Spécialisée
-              en médecine générale, elle accompagne ses patients avec bienveillance et professionnalisme.
+              Passionné par la médecine traditionnelle chinoise, je pratique depuis quatre ans avec l'envie de transmettre les bienfaits de cette approche ancestrale. Ma pratique s'inscrit dans une démarche d'équilibre et de respect du corps.
             </p>
-            <p className="text-sm text-gray-600 leading-relaxed text-pretty">
-              Son approche holistique et son écoute attentive permettent d'établir une relation de confiance durable
-              avec chaque patient.
+            <p className="text-sm text-gray-600 leading-relaxed text-pretty mb-3">
+              Mon approche se veut humaine, à l'écoute de chaque personne, en considérant l'individu dans sa globalité pour un accompagnement sur-mesure.
+            </p>
+            <p className="text-sm text-gray-600 leading-relaxed text-pretty font-semibold">
+               Important : Je ne suis pas médecin. Mes pratiques ne se substituent en aucun cas à un avis médical et ne remplacent pas un traitement prescrit par un professionnel de santé.
             </p>
           </div>
 
@@ -1573,15 +1574,16 @@ export default function BookingPage() {
             <h3 className="text-base font-bold text-gray-900 mb-3">Informations pratiques</h3>
             <div className="space-y-3 text-sm text-gray-600">
               <div>
-                <p className="font-semibold text-gray-900 mb-1">Accès</p>
+                <p className="font-semibold text-gray-900 mb-1">Tarif</p>
                 <p className="leading-relaxed">
-                  Métro ligne 6 - Station Glacière. Parking public à proximité. Accès PMR disponible.
+                  50 € la séance<br/>
+                  Ce tarif reflète le temps, le soin et l'engagement que je consacre à chaque accompagnement. Je reste néanmoins ouvert à une adaptation ponctuelle en fonction de certaines situations particulières — toujours dans un esprit d'équilibre et de respect mutuel.
                 </p>
               </div>
               <div>
-                <p className="font-semibold text-gray-900 mb-1">Paiement</p>
+                <p className="font-semibold text-gray-900 mb-1">Modalités</p>
                 <p className="leading-relaxed">
-                  Carte bancaire, espèces, chèque. Tiers payant accepté pour les patients en ALD.
+                  Séances à domicile ou en cabinet selon disponibilité. Paiement en espèces ou par virement.
                 </p>
               </div>
               <div>
@@ -1592,26 +1594,26 @@ export default function BookingPage() {
           </div>
 
           <div className="mb-8 pt-6 border-t border-gray-200">
-            <h3 className="text-base font-bold text-gray-900 mb-3">Préparation de votre visite</h3>
+            <h3 className="text-base font-bold text-gray-900 mb-3">Préparation de votre séance</h3>
             <p className="text-sm text-gray-600 leading-relaxed text-pretty mb-3">
-              Pour optimiser votre consultation, pensez à apporter :
+              Pour profiter pleinement de votre séance, pensez à :
             </p>
             <ul className="space-y-2 text-sm text-gray-600">
               <li className="flex items-start gap-2">
-                <span className="text-[#0066FF] mt-1">•</span>
-                <span>Votre carte vitale et mutuelle</span>
+                <span className="text-[#2d5a27] mt-1">•</span>
+                <span>Porter des vêtements confortables</span>
               </li>
               <li className="flex items-start gap-2">
-                <span className="text-[#0066FF] mt-1">•</span>
-                <span>Vos ordonnances en cours</span>
+                <span className="text-[#2d5a27] mt-1">•</span>
+                <span>Prévoir un temps calme après la séance</span>
               </li>
               <li className="flex items-start gap-2">
-                <span className="text-[#0066FF] mt-1">•</span>
-                <span>Vos derniers examens médicaux</span>
+                <span className="text-[#2d5a27] mt-1">•</span>
+                <span>Noter vos questions ou préoccupations</span>
               </li>
               <li className="flex items-start gap-2">
-                <span className="text-[#0066FF] mt-1">•</span>
-                <span>Une liste de vos questions</span>
+                <span className="text-[#2d5a27] mt-1">•</span>
+                <span>Mentionner tout traitement médical en cours</span>
               </li>
             </ul>
           </div>
@@ -1619,7 +1621,7 @@ export default function BookingPage() {
           <div className="mt-auto pt-8 border-t border-gray-200">
             <a
               href="#"
-              className="text-xs text-[#0066FF] hover:text-[#0052CC] font-medium hover:underline  inline-flex items-center gap-1"
+              className="text-xs text-[#2d5a27] hover:text-[#4a7c59] font-medium hover:underline  inline-flex items-center gap-1"
             >
               Paramètres des cookies
             </a>
@@ -1629,13 +1631,13 @@ export default function BookingPage() {
         <div className="flex-1 lg:w-[65%] p-4 sm:p-6 lg:p-8 xl:p-10 flex flex-col overflow-y-auto">
           {/* Version desktop - Titre et workflow */}
           <div className="hidden lg:block mb-4 lg:mb-6">
-            <h1 className="text-xl lg:text-2xl font-bold text-[#0066FF] text-center lg:text-left mb-3">Prendre un rendez-vous</h1>
+            <h1 className="text-xl lg:text-2xl font-bold text-[#2d5a27] text-center lg:text-left mb-3">Prendre un rendez-vous</h1>
             
             {/* Workflow des étapes */}
             <div className="flex items-center justify-center lg:justify-start space-x-1 sm:space-x-2">
-              <div className={`flex items-center space-x-1 ${currentStep >= 1 ? 'text-[#0066FF]' : 'text-gray-400'}`}>
+              <div className={`flex items-center space-x-1 ${currentStep >= 1 ? 'text-[#2d5a27]' : 'text-gray-400'}`}>
                 <div className={`w-6 h-6 rounded-full flex items-center justify-center text-xs font-bold ${
-                  currentStep >= 1 ? 'bg-[#0066FF] text-white' : 'bg-gray-200 text-gray-500'
+                  currentStep >= 1 ? 'bg-[#2d5a27] text-white' : 'bg-gray-200 text-gray-500'
                 }`}>
                   1
               </div>
@@ -1643,11 +1645,11 @@ export default function BookingPage() {
                 <span className="text-xs font-medium sm:hidden">Date</span>
               </div>
               
-              <div className={`w-3 h-0.5 ${currentStep >= 2 ? 'bg-[#0066FF]' : 'bg-gray-300'}`}></div>
+              <div className={`w-3 h-0.5 ${currentStep >= 2 ? 'bg-[#2d5a27]' : 'bg-gray-300'}`}></div>
               
-              <div className={`flex items-center space-x-1 ${currentStep >= 2 ? 'text-[#0066FF]' : 'text-gray-400'}`}>
+              <div className={`flex items-center space-x-1 ${currentStep >= 2 ? 'text-[#2d5a27]' : 'text-gray-400'}`}>
                 <div className={`w-6 h-6 rounded-full flex items-center justify-center text-xs font-bold ${
-                  currentStep >= 2 ? 'bg-[#0066FF] text-white' : 'bg-gray-200 text-gray-500'
+                  currentStep >= 2 ? 'bg-[#2d5a27] text-white' : 'bg-gray-200 text-gray-500'
                 }`}>
                   2
                 </div>
@@ -1655,11 +1657,11 @@ export default function BookingPage() {
                 <span className="text-xs font-medium sm:hidden">Période</span>
             </div>
 
-              <div className={`w-3 h-0.5 ${currentStep >= 3 ? 'bg-[#0066FF]' : 'bg-gray-300'}`}></div>
+              <div className={`w-3 h-0.5 ${currentStep >= 3 ? 'bg-[#2d5a27]' : 'bg-gray-300'}`}></div>
               
-              <div className={`flex items-center space-x-1 ${currentStep >= 3 ? 'text-[#0066FF]' : 'text-gray-400'}`}>
+              <div className={`flex items-center space-x-1 ${currentStep >= 3 ? 'text-[#2d5a27]' : 'text-gray-400'}`}>
                 <div className={`w-6 h-6 rounded-full flex items-center justify-center text-xs font-bold ${
-                  currentStep >= 3 ? 'bg-[#0066FF] text-white' : 'bg-gray-200 text-gray-500'
+                  currentStep >= 3 ? 'bg-[#2d5a27] text-white' : 'bg-gray-200 text-gray-500'
                 }`}>
                   3
               </div>
@@ -1667,11 +1669,11 @@ export default function BookingPage() {
                 <span className="text-xs font-medium sm:hidden">Horaire</span>
               </div>
               
-              <div className={`w-3 h-0.5 ${currentStep >= 4 ? 'bg-[#0066FF]' : 'bg-gray-300'}`}></div>
+              <div className={`w-3 h-0.5 ${currentStep >= 4 ? 'bg-[#2d5a27]' : 'bg-gray-300'}`}></div>
               
-              <div className={`flex items-center space-x-1 ${currentStep >= 4 ? 'text-[#0066FF]' : 'text-gray-400'}`}>
+              <div className={`flex items-center space-x-1 ${currentStep >= 4 ? 'text-[#2d5a27]' : 'text-gray-400'}`}>
                 <div className={`w-6 h-6 rounded-full flex items-center justify-center text-xs font-bold ${
-                  currentStep >= 4 ? 'bg-[#0066FF] text-white' : 'bg-gray-200 text-gray-500'
+                  currentStep >= 4 ? 'bg-[#2d5a27] text-white' : 'bg-gray-200 text-gray-500'
                 }`}>
                   4
                 </div>
@@ -1689,51 +1691,51 @@ export default function BookingPage() {
                   <div className={`${currentStep === 2 || currentStep === 3 ? "lg:w-1/2" : "w-full max-w-2xl mx-auto"}`}>
                    {/* Titre et workflow pour mobile */}
                    <div className="lg:hidden mb-6">
-                     <h1 className="text-2xl font-bold text-[#0066FF] text-center mb-4">Prendre un rendez-vous</h1>
+                     <h1 className="text-2xl font-bold text-[#2d5a27] text-center mb-4">Prendre un rendez-vous</h1>
                      
                      {/* Workflow mobile */}
                      <div className="flex justify-center items-center gap-2 mb-6">
                        <div className={`w-6 h-6 rounded-full flex items-center justify-center text-xs font-bold ${
-                         currentStep >= 1 ? 'bg-[#0066FF] text-white' : 'bg-gray-200 text-gray-500'
+                         currentStep >= 1 ? 'bg-[#2d5a27] text-white' : 'bg-gray-200 text-gray-500'
                        }`}>
                          1
                        </div>
-                       <div className={`w-8 h-0.5 ${currentStep >= 2 ? 'bg-[#0066FF]' : 'bg-gray-200'}`}></div>
+                       <div className={`w-8 h-0.5 ${currentStep >= 2 ? 'bg-[#2d5a27]' : 'bg-gray-200'}`}></div>
                        <div className={`w-6 h-6 rounded-full flex items-center justify-center text-xs font-bold ${
-                         currentStep >= 2 ? 'bg-[#0066FF] text-white' : 'bg-gray-200 text-gray-500'
+                         currentStep >= 2 ? 'bg-[#2d5a27] text-white' : 'bg-gray-200 text-gray-500'
                        }`}>
                          2
                        </div>
-                       <div className={`w-8 h-0.5 ${currentStep >= 3 ? 'bg-[#0066FF]' : 'bg-gray-200'}`}></div>
+                       <div className={`w-8 h-0.5 ${currentStep >= 3 ? 'bg-[#2d5a27]' : 'bg-gray-200'}`}></div>
                        <div className={`w-6 h-6 rounded-full flex items-center justify-center text-xs font-bold ${
-                         currentStep >= 3 ? 'bg-[#0066FF] text-white' : 'bg-gray-200 text-gray-500'
+                         currentStep >= 3 ? 'bg-[#2d5a27] text-white' : 'bg-gray-200 text-gray-500'
                        }`}>
                          3
                        </div>
-                       <div className={`w-8 h-0.5 ${currentStep >= 4 ? 'bg-[#0066FF]' : 'bg-gray-200'}`}></div>
+                       <div className={`w-8 h-0.5 ${currentStep >= 4 ? 'bg-[#2d5a27]' : 'bg-gray-200'}`}></div>
                        <div className={`w-6 h-6 rounded-full flex items-center justify-center text-xs font-bold ${
-                         currentStep >= 4 ? 'bg-[#0066FF] text-white' : 'bg-gray-200 text-gray-500'
+                         currentStep >= 4 ? 'bg-[#2d5a27] text-white' : 'bg-gray-200 text-gray-500'
                        }`}>
                          4
                        </div>
                      </div>
                      
-                     <h2 className="text-xl font-bold text-[#0066FF] text-center">Choisissez un jour</h2>
+                     <h2 className="text-xl font-bold text-[#2d5a27] text-center">Choisissez un jour</h2>
                    </div>
                    
                    {/* Récapitulatif mobile des sélections */}
                    {(selectedDate || selectedTime) && (
-                     <div className="lg:hidden mb-4 p-4 bg-blue-50 border border-blue-200 rounded-xl">
-                       <h3 className="text-sm font-semibold text-[#0066FF] mb-2">Votre sélection</h3>
+                     <div className="lg:hidden mb-4 p-4 bg-green-50 border border-green-200 rounded-xl">
+                       <h3 className="text-sm font-semibold text-[#2d5a27] mb-2">Votre sélection</h3>
               {selectedDate && (
                          <div className="flex items-center gap-2 text-sm text-gray-700 mb-1">
-                           <Calendar className="w-4 h-4 text-[#0066FF]" />
+                           <Calendar className="w-4 h-4 text-[#2d5a27]" />
                            <span>{formatSelectedDate()}</span>
                 </div>
               )}
                        {selectedTime && (
                          <div className="flex items-center gap-2 text-sm text-gray-700">
-                           <Clock className="w-4 h-4 text-[#0066FF]" />
+                           <Clock className="w-4 h-4 text-[#2d5a27]" />
                            <span>{selectedTime} - {(() => {
                              const [hours, minutes] = selectedTime.split(":").map(Number)
                              const endHours = hours + 1
@@ -1749,7 +1751,7 @@ export default function BookingPage() {
                       <button
                         onClick={handlePreviousMonth}
                         disabled={!canGoToPreviousMonth()}
-                        className={`p-2 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#0066FF] ${
+                        className={`p-2 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#2d5a27] ${
                           canGoToPreviousMonth() 
                             ? "hover:bg-gray-100 cursor-pointer" 
                             : "cursor-not-allowed opacity-50"
@@ -1765,7 +1767,7 @@ export default function BookingPage() {
                       </h3>
                       <button
                         onClick={handleNextMonth}
-                        className="p-2 hover:bg-gray-100 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#0066FF]"
+                        className="p-2 hover:bg-gray-100 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#2d5a27]"
                         aria-label="Mois suivant"
                       >
                         <ChevronRight className="w-5 h-5 text-gray-700" />
@@ -1800,8 +1802,8 @@ export default function BookingPage() {
                               : !morningAvailable
                                 ? "bg-gray-50 text-gray-400 border-gray-200 cursor-not-allowed opacity-50"
                                 : selectedPeriod === "morning"
-                                  ? "bg-[#0066FF] text-white border-[#0066FF] shadow-lg scale-[1.02]"
-                                  : "bg-white text-[#0066FF] border-[#0066FF] hover:bg-blue-50 hover:shadow-md focus:ring-[#0066FF]"
+                                  ? "bg-[#2d5a27] text-white border-[#2d5a27] shadow-lg scale-[1.02]"
+                                  : "bg-white text-[#2d5a27] border-[#2d5a27] hover:bg-green-50 hover:shadow-md focus:ring-[#2d5a27]"
                           }`}
                         >
                            Matin {!morningAvailable && !isLoadingPeriods && "(Complet)"}
@@ -1815,8 +1817,8 @@ export default function BookingPage() {
                               : !afternoonAvailable
                                 ? "bg-gray-50 text-gray-400 border-gray-200 cursor-not-allowed opacity-50"
                                 : selectedPeriod === "afternoon"
-                                  ? "bg-[#0066FF] text-white border-[#0066FF] shadow-lg scale-[1.02]"
-                                  : "bg-white text-[#0066FF] border-[#0066FF] hover:bg-blue-50 hover:shadow-md focus:ring-[#0066FF]"
+                                  ? "bg-[#2d5a27] text-white border-[#2d5a27] shadow-lg scale-[1.02]"
+                                  : "bg-white text-[#2d5a27] border-[#2d5a27] hover:bg-green-50 hover:shadow-md focus:ring-[#2d5a27]"
                           }`}
                         >
                            Après-midi {!afternoonAvailable && !isLoadingPeriods && "(Complet)"}
@@ -1831,7 +1833,7 @@ export default function BookingPage() {
                   <div className="flex-1 animate-in fade-in slide-in-from-bottom lg:slide-in-from-right duration-500">
                     {/* Titre pour mobile */}
                     <div className="lg:hidden mb-6">
-                      <h2 className="text-xl font-bold text-[#0066FF] text-center">
+                      <h2 className="text-xl font-bold text-[#2d5a27] text-center">
                         {currentStep === 2 ? "Choisissez une période" : "Choisissez un horaire"}
                       </h2>
                     </div>
@@ -1847,8 +1849,8 @@ export default function BookingPage() {
 
                     {/* Message informatif sur la règle des 15 minutes - Version desktop */}
                     {selectedDate && isTimeSlotAvailableForBooking("09:00", selectedDate) && (
-                      <div className="bg-blue-50 border border-blue-200 rounded-lg p-3 mb-4">
-                        <p className="text-sm text-blue-600">
+                      <div className="bg-green-50 border border-green-200 rounded-lg p-3 mb-4">
+                        <p className="text-sm text-green-600">
                           Les réservations doivent être faites au moins 15 minutes à l'avance
                         </p>
                       </div>
@@ -1857,7 +1859,7 @@ export default function BookingPage() {
                     <div className="space-y-2 sm:space-y-3 max-h-[400px] lg:max-h-[500px] overflow-y-auto pr-2 scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-gray-100">
                       {isLoadingTimeSlots ? (
                         <div className="flex items-center justify-center py-8">
-                          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-[#0066FF]"></div>
+                          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-[#2d5a27]"></div>
                           <span className="ml-3 text-gray-600">Chargement des créneaux...</span>
                         </div>
                       ) : timeSlots.length === 0 ? (
@@ -1870,14 +1872,14 @@ export default function BookingPage() {
                           {selectedTime === slot.time ? (
                             <div className="flex gap-2 sm:gap-3">
                         <button
-                                className="flex-1 px-4 sm:px-6 py-3 sm:py-4 rounded-xl border-2 text-sm sm:text-base font-semibold bg-[#0066FF] text-white border-[#0066FF] shadow-lg scale-[1.02] "
+                                className="flex-1 px-4 sm:px-6 py-3 sm:py-4 rounded-xl border-2 text-sm sm:text-base font-semibold bg-[#2d5a27] text-white border-[#2d5a27] shadow-lg scale-[1.02] "
                                 disabled
                               >
                                 ✓ {slot.time}
                         </button>
                         <Button
                           onClick={handleNextClick}
-                                className="flex-1 bg-white text-[#0066FF] border-2 border-[#0066FF] hover:bg-blue-50 hover:shadow-md py-3 sm:py-4 rounded-xl text-sm sm:text-base font-semibold  hover:scale-[1.02] focus:outline-none focus:ring-2 focus:ring-[#0066FF] focus:ring-offset-2 h-full"
+                                className="flex-1 bg-white text-[#2d5a27] border-2 border-[#2d5a27] hover:bg-green-50 hover:shadow-md py-3 sm:py-4 rounded-xl text-sm sm:text-base font-semibold  hover:scale-[1.02] focus:outline-none focus:ring-2 focus:ring-[#2d5a27] focus:ring-offset-2 h-full"
                         >
                           Suivant
                         </Button>
@@ -1888,7 +1890,7 @@ export default function BookingPage() {
                           disabled={!slot.available}
                           className={`w-full px-4 sm:px-6 py-3 sm:py-4 rounded-xl border-2 text-sm sm:text-base font-semibold  hover:scale-[1.02] focus:outline-none focus:ring-2 focus:ring-offset-2 ${
                             slot.available
-                              ? "bg-white text-[#0066FF] border-[#0066FF] hover:bg-blue-50 hover:shadow-md focus:ring-[#0066FF]"
+                              ? "bg-white text-[#2d5a27] border-[#2d5a27] hover:bg-green-50 hover:shadow-md focus:ring-[#2d5a27]"
                               : "bg-gray-100 text-gray-400 border-gray-200 cursor-not-allowed opacity-60"
                           }`}
                           aria-label={`Créneau à ${slot.time}${!slot.available ? ' (Réservé)' : ''}`}
@@ -1908,7 +1910,7 @@ export default function BookingPage() {
               <div className="max-w-2xl mx-auto w-full animate-in fade-in slide-in-from-bottom duration-500">
                 {/* Titre pour mobile */}
                 <div className="lg:hidden mb-6">
-                  <h2 className="text-xl font-bold text-[#0066FF] text-center">Confirmation</h2>
+                  <h2 className="text-xl font-bold text-[#2d5a27] text-center">Confirmation</h2>
                 </div>
                 
                 <div className="text-center">
@@ -1924,38 +1926,38 @@ export default function BookingPage() {
                     Votre réservation a été enregistrée avec succès.
                   </p>
                   
-                  <div className="bg-gradient-to-br from-blue-50 to-indigo-50 border border-blue-200 rounded-xl p-6 mb-8 text-left">
+                  <div className="bg-gradient-to-br from-green-50 to-green-100 border border-green-200 rounded-xl p-6 mb-8 text-left">
                     <div className="flex items-center gap-3 mb-4">
-                      <div className="w-8 h-8 bg-[#0066FF] rounded-full flex items-center justify-center">
+                      <div className="w-8 h-8 bg-[#2d5a27] rounded-full flex items-center justify-center">
                         <Calendar className="w-4 h-4 text-white" />
                       </div>
                       <h3 className="text-lg font-semibold text-gray-900">Détails de votre rendez-vous</h3>
                     </div>
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                      <div className="bg-white rounded-lg p-4 border border-blue-100">
+                      <div className="bg-white rounded-lg p-4 border border-green-100">
                         <div className="flex items-center gap-2 mb-2">
-                          <Calendar className="w-4 h-4 text-[#0066FF]" />
+                          <Calendar className="w-4 h-4 text-[#2d5a27]" />
                           <span className="text-sm font-medium text-gray-600">Date</span>
                         </div>
                         <p className="text-lg font-semibold text-gray-900">{formatSelectedDate()}</p>
                       </div>
-                      <div className="bg-white rounded-lg p-4 border border-blue-100">
+                      <div className="bg-white rounded-lg p-4 border border-green-100">
                         <div className="flex items-center gap-2 mb-2">
-                          <Clock className="w-4 h-4 text-[#0066FF]" />
+                          <Clock className="w-4 h-4 text-[#2d5a27]" />
                           <span className="text-sm font-medium text-gray-600">Horaire</span>
                         </div>
                         <p className="text-lg font-semibold text-gray-900">{selectedTime}</p>
                       </div>
-                      <div className="bg-white rounded-lg p-4 border border-blue-100">
+                      <div className="bg-white rounded-lg p-4 border border-green-100">
                         <div className="flex items-center gap-2 mb-2">
-                          <Globe className="w-4 h-4 text-[#0066FF]" />
+                          <Globe className="w-4 h-4 text-[#2d5a27]" />
                           <span className="text-sm font-medium text-gray-600">Période</span>
                         </div>
                         <p className="text-lg font-semibold text-gray-900">{selectedPeriod === "morning" ? "Matin" : "Après-midi"}</p>
                       </div>
-                      <div className="bg-white rounded-lg p-4 border border-blue-100">
+                      <div className="bg-white rounded-lg p-4 border border-green-100">
                         <div className="flex items-center gap-2 mb-2">
-                          <div className="w-4 h-4 bg-[#0066FF] rounded-full flex items-center justify-center">
+                          <div className="w-4 h-4 bg-[#2d5a27] rounded-full flex items-center justify-center">
                             <span className="text-xs text-white font-bold">P</span>
                           </div>
                           <span className="text-sm font-medium text-gray-600">Patient</span>
@@ -2018,7 +2020,7 @@ export default function BookingPage() {
                           message: "",
                         })
                       }}
-                      className="w-full bg-[#0066FF] text-white py-3 px-6 rounded-xl font-semibold hover:bg-[#0052CC] "
+                      className="w-full bg-[#2d5a27] text-white py-3 px-6 rounded-xl font-semibold hover:bg-[#4a7c59] "
                     >
                       Prendre un nouveau rendez-vous
                     </button>
@@ -2029,7 +2031,7 @@ export default function BookingPage() {
               <div className="max-w-2xl mx-auto w-full animate-in fade-in slide-in-from-bottom duration-500">
                 {/* Titre pour mobile */}
                 <div className="lg:hidden mb-6">
-                  <h2 className="text-xl font-bold text-[#0066FF] text-center">Erreur</h2>
+                  <h2 className="text-xl font-bold text-[#2d5a27] text-center">Erreur</h2>
                 </div>
                 
                 <div className="text-center">
@@ -2076,7 +2078,7 @@ export default function BookingPage() {
                         className={`flex-1 py-3 px-6 rounded-xl font-semibold  ${
                           isRetrying
                             ? 'bg-gray-400 text-white cursor-not-allowed'
-                            : 'bg-[#0066FF] text-white hover:bg-[#0052CC]'
+                            : 'bg-[#2d5a27] text-white hover:bg-[#4a7c59]'
                         }`}
                       >
                         {isRetrying ? (
@@ -2118,14 +2120,14 @@ export default function BookingPage() {
                 <div className="mb-8">
                   <div className="flex items-center justify-between mb-4">
                     <div className="flex items-center gap-3">
-                    <div className="w-8 h-8 rounded-full bg-[#0066FF] text-white flex items-center justify-center text-sm font-bold shadow-md">
+                    <div className="w-8 h-8 rounded-full bg-[#2d5a27] text-white flex items-center justify-center text-sm font-bold shadow-md">
                         4
                     </div>
                       <span className="text-sm font-medium text-gray-500">Étape 4 sur 4</span>
                     </div>
                     <button
                       onClick={handleBack}
-                      className="flex items-center gap-1 px-2 py-1 text-xs font-medium text-[#0066FF] bg-blue-50 hover:bg-blue-100 rounded-md "
+                      className="flex items-center gap-1 px-2 py-1 text-xs font-medium text-[#2d5a27] bg-green-50 hover:bg-green-100 rounded-md "
                     >
                       <ChevronLeft className="w-3 h-3" />
                       Retour
@@ -2154,7 +2156,7 @@ export default function BookingPage() {
                       className={`w-full h-11 sm:h-12 px-4 rounded-xl border-2 focus:ring-2 focus:ring-offset-2  ${
                         formErrors.firstName 
                           ? 'border-red-300 focus:border-red-500 focus:ring-red-500' 
-                          : 'border-gray-200 focus:border-[#0066FF] focus:ring-[#0066FF]'
+                          : 'border-gray-200 focus:border-[#2d5a27] focus:ring-[#2d5a27]'
                       }`}
                       placeholder="Entrez votre prénom"
                     />
@@ -2177,7 +2179,7 @@ export default function BookingPage() {
                       className={`w-full h-11 sm:h-12 px-4 rounded-xl border-2 focus:ring-2 focus:ring-offset-2  ${
                         formErrors.lastName 
                           ? 'border-red-300 focus:border-red-500 focus:ring-red-500' 
-                          : 'border-gray-200 focus:border-[#0066FF] focus:ring-[#0066FF]'
+                          : 'border-gray-200 focus:border-[#2d5a27] focus:ring-[#2d5a27]'
                       }`}
                       placeholder="Entrez votre nom"
                     />
@@ -2200,7 +2202,7 @@ export default function BookingPage() {
                       className={`w-full h-11 sm:h-12 px-4 rounded-xl border-2 focus:ring-2 focus:ring-offset-2  ${
                         formErrors.email 
                           ? 'border-red-300 focus:border-red-500 focus:ring-red-500' 
-                          : 'border-gray-200 focus:border-[#0066FF] focus:ring-[#0066FF]'
+                          : 'border-gray-200 focus:border-[#2d5a27] focus:ring-[#2d5a27]'
                       }`}
                       placeholder="exemple@email.com"
                     />
@@ -2260,7 +2262,7 @@ export default function BookingPage() {
                         className={`flex-1 h-11 sm:h-12 px-4 rounded-xl border-2 focus:ring-2 focus:ring-offset-2  ${
                           formErrors.phone 
                             ? 'border-red-300 focus:border-red-500 focus:ring-red-500' 
-                            : 'border-gray-200 focus:border-[#0066FF] focus:ring-[#0066FF]'
+                            : 'border-gray-200 focus:border-[#2d5a27] focus:ring-[#2d5a27]'
                         }`}
                         placeholder="06 12 34 56 78"
                       />
@@ -2281,7 +2283,7 @@ export default function BookingPage() {
                       <label className={`flex items-center gap-3 cursor-pointer p-4 rounded-xl border-2  flex-1 ${
                         formErrors.firstConsultation 
                           ? 'border-red-300 hover:border-red-400' 
-                          : 'border-gray-200 hover:border-[#0066FF] hover:bg-blue-50'
+                          : 'border-gray-200 hover:border-[#2d5a27] hover:bg-green-50'
                       }`}>
                         <input
                           type="radio"
@@ -2293,14 +2295,14 @@ export default function BookingPage() {
                               setFormErrors({ ...formErrors, firstConsultation: "" })
                             }
                           }}
-                          className="w-5 h-5 text-[#0066FF] border-gray-300 focus:ring-[#0066FF] focus:ring-offset-2 cursor-pointer"
+                          className="w-5 h-5 text-[#2d5a27] border-gray-300 focus:ring-[#2d5a27] focus:ring-offset-2 cursor-pointer"
                         />
                         <span className="text-base font-medium text-gray-900">Oui</span>
                       </label>
                       <label className={`flex items-center gap-3 cursor-pointer p-4 rounded-xl border-2  flex-1 ${
                         formErrors.firstConsultation 
                           ? 'border-red-300 hover:border-red-400' 
-                          : 'border-gray-200 hover:border-[#0066FF] hover:bg-blue-50'
+                          : 'border-gray-200 hover:border-[#2d5a27] hover:bg-green-50'
                       }`}>
                         <input
                           type="radio"
@@ -2312,7 +2314,7 @@ export default function BookingPage() {
                               setFormErrors({ ...formErrors, firstConsultation: "" })
                             }
                           }}
-                          className="w-5 h-5 text-[#0066FF] border-gray-300 focus:ring-[#0066FF] focus:ring-offset-2 cursor-pointer"
+                          className="w-5 h-5 text-[#2d5a27] border-gray-300 focus:ring-[#2d5a27] focus:ring-offset-2 cursor-pointer"
                         />
                         <span className="text-base font-medium text-gray-900">Non</span>
                       </label>
@@ -2336,7 +2338,7 @@ export default function BookingPage() {
                       className={`w-full h-24 px-4 py-3 rounded-xl border-2 focus:ring-2 focus:ring-offset-2 resize-none ${
                         formErrors.consultationReason 
                           ? 'border-red-300 focus:border-red-500 focus:ring-red-500' 
-                          : 'border-gray-200 focus:border-[#0066FF] focus:ring-[#0066FF]'
+                          : 'border-gray-200 focus:border-[#2d5a27] focus:ring-[#2d5a27]'
                       }`}
                       placeholder="Décrivez le motif de votre consultation (ex: douleur, suivi médical, bilan de santé, etc.)"
                     />
@@ -2352,7 +2354,7 @@ export default function BookingPage() {
                     <textarea
                       value={formData.message}
                       onChange={(e) => setFormData({ ...formData, message: e.target.value })}
-                      className="w-full h-24 px-4 py-3 rounded-xl border-2 border-gray-200 focus:border-[#0066FF] focus:ring-2 focus:ring-[#0066FF] focus:ring-offset-2  resize-none"
+                      className="w-full h-24 px-4 py-3 rounded-xl border-2 border-gray-200 focus:border-[#2d5a27] focus:ring-2 focus:ring-[#2d5a27] focus:ring-offset-2  resize-none"
                       placeholder="Ajoutez un message ou des informations supplémentaires..."
                     />
                   </div>
@@ -2362,7 +2364,7 @@ export default function BookingPage() {
                       En confirmant ce rendez-vous, vous acceptez nos{" "}
                       <a
                         href="#"
-                        className="text-[#0066FF] hover:text-[#0052CC] font-semibold hover:underline "
+                        className="text-[#2d5a27] hover:text-[#4a7c59] font-semibold hover:underline "
                       >
                         conditions générales d'utilisation
                       </a>{" "}
@@ -2372,7 +2374,7 @@ export default function BookingPage() {
                     <Button
                       type="submit"
                       disabled={isSubmitting}
-                      className="w-full bg-gradient-to-r from-[#0066FF] to-[#0052CC] hover:from-[#0052CC] hover:to-[#003D99] text-white py-4 sm:py-6 rounded-full text-base sm:text-lg font-bold shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-[1.02] focus:outline-none focus:ring-2 focus:ring-[#0066FF] focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none"
+                      className="w-full bg-gradient-to-r from-[#2d5a27] to-[#4a7c59] hover:from-[#4a7c59] hover:to-[#68a86a] text-white py-4 sm:py-6 rounded-full text-base sm:text-lg font-bold shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-[1.02] focus:outline-none focus:ring-2 focus:ring-[#2d5a27] focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none"
                     >
                       {isSubmitting ? (
                         <div className="flex items-center justify-center gap-2">
