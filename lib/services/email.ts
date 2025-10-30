@@ -58,11 +58,8 @@ export const createTransporter = () => {
       rejectUnauthorized: false
     },
     // Désactiver le pool pour éviter les blocages
-    pool: false,
-    // Configuration de retry
-    retries: 1,
-    retryDelay: 1000
-  })
+    pool: false
+  } as any)
 }
 
 // Template pour confirmation de réservation
