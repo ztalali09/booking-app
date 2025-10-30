@@ -196,7 +196,7 @@ export const sendBookingConfirmation = async (
       return new Promise((resolve, reject) => {
         const timeout = setTimeout(() => {
           reject(new Error('Timeout: Email sending took too long'))
-        }, 8000) // 8 secondes
+        }, 30000) // 30 secondes pour la production
         
         transporter.sendMail(mailOptions)
           .then(result => {
@@ -210,7 +210,7 @@ export const sendBookingConfirmation = async (
       })
     }
     
-    console.log(`📧 Envoi avec timeout de 8 secondes...`)
+    console.log(`📧 Envoi avec timeout de 30 secondes...`)
     const result = await sendEmailWithTimeout()
     console.log(`✅ Email de confirmation envoyé à ${email}`)
     console.log(`✅ Message ID: ${result.messageId}`)
@@ -501,7 +501,7 @@ export const sendDoctorNotification = async (
       return new Promise((resolve, reject) => {
         const timeout = setTimeout(() => {
           reject(new Error('Timeout: Email sending took too long'))
-        }, 8000) // 8 secondes
+        }, 30000) // 30 secondes pour la production
         
         transporter.sendMail(mailOptions)
           .then(result => {
@@ -515,7 +515,7 @@ export const sendDoctorNotification = async (
       })
     }
     
-    console.log(`📧 Envoi avec timeout de 8 secondes...`)
+    console.log(`📧 Envoi avec timeout de 30 secondes...`)
     const result = await sendEmailWithTimeout()
     console.log(`✅ Notification médecin envoyée`)
     console.log(`✅ Message ID: ${result.messageId}`)

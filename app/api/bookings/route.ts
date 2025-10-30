@@ -138,46 +138,51 @@ export async function POST(request: NextRequest) {
       console.log('⚠️ Google Calendar non configuré (GOOGLE_SERVICE_ACCOUNT_EMAIL manquant)')
     }
     
-    // Autres tâches asynchrones (emails)
+    // Autres tâches asynchrones (emails) - ATTENDRE les emails avant de répondre
     console.log('📧 Démarrage des tâches d\'envoi d\'emails...')
-    Promise.all([
-      // Email de confirmation au patient
-      (async () => {
-        console.log('📧 Envoi email confirmation patient...')
-        return sendBookingConfirmation(booking.email, {
-          firstName: booking.firstName,
-          lastName: booking.lastName,
-          date: formatDateForAPI(booking.date), // YYYY-MM-DD format
-          time: booking.time,
-          period: booking.period,
-          cancellationToken: booking.cancellationToken,
-        }).catch(error => {
-          console.error('❌ Erreur email confirmation:', error)
-        })
-      })(),
-      // Notification au médecin
-      (async () => {
-        console.log('📧 Envoi notification médecin...')
-        return sendDoctorNotification({
-          firstName: booking.firstName,
-          lastName: booking.lastName,
-          email: booking.email,
-          phone: booking.phone,
-          date: formatDateForAPI(booking.date), // YYYY-MM-DD format
-          time: booking.time,
-          period: booking.period,
-          firstConsultation: booking.firstConsultation,
-          consultationReason: booking.consultationReason,
-          message: booking.message || undefined,
-          cancellationToken: booking.cancellationToken,
-        }).catch(error => {
-          console.error('❌ Erreur notification médecin:', error)
-        })
-      })(),
-    ]).catch(error => {
-      console.error('Erreur lors des notifications:', error)
-      // Ne pas bloquer la réponse si les notifications échouent
-    })
+    try {
+      await Promise.all([
+        // Email de confirmation au patient
+        (async () => {
+          console.log('📧 Envoi email confirmation patient...')
+          return sendBookingConfirmation(booking.email, {
+            firstName: booking.firstName,
+            lastName: booking.lastName,
+            date: formatDateForAPI(booking.date), // YYYY-MM-DD format
+            time: booking.time,
+            period: booking.period,
+            cancellationToken: booking.cancellationToken,
+          }).catch(error => {
+            console.error('❌ Erreur email confirmation:', error)
+            return null
+          })
+        })(),
+        // Notification au médecin
+        (async () => {
+          console.log('📧 Envoi notification médecin...')
+          return sendDoctorNotification({
+            firstName: booking.firstName,
+            lastName: booking.lastName,
+            email: booking.email,
+            phone: booking.phone,
+            date: formatDateForAPI(booking.date), // YYYY-MM-DD format
+            time: booking.time,
+            period: booking.period,
+            firstConsultation: booking.firstConsultation,
+            consultationReason: booking.consultationReason,
+            message: booking.message || undefined,
+            cancellationToken: booking.cancellationToken,
+          }).catch(error => {
+            console.error('❌ Erreur notification médecin:', error)
+            return null
+          })
+        })(),
+      ])
+      console.log('✅ Tous les emails ont été traités')
+    } catch (error) {
+      console.error('❌ Erreur lors des notifications:', error)
+      // Ne pas faire échouer la réservation si les notifications échouent
+    }
 
     // 📊 Tracking de la réservation réussie
     const bookingTime = Date.now() - startTime
