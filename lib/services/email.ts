@@ -769,6 +769,7 @@ export const sendDoctorCancellationNotification = async (
   
   // Récupérer les variables d'environnement
   const smtpUser = process.env.GMAIL_USER || process.env.SMTP_USER
+  const doctorEmail = process.env.DOCTOR_EMAIL || smtpUser
   
   // Utiliser la fonction utilitaire pour formater la date
   const bookingDate = new Date(bookingData.date)
@@ -879,8 +880,9 @@ export const sendDoctorCancellationNotification = async (
 
   const mailOptions = {
     from: `"${process.env.SMTP_FROM_NAME || 'M. Cyril Réservation'}" <${smtpUser}>`,
-    to: smtpUser, // Email du médecin
-    subject: `Annulation de réservation - ${bookingData.firstName} ${bookingData.lastName}`,
+    to: doctorEmail, // Email du médecin (priorité à DOCTOR_EMAIL)
+    replyTo: bookingData.email, // Répondre directement au patient
+    subject: `[Annulation confirmée] ${bookingData.firstName} ${bookingData.lastName} - ${bookingData.date} ${bookingData.time}`,
     html,
   }
 
