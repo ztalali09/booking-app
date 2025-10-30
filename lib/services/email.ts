@@ -76,6 +76,9 @@ export const sendBookingConfirmation = async (
 ) => {
   const transporter = createTransporter()
   
+  // Récupérer les variables d'environnement
+  const smtpUser = process.env.GMAIL_USER || process.env.SMTP_USER
+  
   // Utiliser la fonction utilitaire pour formater la date
   const bookingDate = new Date(bookingData.date)
   const formattedDate = formatDateForDisplay(bookingDate)
@@ -218,6 +221,9 @@ export const sendBookingCancellation = async (
 ) => {
   const transporter = createTransporter()
   
+  // Récupérer les variables d'environnement
+  const smtpUser = process.env.GMAIL_USER || process.env.SMTP_USER
+  
   // Utiliser la fonction utilitaire pour formater la date
   const bookingDate = new Date(bookingData.date)
   const formattedDate = formatDateForDisplay(bookingDate)
@@ -320,6 +326,9 @@ export const sendDoctorNotification = async (
   }
 ) => {
   const transporter = createTransporter()
+  
+  // Récupérer les variables d'environnement
+  const smtpUser = process.env.GMAIL_USER || process.env.SMTP_USER
   
   // Utiliser la fonction utilitaire pour formater la date
   const bookingDate = new Date(bookingData.date)
