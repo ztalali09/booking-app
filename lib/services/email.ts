@@ -150,14 +150,18 @@ export const sendBookingConfirmation = async (
     console.log(`📧 Tentative d'envoi email à: ${email}`)
     console.log(`📧 Sujet: ${mailOptions.subject}`)
     console.log(`📧 De: ${mailOptions.from}`)
+    console.log(`📧 Configuration utilisée: GMAIL_USER=${!!process.env.GMAIL_USER}, GMAIL_APP_PASSWORD=${!!process.env.GMAIL_APP_PASSWORD}`)
     
     const result = await transporter.sendMail(mailOptions)
     console.log(`✅ Email de confirmation envoyé à ${email}`)
     console.log(`✅ Message ID: ${result.messageId}`)
+    console.log(`✅ Response: ${result.response}`)
     return result
   } catch (error) {
     console.error('❌ Erreur envoi email:', error)
     console.error('❌ Détails erreur:', error instanceof Error ? error.message : String(error))
+    console.error('❌ Code erreur:', (error as any)?.code)
+    console.error('❌ Command erreur:', (error as any)?.command)
     
     // Log détaillé pour le debugging en production
     if (error instanceof Error) {
@@ -424,13 +428,22 @@ export const sendDoctorNotification = async (
     console.log(`📧 Tentative d'envoi notification médecin`)
     console.log(`📧 Sujet: ${mailOptions.subject}`)
     console.log(`📧 À: ${mailOptions.to}`)
+    console.log(`📧 Configuration utilisée: GMAIL_USER=${!!process.env.GMAIL_USER}, GMAIL_APP_PASSWORD=${!!process.env.GMAIL_APP_PASSWORD}`)
     
     const result = await transporter.sendMail(mailOptions)
     console.log(`✅ Notification médecin envoyée`)
     console.log(`✅ Message ID: ${result.messageId}`)
+    console.log(`✅ Response: ${result.response}`)
   } catch (error) {
     console.error('❌ Erreur envoi notification médecin:', error)
     console.error('❌ Détails erreur:', error instanceof Error ? error.message : String(error))
+    console.error('❌ Code erreur:', (error as any)?.code)
+    console.error('❌ Command erreur:', (error as any)?.command)
+    
+    // Log détaillé pour le debugging en production
+    if (error instanceof Error) {
+      console.error('❌ Stack trace médecin:', error.stack)
+    }
     // Ne pas faire échouer la réservation si l'email échoue
   }
 }
