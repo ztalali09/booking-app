@@ -49,6 +49,14 @@ export const createTransporter = () => {
       user: smtpUser,
       pass: smtpPassword,
     },
+    // Configuration pour Vercel/production
+    connectionTimeout: 60000, // 60 secondes
+    greetingTimeout: 30000,   // 30 secondes
+    socketTimeout: 60000,     // 60 secondes
+    // Configuration TLS
+    tls: {
+      rejectUnauthorized: false
+    }
   })
 }
 
@@ -152,7 +160,13 @@ export const sendBookingConfirmation = async (
     console.log(`📧 De: ${mailOptions.from}`)
     console.log(`📧 Configuration utilisée: GMAIL_USER=${!!process.env.GMAIL_USER}, GMAIL_APP_PASSWORD=${!!process.env.GMAIL_APP_PASSWORD}`)
     
-    const result = await transporter.sendMail(mailOptions)
+    // Timeout de 30 secondes pour l'envoi d'email
+    const emailPromise = transporter.sendMail(mailOptions)
+    const timeoutPromise = new Promise((_, reject) => 
+      setTimeout(() => reject(new Error('Timeout: Email sending took too long')), 30000)
+    )
+    
+    const result = await Promise.race([emailPromise, timeoutPromise])
     console.log(`✅ Email de confirmation envoyé à ${email}`)
     console.log(`✅ Message ID: ${result.messageId}`)
     console.log(`✅ Response: ${result.response}`)
@@ -430,7 +444,13 @@ export const sendDoctorNotification = async (
     console.log(`📧 À: ${mailOptions.to}`)
     console.log(`📧 Configuration utilisée: GMAIL_USER=${!!process.env.GMAIL_USER}, GMAIL_APP_PASSWORD=${!!process.env.GMAIL_APP_PASSWORD}`)
     
-    const result = await transporter.sendMail(mailOptions)
+    // Timeout de 30 secondes pour l'envoi d'email
+    const emailPromise = transporter.sendMail(mailOptions)
+    const timeoutPromise = new Promise((_, reject) => 
+      setTimeout(() => reject(new Error('Timeout: Email sending took too long')), 30000)
+    )
+    
+    const result = await Promise.race([emailPromise, timeoutPromise])
     console.log(`✅ Notification médecin envoyée`)
     console.log(`✅ Message ID: ${result.messageId}`)
     console.log(`✅ Response: ${result.response}`)
