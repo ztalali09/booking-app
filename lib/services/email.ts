@@ -18,20 +18,27 @@ const formatTimeRange = (time: string, period: string) => {
 
 // Configuration du transporteur Gmail
 export const createTransporter = () => {
-  // Priorité aux variables SMTP standard, fallback sur Gmail
-  const smtpUser = process.env.SMTP_USER || process.env.GMAIL_USER
-  const smtpPassword = process.env.SMTP_PASSWORD || process.env.GMAIL_APP_PASSWORD
+  // Priorité aux variables GMAIL (comme en local) pour la compatibilité Vercel
+  const smtpUser = process.env.GMAIL_USER || process.env.SMTP_USER
+  const smtpPassword = process.env.GMAIL_APP_PASSWORD || process.env.SMTP_PASSWORD
   const smtpHost = process.env.SMTP_HOST || 'smtp.gmail.com'
   const smtpPort = process.env.SMTP_PORT || '587'
   
   console.log('🔧 Configuration SMTP:')
   console.log('  - SMTP_HOST:', smtpHost)
   console.log('  - SMTP_PORT:', smtpPort)
-  console.log('  - SMTP_USER:', smtpUser ? '✅ Défini' : '❌ Manquant')
-  console.log('  - SMTP_PASSWORD:', smtpPassword ? '✅ Défini' : '❌ Manquant')
+  console.log('  - GMAIL_USER:', process.env.GMAIL_USER ? '✅ Défini' : '❌ Manquant')
+  console.log('  - GMAIL_APP_PASSWORD:', process.env.GMAIL_APP_PASSWORD ? '✅ Défini' : '❌ Manquant')
+  console.log('  - SMTP_USER (fallback):', process.env.SMTP_USER ? '✅ Défini' : '❌ Manquant')
+  console.log('  - NODE_ENV:', process.env.NODE_ENV)
   
   if (!smtpUser || !smtpPassword) {
-    throw new Error('Configuration email manquante: SMTP_USER/SMTP_PASSWORD ou GMAIL_USER/GMAIL_APP_PASSWORD requis')
+    console.error('❌ Variables d\'environnement manquantes:')
+    console.error('   - GMAIL_USER:', process.env.GMAIL_USER ? '✅' : '❌')
+    console.error('   - GMAIL_APP_PASSWORD:', process.env.GMAIL_APP_PASSWORD ? '✅' : '❌')
+    console.error('   - SMTP_USER (fallback):', process.env.SMTP_USER ? '✅' : '❌')
+    console.error('   - SMTP_PASSWORD (fallback):', process.env.SMTP_PASSWORD ? '✅' : '❌')
+    throw new Error('Configuration email manquante: GMAIL_USER/GMAIL_APP_PASSWORD requis')
   }
   
   return nodemailer.createTransport({
@@ -113,7 +120,7 @@ export const sendBookingConfirmation = async (
           <p style="color: #4a5568; font-size: 14px; margin: 0 0 15px 0;">
             Si vous devez annuler votre rendez-vous, vous pouvez le faire jusqu'à 24h avant en utilisant le lien ci-dessous :
           </p>
-          <a href="${process.env.NEXT_PUBLIC_APP_URL || 'https://booking-pr0gs2hq4-hahababamama77-gmailcoms-projects.vercel.app'}/cancel?token=${bookingData.cancellationToken}" 
+          <a href="${process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000'}/cancel?token=${bookingData.cancellationToken}" 
              style="background: #e53e3e; color: white; padding: 12px 24px; text-decoration: none; border-radius: 4px; display: inline-block; font-size: 14px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px;">
             Annuler le rendez-vous
           </a>
@@ -386,7 +393,7 @@ export const sendDoctorNotification = async (
             Actions disponibles
           </h3>
           <div style="text-align: center;">
-            <a href="${process.env.NEXT_PUBLIC_APP_URL || 'https://booking-pr0gs2hq4-hahababamama77-gmailcoms-projects.vercel.app'}/doctor/cancel?token=${bookingData.cancellationToken}" 
+            <a href="${process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000'}/doctor/cancel?token=${bookingData.cancellationToken}" 
                style="display: inline-block; background: linear-gradient(135deg, #dc2626, #b91c1c); color: #ffffff; text-decoration: none; padding: 15px 30px; border-radius: 8px; font-weight: 600; font-size: 16px; margin: 10px;">
               Annuler ce rendez-vous
             </a>
