@@ -1,7 +1,7 @@
 // app/api/bookings/doctor-cancel/route.ts
 import { NextRequest, NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
-import { deleteCalendarEvent } from '@/lib/services/calendar'
+import { deleteCalendarEvent } from '@/lib/services/google-calendar'
 import { sendBookingCancellation, sendPatientCancellationNotification } from '@/lib/services/email'
 import { formatDateForAPI } from '@/lib/utils/date'
 

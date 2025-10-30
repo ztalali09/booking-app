@@ -2,14 +2,14 @@
 import nodemailer from 'nodemailer'
 import { formatDateForDisplay } from '../utils/date'
 
-// Fonction utilitaire pour formater l'heure avec plage horaire
+// Fonction utilitaire pour formater l'heure avec plage horaire (1 heure)
 const formatTimeRange = (time: string, period: string) => {
   const [hours, minutes] = time.split(':').map(Number)
   const startTime = `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}`
   
-  // Calculer l'heure de fin (30 minutes plus tard)
-  const endMinutes = minutes + 30
-  const endHours = hours + Math.floor(endMinutes / 60)
+  // Calculer l'heure de fin (1 heure plus tard)
+  const endMinutes = minutes
+  const endHours = hours + 1
   const finalMinutes = endMinutes % 60
   const endTime = `${endHours.toString().padStart(2, '0')}:${finalMinutes.toString().padStart(2, '0')}`
   
@@ -303,6 +303,12 @@ export const sendBookingCancellation = async (
           <p style="color: #4a5568; font-size: 14px; margin: 0;">
             Si vous souhaitez prendre un nouveau rendez-vous, n'hésitez pas à nous contacter par téléphone ou à utiliser notre système de réservation en ligne.
           </p>
+          <div style="text-align: center; margin-top: 16px;">
+            <a href="${process.env.NEXT_PUBLIC_APP_URL || 'https://booking-p70q1smkx-hahababamama77-gmailcoms-projects.vercel.app/'}" 
+               style="display: inline-block; background: linear-gradient(135deg, #059669, #047857); color: #ffffff; text-decoration: none; padding: 12px 24px; border-radius: 6px; font-weight: 600; font-size: 14px;">
+              Prendre un nouveau rendez-vous
+            </a>
+          </div>
         </div>
         
         <!-- Footer -->

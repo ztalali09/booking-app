@@ -2,12 +2,12 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
 import { sendBookingCancellation, sendDoctorCancellationNotification } from '@/lib/services/email'
-import { deleteCalendarEvent } from '@/lib/services/calendar'
+import { deleteCalendarEvent } from '@/lib/services/google-calendar'
 import { formatDateForAPI } from '@/lib/utils/date'
 
 export async function POST(request: NextRequest) {
   try {
-    const { cancellationToken } = await request.json()
+    const { cancellationToken, patientMessage } = await request.json()
 
     if (!cancellationToken) {
       return NextResponse.json(
@@ -74,7 +74,7 @@ export async function POST(request: NextRequest) {
           time: updatedBooking.time,
           period: updatedBooking.period,
           consultationReason: updatedBooking.consultationReason,
-          message: updatedBooking.message || undefined,
+          message: (patientMessage && String(patientMessage).trim()) || updatedBooking.message || undefined,
         }),
         // Supprimer de Google Calendar si l'événement existe
         updatedBooking.googleCalendarEventId 
