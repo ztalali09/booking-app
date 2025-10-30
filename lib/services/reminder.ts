@@ -25,8 +25,8 @@ const formatTimeRange = (time: string, period: string) => {
   const [hours, minutes] = time.split(':').map(Number)
   const startTime = `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}`
   
-  const endMinutes = minutes + 30
-  const endHours = hours + Math.floor(endMinutes / 60)
+  const endMinutes = minutes
+  const endHours = hours + 1
   const finalMinutes = endMinutes % 60
   const endTime = `${endHours.toString().padStart(2, '0')}:${finalMinutes.toString().padStart(2, '0')}`
   

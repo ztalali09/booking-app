@@ -66,7 +66,7 @@ ID Réservation: ${bookingData.id}
         useDefault: false,
         overrides: [
           { method: 'email', minutes: 24 * 60 }, // 24h avant
-          { method: 'popup', minutes: 30 },     // 30min avant
+          { method: 'popup', minutes: 60 },     // 60min avant
         ],
       },
       colorId: bookingData.firstConsultation ? '2' : '1', // Rouge pour première consultation
@@ -105,7 +105,7 @@ export const updateCalendarEvent = async (
     const calendar = getCalendar()
     
     const startDateTime = new Date(`${bookingData.date}T${bookingData.time}:00`)
-    const endDateTime = new Date(startDateTime.getTime() + 30 * 60 * 1000)
+    const endDateTime = new Date(startDateTime.getTime() + 60 * 60 * 1000)
 
     const event = {
       summary: `Rendez-vous - ${bookingData.firstName} ${bookingData.lastName}`,

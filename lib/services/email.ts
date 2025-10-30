@@ -330,15 +330,29 @@ export const sendBookingCancellation = async (
   `
 
   const mailOptions = {
-    from: `"${process.env.SMTP_FROM_NAME || 'Cabinet Médical'}" <${smtpUser}>`,
+    from: `"${process.env.SMTP_FROM_NAME || 'M. Cyril Réservation'}" <${smtpUser}>`,
     to: email,
     subject: 'Annulation de votre rendez-vous médical',
     html,
   }
 
   try {
-    await transporter.sendMail(mailOptions)
+    // Wrapper avec timeout aligné sur la confirmation
+    const sendEmailWithTimeout = async (): Promise<{ messageId: string; response: string }> => {
+      return new Promise((resolve, reject) => {
+        const timeout = setTimeout(() => {
+          reject(new Error('Timeout: Email sending took too long'))
+        }, 30000)
+        
+        transporter.sendMail(mailOptions)
+          .then(result => { clearTimeout(timeout); resolve(result as { messageId: string; response: string }) })
+          .catch(error => { clearTimeout(timeout); reject(error) })
+      })
+    }
+    const result = await sendEmailWithTimeout()
     console.log(`Email d'annulation envoyé à ${email}`)
+    console.log(`✅ Message ID: ${result.messageId}`)
+    console.log(`✅ Response: ${result.response}`)
   } catch (error) {
     console.error('Erreur envoi email:', error)
     throw new Error('Impossible d\'envoyer l\'email d\'annulation')
@@ -703,14 +717,29 @@ export const sendPatientCancellationNotification = async (booking: {
   `
 
   try {
-    await transporter.sendMail({
-      from: smtpUser,
+    const mailOptions = {
+      from: `"${process.env.SMTP_FROM_NAME || 'M. Cyril Réservation'}" <${smtpUser}>`,
       to: booking.email,
       subject: subject,
       html: html,
-    })
+    }
 
+    const sendEmailWithTimeout = async (): Promise<{ messageId: string; response: string }> => {
+      return new Promise((resolve, reject) => {
+        const timeout = setTimeout(() => {
+          reject(new Error('Timeout: Email sending took too long'))
+        }, 30000)
+        
+        transporter.sendMail(mailOptions)
+          .then(result => { clearTimeout(timeout); resolve(result as { messageId: string; response: string }) })
+          .catch(error => { clearTimeout(timeout); reject(error) })
+      })
+    }
+
+    const result = await sendEmailWithTimeout()
     console.log(`Email d'annulation patient envoyé à ${booking.email}`)
+    console.log(`✅ Message ID: ${result.messageId}`)
+    console.log(`✅ Response: ${result.response}`)
   } catch (error) {
     console.error('Erreur envoi email annulation patient:', error)
     throw error
@@ -849,15 +878,28 @@ export const sendDoctorCancellationNotification = async (
   `
 
   const mailOptions = {
-    from: `"Système de Réservation" <${smtpUser}>`,
+    from: `"${process.env.SMTP_FROM_NAME || 'M. Cyril Réservation'}" <${smtpUser}>`,
     to: smtpUser, // Email du médecin
     subject: `Annulation de réservation - ${bookingData.firstName} ${bookingData.lastName}`,
     html,
   }
 
   try {
-    await transporter.sendMail(mailOptions)
+    const sendEmailWithTimeout = async (): Promise<{ messageId: string; response: string }> => {
+      return new Promise((resolve, reject) => {
+        const timeout = setTimeout(() => {
+          reject(new Error('Timeout: Email sending took too long'))
+        }, 30000)
+        
+        transporter.sendMail(mailOptions)
+          .then(result => { clearTimeout(timeout); resolve(result as { messageId: string; response: string }) })
+          .catch(error => { clearTimeout(timeout); reject(error) })
+      })
+    }
+    const result = await sendEmailWithTimeout()
     console.log(`Notification annulation médecin envoyée`)
+    console.log(`✅ Message ID: ${result.messageId}`)
+    console.log(`✅ Response: ${result.response}`)
   } catch (error) {
     console.error('Erreur envoi notification annulation médecin:', error)
     // Ne pas faire échouer l'annulation si l'email échoue
