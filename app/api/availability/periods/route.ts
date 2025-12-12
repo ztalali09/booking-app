@@ -1,16 +1,7 @@
 // app/api/availability/periods/route.ts
 import { NextRequest, NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
-
-// Générer tous les créneaux de 9h à 18h
-const generateTimeSlots = () => {
-  const slots = []
-  for (let hour = 9; hour < 18; hour++) {
-    slots.push(`${hour.toString().padStart(2, '0')}:00`)
-    slots.push(`${hour.toString().padStart(2, '0')}:30`)
-  }
-  return slots
-}
+import { isDateAvailable, generateTimeSlotsForDay } from '@/lib/config/availability-config'
 
 // Vérifier si un créneau chevauche une réservation existante
 const isSlotOverlapping = (slotTime: string, bookings: any[]) => {
@@ -39,9 +30,23 @@ export async function GET(request: NextRequest) {
       )
     }
 
-    // Récupérer toutes les réservations non annulées pour cette date
     // Convertir la date YYYY-MM-DD en Date avec fuseau horaire Europe/Paris
-    const date = new Date(`${dateParam}T00:00:00+01:00`)
+    const date = new Date(`${dateParam}T12:00:00+01:00`)
+    const dayOfWeek = date.getDay()
+
+    // Vérifier si la date est disponible selon les règles
+    if (!isDateAvailable(date)) {
+      return NextResponse.json({
+        date: dateParam,
+        morningAvailable: false,
+        afternoonAvailable: false,
+        morningCount: 0,
+        afternoonCount: 0,
+        message: "Cette date n'est pas disponible"
+      })
+    }
+
+    // Récupérer toutes les réservations non annulées pour cette date
     const startOfDay = new Date(`${dateParam}T00:00:00+01:00`)
     const endOfDay = new Date(`${dateParam}T23:59:59+01:00`)
 
@@ -60,47 +65,41 @@ export async function GET(request: NextRequest) {
       }
     })
 
-    // Générer tous les créneaux et vérifier leur disponibilité
-    const allSlots = generateTimeSlots()
-    
+    // Générer les créneaux pour ce jour (selon la config - uniquement après-midi)
+    const allSlots = generateTimeSlotsForDay(dayOfWeek)
+
     // Vérifier si c'est le jour actuel
     const today = new Date()
-    const isToday = date.getDate() === today.getDate() && 
-                    date.getMonth() === today.getMonth() && 
-                    date.getFullYear() === today.getFullYear()
-    
+    const isToday = date.getDate() === today.getDate() &&
+      date.getMonth() === today.getMonth() &&
+      date.getFullYear() === today.getFullYear()
+
     let availableSlots = allSlots.filter(slot => !isSlotOverlapping(slot, bookings))
-    
+
     // Si c'est le jour actuel, filtrer les créneaux passés
     if (isToday) {
       const now = new Date()
       const currentHour = now.getHours()
       const currentMinute = now.getMinutes()
       const currentTime = currentHour * 60 + currentMinute
-      
+
       availableSlots = availableSlots.filter(slot => {
         const [hours, minutes] = slot.split(':').map(Number)
         const slotTime = hours * 60 + minutes
-        return slotTime > currentTime
+        return slotTime > currentTime + 15 // Minimum 15 minutes à l'avance
       })
     }
 
-    // Organiser par période
-    const morningSlots = availableSlots.filter(slot => {
-      const hour = parseInt(slot.split(':')[0])
-      return hour < 12
-    })
-
-    const afternoonSlots = availableSlots.filter(slot => {
-      const hour = parseInt(slot.split(':')[0])
-      return hour >= 12
-    })
+    // RÈGLE MÉTIER : Le praticien est disponible uniquement l'après-midi
+    // Donc morningAvailable est toujours false
+    const morningSlots: string[] = [] // Pas de créneaux le matin
+    const afternoonSlots = availableSlots // Tous les créneaux sont l'après-midi
 
     return NextResponse.json({
       date: dateParam,
-      morningAvailable: morningSlots.length > 0,
+      morningAvailable: false, // Toujours false - praticien non disponible le matin
       afternoonAvailable: afternoonSlots.length > 0,
-      morningCount: morningSlots.length,
+      morningCount: 0,
       afternoonCount: afternoonSlots.length,
     })
 
@@ -112,4 +111,5 @@ export async function GET(request: NextRequest) {
     )
   }
 }
+
 

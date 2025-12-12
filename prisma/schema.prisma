@@ -14,6 +14,7 @@ model Booking {
   email                 String
   phone                 String
   country               String        @default("FR")
+  city                  String        @default("")
   date                  DateTime
   time                  String
   period                String

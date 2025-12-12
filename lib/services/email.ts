@@ -6,13 +6,13 @@ import { formatDateForDisplay } from '../utils/date'
 const formatTimeRange = (time: string, period: string) => {
   const [hours, minutes] = time.split(':').map(Number)
   const startTime = `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}`
-  
+
   // Calculer l'heure de fin (1 heure plus tard)
   const endMinutes = minutes
   const endHours = hours + 1
   const finalMinutes = endMinutes % 60
   const endTime = `${endHours.toString().padStart(2, '0')}:${finalMinutes.toString().padStart(2, '0')}`
-  
+
   return `de ${startTime} à ${endTime}`
 }
 
@@ -74,15 +74,15 @@ export const createTransporter = () => {
     debug: emailDebug,
   } as any)
 
-  // Vérifier la connexion SMTP (meilleure surface d\'erreur)
-  ;(async () => {
-    try {
-      await transporter.verify()
-      if (emailDebug) console.log('✅ Vérification SMTP réussie')
-    } catch (e) {
-      console.error('❌ Échec vérification SMTP:', (e as any)?.message || e)
-    }
-  })()
+    // Vérifier la connexion SMTP (meilleure surface d\'erreur)
+    ; (async () => {
+      try {
+        await transporter.verify()
+        if (emailDebug) console.log('✅ Vérification SMTP réussie')
+      } catch (e) {
+        console.error('❌ Échec vérification SMTP:', (e as any)?.message || e)
+      }
+    })()
 
   return transporter
 }
@@ -100,10 +100,10 @@ export const sendBookingConfirmation = async (
   }
 ) => {
   const transporter = createTransporter()
-  
+
   // Récupérer les variables d'environnement
   const smtpUser = process.env.GMAIL_USER || process.env.SMTP_USER
-  
+
   // Utiliser la fonction utilitaire pour formater la date
   const bookingDate = new Date(bookingData.date)
   const formattedDate = formatDateForDisplay(bookingDate)
@@ -111,7 +111,7 @@ export const sendBookingConfirmation = async (
   const html = `
     <div style="font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; max-width: 600px; margin: 0 auto; background-color: #ffffff;">
       <!-- Header -->
-      <div style="background: linear-gradient(135deg, #2d5a27 0%, #4a7c59 100%); padding: 30px; text-align: center;">
+      <div style="background: #A8C3A0; padding: 30px; text-align: center;">
         <h1 style="color: #ffffff; margin: 0; font-size: 24px; font-weight: 600; letter-spacing: 0.5px;">
           RÉSERVATION CONFIRMÉE
         </h1>
@@ -120,49 +120,49 @@ export const sendBookingConfirmation = async (
       
       <!-- Content -->
       <div style="padding: 40px 30px;">
-        <p style="color: #2d3748; font-size: 16px; line-height: 1.6; margin: 0 0 25px 0;">
+        <p style="color: #4A4A4A; font-size: 16px; line-height: 1.6; margin: 0 0 25px 0;">
           Bonjour ${bookingData.firstName} ${bookingData.lastName},
         </p>
         
-        <p style="color: #4a5568; font-size: 16px; line-height: 1.6; margin: 0 0 30px 0;">
+        <p style="color: #4A4A4A; font-size: 16px; line-height: 1.6; margin: 0 0 30px 0;">
           Votre rendez-vous avec M. Cyril est confirmé. Retrouvez ci-dessous les détails de votre consultation :
         </p>
         
         <!-- Appointment Details -->
-        <div style="background: #f7fafc; border: 1px solid #e2e8f0; border-radius: 8px; padding: 25px; margin: 30px 0;">
-          <h3 style="color: #2d5a27; font-size: 18px; font-weight: 600; margin: 0 0 20px 0; text-transform: uppercase; letter-spacing: 0.5px;">
+        <div style="background: #F5F2E7; border: 1px solid #D4E4D0; border-radius: 8px; padding: 25px; margin: 30px 0;">
+          <h3 style="color: #7A3E3E; font-size: 18px; font-weight: 600; margin: 0 0 20px 0; text-transform: uppercase; letter-spacing: 0.5px;">
             Détails du rendez-vous
           </h3>
           
           <table style="width: 100%; border-collapse: collapse;">
             <tr>
-              <td style="padding: 12px 0; border-bottom: 1px solid #e2e8f0; color: #4a5568; font-weight: 600; width: 120px;">Date</td>
-              <td style="padding: 12px 0; border-bottom: 1px solid #e2e8f0; color: #2d3748;">${formattedDate}</td>
+              <td style="padding: 12px 0; border-bottom: 1px solid #D4E4D0; color: #4A4A4A; font-weight: 600; width: 120px;">Date</td>
+              <td style="padding: 12px 0; border-bottom: 1px solid #D4E4D0; color: #4A4A4A;">${formattedDate}</td>
             </tr>
             <tr>
-              <td style="padding: 12px 0; border-bottom: 1px solid #e2e8f0; color: #4a5568; font-weight: 600;">Période</td>
-              <td style="padding: 12px 0; border-bottom: 1px solid #e2e8f0; color: #2d3748;">${bookingData.period === 'morning' ? 'Matin' : 'Après-midi'}</td>
+              <td style="padding: 12px 0; border-bottom: 1px solid #D4E4D0; color: #4A4A4A; font-weight: 600;">Période</td>
+              <td style="padding: 12px 0; border-bottom: 1px solid #D4E4D0; color: #4A4A4A;">${bookingData.period === 'morning' ? 'Matin' : 'Après-midi'}</td>
             </tr>
             <tr>
-              <td style="padding: 12px 0; color: #4a5568; font-weight: 600;">Heure</td>
-              <td style="padding: 12px 0; color: #2d3748; font-weight: 600;">${formatTimeRange(bookingData.time, bookingData.period)}</td>
+              <td style="padding: 12px 0; color: #4A4A4A; font-weight: 600;">Heure</td>
+              <td style="padding: 12px 0; color: #4A4A4A; font-weight: 600;">${formatTimeRange(bookingData.time, bookingData.period)}</td>
             </tr>
           </table>
         </div>
         
         <!-- Cancellation Info -->
         <div style="background: #fff5f5; border-left: 4px solid #e53e3e; padding: 20px; margin: 30px 0;">
-          <p style="color: #4a5568; font-size: 14px; margin: 0 0 15px 0; font-weight: 600;">
+          <p style="color: #4A4A4A; font-size: 14px; margin: 0 0 15px 0; font-weight: 600;">
             Annulation
           </p>
-          <p style="color: #4a5568; font-size: 14px; margin: 0 0 15px 0;">
+          <p style="color: #4A4A4A; font-size: 14px; margin: 0 0 15px 0;">
             Si vous devez annuler votre rendez-vous, vous pouvez le faire jusqu'à 24h avant en utilisant le lien ci-dessous :
           </p>
           <a href="${process.env.NEXT_PUBLIC_APP_URL || 'https://booking-p70q1smkx-hahababamama77-gmailcoms-projects.vercel.app'}/cancel?token=${bookingData.cancellationToken}" 
              style="background: #e53e3e; color: white; padding: 12px 24px; text-decoration: none; border-radius: 4px; display: inline-block; font-size: 14px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px;">
             Annuler le rendez-vous
           </a>
-          <div style="color:#6b7280; font-size:12px; margin-top:10px; word-break:break-all;">
+          <div style="color: #B4B4B4; font-size:12px; margin-top:10px; word-break:break-all;">
             Si le bouton ne s'affiche pas, copiez ce lien dans votre navigateur :
             <br />
             ${process.env.NEXT_PUBLIC_APP_URL || 'https://booking-p70q1smkx-hahababamama77-gmailcoms-projects.vercel.app'}/cancel?token=${bookingData.cancellationToken}
@@ -170,11 +170,11 @@ export const sendBookingConfirmation = async (
         </div>
         
         <!-- Footer -->
-        <div style="border-top: 1px solid #e2e8f0; padding-top: 25px; margin-top: 30px;">
-          <p style="color: #718096; font-size: 14px; margin: 0 0 10px 0;">
+        <div style="border-top: 1px solid #D4E4D0; padding-top: 25px; margin-top: 30px;">
+          <p style="color: #B4B4B4; font-size: 14px; margin: 0 0 10px 0;">
             Merci de votre confiance.
           </p>
-          <p style="color: #718096; font-size: 14px; margin: 0; font-weight: 600;">
+          <p style="color: #B4B4B4; font-size: 14px; margin: 0; font-weight: 600;">
             L'équipe médicale
           </p>
         </div>
@@ -195,14 +195,14 @@ export const sendBookingConfirmation = async (
     console.log(`📧 De: ${mailOptions.from}`)
     console.log(`📧 Configuration utilisée: GMAIL_USER=${!!process.env.GMAIL_USER}, GMAIL_APP_PASSWORD=${!!process.env.GMAIL_APP_PASSWORD}`)
     console.log(`📧 Début de l'envoi d'email...`)
-    
+
     // Wrapper avec timeout forcé
     const sendEmailWithTimeout = async (): Promise<{ messageId: string; response: string }> => {
       return new Promise((resolve, reject) => {
         const timeout = setTimeout(() => {
           reject(new Error('Timeout: Email sending took too long'))
         }, 30000) // 30 secondes pour la production
-        
+
         transporter.sendMail(mailOptions)
           .then(result => {
             clearTimeout(timeout)
@@ -214,7 +214,7 @@ export const sendBookingConfirmation = async (
           })
       })
     }
-    
+
     console.log(`📧 Envoi avec timeout de 30 secondes...`)
     const result = await sendEmailWithTimeout()
     console.log(`✅ Email de confirmation envoyé à ${email}`)
@@ -226,12 +226,12 @@ export const sendBookingConfirmation = async (
     console.error('❌ Détails erreur:', error instanceof Error ? error.message : String(error))
     console.error('❌ Code erreur:', (error as any)?.code)
     console.error('❌ Command erreur:', (error as any)?.command)
-    
+
     // Log détaillé pour le debugging en production
     if (error instanceof Error) {
       console.error('❌ Stack trace:', error.stack)
     }
-    
+
     // Ne pas faire échouer la réservation si l'email échoue
     console.log('⚠️  Réservation créée mais email non envoyé')
     return null
@@ -250,10 +250,10 @@ export const sendBookingCancellation = async (
   }
 ) => {
   const transporter = createTransporter()
-  
+
   // Récupérer les variables d'environnement
   const smtpUser = process.env.GMAIL_USER || process.env.SMTP_USER
-  
+
   // Utiliser la fonction utilitaire pour formater la date
   const bookingDate = new Date(bookingData.date)
   const formattedDate = formatDateForDisplay(bookingDate)
@@ -270,11 +270,11 @@ export const sendBookingCancellation = async (
       
       <!-- Content -->
       <div style="padding: 40px 30px;">
-        <p style="color: #2d3748; font-size: 16px; line-height: 1.6; margin: 0 0 25px 0;">
+        <p style="color: #4A4A4A; font-size: 16px; line-height: 1.6; margin: 0 0 25px 0;">
           Bonjour ${bookingData.firstName} ${bookingData.lastName},
         </p>
         
-        <p style="color: #4a5568; font-size: 16px; line-height: 1.6; margin: 0 0 30px 0;">
+        <p style="color: #4A4A4A; font-size: 16px; line-height: 1.6; margin: 0 0 30px 0;">
           Nous vous confirmons l'annulation de votre rendez-vous médical.
         </p>
         
@@ -286,42 +286,42 @@ export const sendBookingCancellation = async (
           
           <table style="width: 100%; border-collapse: collapse;">
             <tr>
-              <td style="padding: 12px 0; border-bottom: 1px solid #fed7d7; color: #4a5568; font-weight: 600; width: 120px;">Date</td>
-              <td style="padding: 12px 0; border-bottom: 1px solid #fed7d7; color: #2d3748;">${formattedDate}</td>
+              <td style="padding: 12px 0; border-bottom: 1px solid #fed7d7; color: #4A4A4A; font-weight: 600; width: 120px;">Date</td>
+              <td style="padding: 12px 0; border-bottom: 1px solid #fed7d7; color: #4A4A4A;">${formattedDate}</td>
             </tr>
             <tr>
-              <td style="padding: 12px 0; border-bottom: 1px solid #fed7d7; color: #4a5568; font-weight: 600;">Période</td>
-              <td style="padding: 12px 0; border-bottom: 1px solid #fed7d7; color: #2d3748;">${bookingData.period === 'morning' ? 'Matin' : 'Après-midi'}</td>
+              <td style="padding: 12px 0; border-bottom: 1px solid #fed7d7; color: #4A4A4A; font-weight: 600;">Période</td>
+              <td style="padding: 12px 0; border-bottom: 1px solid #fed7d7; color: #4A4A4A;">${bookingData.period === 'morning' ? 'Matin' : 'Après-midi'}</td>
             </tr>
             <tr>
-              <td style="padding: 12px 0; color: #4a5568; font-weight: 600;">Heure</td>
-              <td style="padding: 12px 0; color: #2d3748; font-weight: 600;">${formatTimeRange(bookingData.time, bookingData.period)}</td>
+              <td style="padding: 12px 0; color: #4A4A4A; font-weight: 600;">Heure</td>
+              <td style="padding: 12px 0; color: #4A4A4A; font-weight: 600;">${formatTimeRange(bookingData.time, bookingData.period)}</td>
             </tr>
           </table>
         </div>
         
         <!-- New Appointment Info -->
-        <div style="background: #f0fff4; border-left: 4px solid #2d5a27; padding: 20px; margin: 30px 0;">
-          <p style="color: #4a5568; font-size: 14px; margin: 0 0 15px 0; font-weight: 600;">
+        <div style="background: #F5F2E7; border-left: 4px solid #A8C3A0; padding: 20px; margin: 30px 0;">
+          <p style="color: #4A4A4A; font-size: 14px; margin: 0 0 15px 0; font-weight: 600;">
             Nouveau rendez-vous
           </p>
-          <p style="color: #4a5568; font-size: 14px; margin: 0;">
+          <p style="color: #4A4A4A; font-size: 14px; margin: 0;">
             Si vous souhaitez prendre un nouveau rendez-vous, n'hésitez pas à nous contacter par téléphone ou à utiliser notre système de réservation en ligne.
           </p>
           <div style="text-align: center; margin-top: 16px;">
             <a href="${process.env.NEXT_PUBLIC_APP_URL || 'https://booking-p70q1smkx-hahababamama77-gmailcoms-projects.vercel.app/'}" 
-               style="display: inline-block; background: linear-gradient(135deg, #059669, #047857); color: #ffffff; text-decoration: none; padding: 12px 24px; border-radius: 6px; font-weight: 600; font-size: 14px;">
+               style="display: inline-block; background: #7A3E3E; color: #ffffff; text-decoration: none; padding: 12px 24px; border-radius: 6px; font-weight: 600; font-size: 14px;">
               Prendre un nouveau rendez-vous
             </a>
           </div>
         </div>
         
         <!-- Footer -->
-        <div style="border-top: 1px solid #e2e8f0; padding-top: 25px; margin-top: 30px;">
-          <p style="color: #718096; font-size: 14px; margin: 0 0 10px 0;">
+        <div style="border-top: 1px solid #D4E4D0; padding-top: 25px; margin-top: 30px;">
+          <p style="color: #B4B4B4; font-size: 14px; margin: 0 0 10px 0;">
             Merci de votre compréhension.
           </p>
-          <p style="color: #718096; font-size: 14px; margin: 0; font-weight: 600;">
+          <p style="color: #B4B4B4; font-size: 14px; margin: 0; font-weight: 600;">
             L'équipe médicale
           </p>
         </div>
@@ -343,7 +343,7 @@ export const sendBookingCancellation = async (
         const timeout = setTimeout(() => {
           reject(new Error('Timeout: Email sending took too long'))
         }, 30000)
-        
+
         transporter.sendMail(mailOptions)
           .then(result => { clearTimeout(timeout); resolve(result as { messageId: string; response: string }) })
           .catch(error => { clearTimeout(timeout); reject(error) })
@@ -366,6 +366,7 @@ export const sendDoctorNotification = async (
     lastName: string
     email: string
     phone: string
+    city?: string
     date: string
     time: string
     period: string
@@ -376,10 +377,10 @@ export const sendDoctorNotification = async (
   }
 ) => {
   const transporter = createTransporter()
-  
+
   // Récupérer les variables d'environnement
   const smtpUser = process.env.GMAIL_USER || process.env.SMTP_USER
-  
+
   // Utiliser la fonction utilitaire pour formater la date
   const bookingDate = new Date(bookingData.date)
   const formattedDate = formatDateForDisplay(bookingDate)
@@ -387,7 +388,7 @@ export const sendDoctorNotification = async (
   const html = `
     <div style="font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; max-width: 600px; margin: 0 auto; background-color: #ffffff;">
       <!-- Header -->
-      <div style="background: linear-gradient(135deg, #2d5a27 0%, #4a7c59 100%); padding: 30px; text-align: center;">
+      <div style="background: #A8C3A0; padding: 30px; text-align: center;">
         <h1 style="color: #ffffff; margin: 0; font-size: 24px; font-weight: 600; letter-spacing: 0.5px;">
           NOUVELLE RÉSERVATION
         </h1>
@@ -396,32 +397,38 @@ export const sendDoctorNotification = async (
       
       <!-- Content -->
       <div style="padding: 40px 30px;">
-        <p style="color: #2d3748; font-size: 16px; line-height: 1.6; margin: 0 0 30px 0;">
+        <p style="color: #4A4A4A; font-size: 16px; line-height: 1.6; margin: 0 0 30px 0;">
           Une nouvelle réservation a été effectuée. Veuillez trouver ci-dessous les détails complets :
         </p>
         
         <!-- Patient Information -->
-        <div style="background: #f7fafc; border: 1px solid #e2e8f0; border-radius: 8px; padding: 25px; margin: 30px 0;">
-          <h3 style="color: #2d5a27; font-size: 18px; font-weight: 600; margin: 0 0 20px 0; text-transform: uppercase; letter-spacing: 0.5px;">
+        <div style="background: #F5F2E7; border: 1px solid #D4E4D0; border-radius: 8px; padding: 25px; margin: 30px 0;">
+          <h3 style="color: #7A3E3E; font-size: 18px; font-weight: 600; margin: 0 0 20px 0; text-transform: uppercase; letter-spacing: 0.5px;">
             Informations patient
           </h3>
           
           <table style="width: 100%; border-collapse: collapse;">
             <tr>
-              <td style="padding: 12px 0; border-bottom: 1px solid #e2e8f0; color: #4a5568; font-weight: 600; width: 140px;">Nom complet</td>
-              <td style="padding: 12px 0; border-bottom: 1px solid #e2e8f0; color: #2d3748;">${bookingData.firstName} ${bookingData.lastName}</td>
+              <td style="padding: 12px 0; border-bottom: 1px solid #D4E4D0; color: #4A4A4A; font-weight: 600; width: 140px;">Nom complet</td>
+              <td style="padding: 12px 0; border-bottom: 1px solid #D4E4D0; color: #4A4A4A;">${bookingData.firstName} ${bookingData.lastName}</td>
             </tr>
             <tr>
-              <td style="padding: 12px 0; border-bottom: 1px solid #e2e8f0; color: #4a5568; font-weight: 600;">Email</td>
-              <td style="padding: 12px 0; border-bottom: 1px solid #e2e8f0; color: #2d3748;">${bookingData.email}</td>
+              <td style="padding: 12px 0; border-bottom: 1px solid #D4E4D0; color: #4A4A4A; font-weight: 600;">Email</td>
+              <td style="padding: 12px 0; border-bottom: 1px solid #D4E4D0; color: #4A4A4A;">${bookingData.email}</td>
             </tr>
             <tr>
-              <td style="padding: 12px 0; border-bottom: 1px solid #e2e8f0; color: #4a5568; font-weight: 600;">Téléphone</td>
-              <td style="padding: 12px 0; border-bottom: 1px solid #e2e8f0; color: #2d3748;">${bookingData.phone}</td>
+              <td style="padding: 12px 0; border-bottom: 1px solid #D4E4D0; color: #4A4A4A; font-weight: 600;">Téléphone</td>
+              <td style="padding: 12px 0; border-bottom: 1px solid #D4E4D0; color: #4A4A4A;">${bookingData.phone}</td>
             </tr>
+            ${bookingData.city ? `
             <tr>
-              <td style="padding: 12px 0; color: #4a5568; font-weight: 600;">Première consultation</td>
-              <td style="padding: 12px 0; color: #2d3748; font-weight: 600;">${bookingData.firstConsultation ? 'Oui' : 'Non'}</td>
+              <td style="padding: 12px 0; border-bottom: 1px solid #D4E4D0; color: #4A4A4A; font-weight: 600;">Lieu d'intervention</td>
+              <td style="padding: 12px 0; border-bottom: 1px solid #D4E4D0; color: #4A4A4A; font-weight: 600;">${bookingData.city} (domicile)</td>
+            </tr>
+            ` : ''}
+            <tr>
+              <td style="padding: 12px 0; color: #4A4A4A; font-weight: 600;">Première consultation</td>
+              <td style="padding: 12px 0; color: #4A4A4A; font-weight: 600;">${bookingData.firstConsultation ? 'Oui' : 'Non'}</td>
             </tr>
           </table>
         </div>
@@ -432,7 +439,7 @@ export const sendDoctorNotification = async (
             Motif de consultation
           </h3>
           <div style="background: #ffffff; padding: 20px; border-radius: 6px; border-left: 4px solid #ffcc02;">
-            <p style="color: #2d3748; font-size: 15px; line-height: 1.6; margin: 0;">
+            <p style="color: #4A4A4A; font-size: 15px; line-height: 1.6; margin: 0;">
               ${bookingData.consultationReason}
             </p>
           </div>
@@ -445,7 +452,7 @@ export const sendDoctorNotification = async (
             Message du patient
           </h3>
           <div style="background: #ffffff; padding: 20px; border-radius: 6px; border-left: 4px solid #38b2ac;">
-            <p style="color: #2d3748; font-size: 15px; line-height: 1.6; margin: 0; font-style: italic;">
+            <p style="color: #4A4A4A; font-size: 15px; line-height: 1.6; margin: 0; font-style: italic;">
               "${bookingData.message}"
             </p>
           </div>
@@ -453,30 +460,30 @@ export const sendDoctorNotification = async (
         ` : ''}
         
         <!-- Appointment Details -->
-        <div style="background: #f7fafc; border: 1px solid #e2e8f0; border-radius: 8px; padding: 25px; margin: 30px 0;">
-          <h3 style="color: #2d5a27; font-size: 18px; font-weight: 600; margin: 0 0 20px 0; text-transform: uppercase; letter-spacing: 0.5px;">
+        <div style="background: #F5F2E7; border: 1px solid #D4E4D0; border-radius: 8px; padding: 25px; margin: 30px 0;">
+          <h3 style="color: #7A3E3E; font-size: 18px; font-weight: 600; margin: 0 0 20px 0; text-transform: uppercase; letter-spacing: 0.5px;">
             Détails du rendez-vous
           </h3>
           
           <table style="width: 100%; border-collapse: collapse;">
             <tr>
-              <td style="padding: 12px 0; border-bottom: 1px solid #e2e8f0; color: #4a5568; font-weight: 600; width: 120px;">Date</td>
-              <td style="padding: 12px 0; border-bottom: 1px solid #e2e8f0; color: #2d3748;">${formattedDate}</td>
+              <td style="padding: 12px 0; border-bottom: 1px solid #D4E4D0; color: #4A4A4A; font-weight: 600; width: 120px;">Date</td>
+              <td style="padding: 12px 0; border-bottom: 1px solid #D4E4D0; color: #4A4A4A;">${formattedDate}</td>
             </tr>
             <tr>
-              <td style="padding: 12px 0; border-bottom: 1px solid #e2e8f0; color: #4a5568; font-weight: 600;">Période</td>
-              <td style="padding: 12px 0; border-bottom: 1px solid #e2e8f0; color: #2d3748;">${bookingData.period === 'morning' ? 'Matin' : 'Après-midi'}</td>
+              <td style="padding: 12px 0; border-bottom: 1px solid #D4E4D0; color: #4A4A4A; font-weight: 600;">Période</td>
+              <td style="padding: 12px 0; border-bottom: 1px solid #D4E4D0; color: #4A4A4A;">${bookingData.period === 'morning' ? 'Matin' : 'Après-midi'}</td>
             </tr>
             <tr>
-              <td style="padding: 12px 0; color: #4a5568; font-weight: 600;">Heure</td>
-              <td style="padding: 12px 0; color: #2d3748; font-weight: 600;">${formatTimeRange(bookingData.time, bookingData.period)}</td>
+              <td style="padding: 12px 0; color: #4A4A4A; font-weight: 600;">Heure</td>
+              <td style="padding: 12px 0; color: #4A4A4A; font-weight: 600;">${formatTimeRange(bookingData.time, bookingData.period)}</td>
             </tr>
           </table>
         </div>
         
         <!-- Calendar Note -->
-        <div style="background: #f0fff4; border-left: 4px solid #2d5a27; padding: 20px; margin: 30px 0;">
-          <p style="color: #4a5568; font-size: 14px; margin: 0; font-weight: 600;">
+        <div style="background: #F5F2E7; border-left: 4px solid #A8C3A0; padding: 20px; margin: 30px 0;">
+          <p style="color: #4A4A4A; font-size: 14px; margin: 0; font-weight: 600;">
             Cette réservation a été automatiquement ajoutée à votre Google Calendar.
           </p>
         </div>
@@ -492,14 +499,14 @@ export const sendDoctorNotification = async (
               Annuler ce rendez-vous
             </a>
           </div>
-          <p style="color: #4a5568; font-size: 14px; margin: 15px 0 0 0; text-align: center;">
+          <p style="color: #4A4A4A; font-size: 14px; margin: 15px 0 0 0; text-align: center;">
             Cliquez sur le bouton ci-dessus pour annuler ce rendez-vous. Le patient sera automatiquement notifié.
           </p>
         </div>
         
         <!-- Footer -->
-        <div style="border-top: 1px solid #e2e8f0; padding-top: 25px; margin-top: 30px;">
-          <p style="color: #718096; font-size: 14px; margin: 0; font-weight: 600;">
+        <div style="border-top: 1px solid #D4E4D0; padding-top: 25px; margin-top: 30px;">
+          <p style="color: #B4B4B4; font-size: 14px; margin: 0; font-weight: 600;">
             Système de réservation médicale
           </p>
         </div>
@@ -520,14 +527,14 @@ export const sendDoctorNotification = async (
     console.log(`📧 À: ${mailOptions.to}`)
     console.log(`📧 Configuration utilisée: GMAIL_USER=${!!process.env.GMAIL_USER}, GMAIL_APP_PASSWORD=${!!process.env.GMAIL_APP_PASSWORD}`)
     console.log(`📧 Début de l'envoi d'email...`)
-    
+
     // Wrapper avec timeout forcé
     const sendEmailWithTimeout = async (): Promise<{ messageId: string; response: string }> => {
       return new Promise((resolve, reject) => {
         const timeout = setTimeout(() => {
           reject(new Error('Timeout: Email sending took too long'))
         }, 30000) // 30 secondes pour la production
-        
+
         transporter.sendMail(mailOptions)
           .then(result => {
             clearTimeout(timeout)
@@ -539,7 +546,7 @@ export const sendDoctorNotification = async (
           })
       })
     }
-    
+
     console.log(`📧 Envoi avec timeout de 30 secondes...`)
     const result = await sendEmailWithTimeout()
     console.log(`✅ Notification médecin envoyée`)
@@ -550,7 +557,7 @@ export const sendDoctorNotification = async (
     console.error('❌ Détails erreur:', error instanceof Error ? error.message : String(error))
     console.error('❌ Code erreur:', (error as any)?.code)
     console.error('❌ Command erreur:', (error as any)?.command)
-    
+
     // Log détaillé pour le debugging en production
     if (error instanceof Error) {
       console.error('❌ Stack trace médecin:', error.stack)
@@ -571,15 +578,15 @@ export const sendPatientCancellationNotification = async (booking: {
   doctorMessage?: string
 }) => {
   const transporter = createTransporter()
-  
+
   if (!transporter) {
     console.log('📧 Notification annulation patient ignorée (configuration manquante)')
     return
   }
-  
+
   // Récupérer les variables d'environnement
   const smtpUser = process.env.GMAIL_USER || process.env.SMTP_USER
-  
+
   // S'assurer que la date est correctement formatée en Europe/Paris
   const bookingDate = new Date(booking.date)
   const formattedDate = bookingDate.toLocaleDateString('fr-FR', {
@@ -589,12 +596,12 @@ export const sendPatientCancellationNotification = async (booking: {
     day: 'numeric',
     timeZone: 'Europe/Paris'
   })
-  
+
   const timeRange = formatTimeRange(booking.time, booking.period)
   const periodText = booking.period === 'morning' ? 'Matin' : 'Après-midi'
-  
+
   const isDoctorCancellation = booking.cancelledBy === 'doctor'
-  const subject = isDoctorCancellation 
+  const subject = isDoctorCancellation
     ? 'Annulation de votre rendez-vous par le médecin'
     : 'Confirmation d\'annulation de votre rendez-vous'
 
@@ -626,9 +633,9 @@ export const sendPatientCancellationNotification = async (booking: {
               Bonjour ${booking.firstName} ${booking.lastName},
             </h2>
             <p style="color: #6b7280; margin: 0; font-size: 16px; line-height: 1.6;">
-              ${isDoctorCancellation 
-                ? 'Nous vous informons que votre rendez-vous médical a été annulé par le médecin.' 
-                : 'Nous confirmons l\'annulation de votre rendez-vous médical.'}
+              ${isDoctorCancellation
+      ? 'Nous vous informons que votre rendez-vous médical a été annulé par le médecin.'
+      : 'Nous confirmons l\'annulation de votre rendez-vous médical.'}
             </p>
           </div>
 
@@ -678,14 +685,14 @@ export const sendPatientCancellationNotification = async (booking: {
               ${isDoctorCancellation ? 'Prochaines étapes' : 'Que faire maintenant ?'}
             </h3>
             <p style="color: ${isDoctorCancellation ? '#991b1b' : '#166534'}; margin: 0 0 15px 0; font-size: 16px; line-height: 1.6;">
-              ${isDoctorCancellation 
-                ? 'Le médecin vous contactera prochainement pour reprogrammer votre rendez-vous à un moment plus approprié.'
-                : 'Vous pouvez reprendre un nouveau rendez-vous en utilisant le lien ci-dessous.'}
+              ${isDoctorCancellation
+      ? 'Le médecin vous contactera prochainement pour reprogrammer votre rendez-vous à un moment plus approprié.'
+      : 'Vous pouvez reprendre un nouveau rendez-vous en utilisant le lien ci-dessous.'}
             </p>
             ${!isDoctorCancellation && `
               <div style="text-align: center; margin-top: 20px;">
                 <a href="${process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000'}" 
-                   style="display: inline-block; background: linear-gradient(135deg, #059669, #047857); color: #ffffff; text-decoration: none; padding: 15px 30px; border-radius: 8px; font-weight: 600; font-size: 16px;">
+                   style="display: inline-block; background: #7A3E3E; color: #ffffff; text-decoration: none; padding: 15px 30px; border-radius: 8px; font-weight: 600; font-size: 16px;">
                   Prendre un nouveau rendez-vous
                 </a>
               </div>
@@ -729,7 +736,7 @@ export const sendPatientCancellationNotification = async (booking: {
         const timeout = setTimeout(() => {
           reject(new Error('Timeout: Email sending took too long'))
         }, 30000)
-        
+
         transporter.sendMail(mailOptions)
           .then(result => { clearTimeout(timeout); resolve(result as { messageId: string; response: string }) })
           .catch(error => { clearTimeout(timeout); reject(error) })
@@ -761,16 +768,16 @@ export const sendDoctorCancellationNotification = async (
   }
 ) => {
   const transporter = createTransporter()
-  
+
   if (!transporter) {
     console.log('📧 Notification annulation médecin ignorée (configuration manquante)')
     return
   }
-  
+
   // Récupérer les variables d'environnement
   const smtpUser = process.env.GMAIL_USER || process.env.SMTP_USER
   const doctorEmail = process.env.DOCTOR_EMAIL || smtpUser
-  
+
   // Utiliser la fonction utilitaire pour formater la date
   const bookingDate = new Date(bookingData.date)
   const formattedDate = formatDateForDisplay(bookingDate)
@@ -787,28 +794,28 @@ export const sendDoctorCancellationNotification = async (
       
       <!-- Content -->
       <div style="padding: 40px 30px;">
-        <p style="color: #2d3748; font-size: 16px; line-height: 1.6; margin: 0 0 30px 0;">
+        <p style="color: #4A4A4A; font-size: 16px; line-height: 1.6; margin: 0 0 30px 0;">
           Une réservation a été annulée par le patient. Veuillez trouver ci-dessous les détails :
         </p>
         
         <!-- Patient Information -->
-        <div style="background: #f7fafc; border: 1px solid #e2e8f0; border-radius: 8px; padding: 25px; margin: 30px 0;">
+        <div style="background: #F5F2E7; border: 1px solid #D4E4D0; border-radius: 8px; padding: 25px; margin: 30px 0;">
           <h3 style="color: #c53030; font-size: 18px; font-weight: 600; margin: 0 0 20px 0; text-transform: uppercase; letter-spacing: 0.5px;">
             Patient ayant annulé
           </h3>
           
           <table style="width: 100%; border-collapse: collapse;">
             <tr>
-              <td style="padding: 12px 0; border-bottom: 1px solid #e2e8f0; color: #4a5568; font-weight: 600; width: 140px;">Nom complet</td>
-              <td style="padding: 12px 0; border-bottom: 1px solid #e2e8f0; color: #2d3748;">${bookingData.firstName} ${bookingData.lastName}</td>
+              <td style="padding: 12px 0; border-bottom: 1px solid #D4E4D0; color: #4A4A4A; font-weight: 600; width: 140px;">Nom complet</td>
+              <td style="padding: 12px 0; border-bottom: 1px solid #D4E4D0; color: #4A4A4A;">${bookingData.firstName} ${bookingData.lastName}</td>
             </tr>
             <tr>
-              <td style="padding: 12px 0; border-bottom: 1px solid #e2e8f0; color: #4a5568; font-weight: 600;">Email</td>
-              <td style="padding: 12px 0; border-bottom: 1px solid #e2e8f0; color: #2d3748;">${bookingData.email}</td>
+              <td style="padding: 12px 0; border-bottom: 1px solid #D4E4D0; color: #4A4A4A; font-weight: 600;">Email</td>
+              <td style="padding: 12px 0; border-bottom: 1px solid #D4E4D0; color: #4A4A4A;">${bookingData.email}</td>
             </tr>
             <tr>
-              <td style="padding: 12px 0; color: #4a5568; font-weight: 600;">Téléphone</td>
-              <td style="padding: 12px 0; color: #2d3748;">${bookingData.phone}</td>
+              <td style="padding: 12px 0; color: #4A4A4A; font-weight: 600;">Téléphone</td>
+              <td style="padding: 12px 0; color: #4A4A4A;">${bookingData.phone}</td>
             </tr>
           </table>
         </div>
@@ -821,16 +828,16 @@ export const sendDoctorCancellationNotification = async (
           
           <table style="width: 100%; border-collapse: collapse;">
             <tr>
-              <td style="padding: 12px 0; border-bottom: 1px solid #fed7d7; color: #4a5568; font-weight: 600; width: 120px;">Date</td>
-              <td style="padding: 12px 0; border-bottom: 1px solid #fed7d7; color: #2d3748;">${formattedDate}</td>
+              <td style="padding: 12px 0; border-bottom: 1px solid #fed7d7; color: #4A4A4A; font-weight: 600; width: 120px;">Date</td>
+              <td style="padding: 12px 0; border-bottom: 1px solid #fed7d7; color: #4A4A4A;">${formattedDate}</td>
             </tr>
             <tr>
-              <td style="padding: 12px 0; border-bottom: 1px solid #fed7d7; color: #4a5568; font-weight: 600;">Période</td>
-              <td style="padding: 12px 0; border-bottom: 1px solid #fed7d7; color: #2d3748;">${bookingData.period === 'morning' ? 'Matin' : 'Après-midi'}</td>
+              <td style="padding: 12px 0; border-bottom: 1px solid #fed7d7; color: #4A4A4A; font-weight: 600;">Période</td>
+              <td style="padding: 12px 0; border-bottom: 1px solid #fed7d7; color: #4A4A4A;">${bookingData.period === 'morning' ? 'Matin' : 'Après-midi'}</td>
             </tr>
             <tr>
-              <td style="padding: 12px 0; color: #4a5568; font-weight: 600;">Heure</td>
-              <td style="padding: 12px 0; color: #2d3748; font-weight: 600;">${formatTimeRange(bookingData.time, bookingData.period)}</td>
+              <td style="padding: 12px 0; color: #4A4A4A; font-weight: 600;">Heure</td>
+              <td style="padding: 12px 0; color: #4A4A4A; font-weight: 600;">${formatTimeRange(bookingData.time, bookingData.period)}</td>
             </tr>
           </table>
         </div>
@@ -841,7 +848,7 @@ export const sendDoctorCancellationNotification = async (
             Motif de consultation
           </h3>
           <div style="background: #ffffff; padding: 20px; border-radius: 6px; border-left: 4px solid #ffcc02;">
-            <p style="color: #2d3748; font-size: 15px; line-height: 1.6; margin: 0;">
+            <p style="color: #4A4A4A; font-size: 15px; line-height: 1.6; margin: 0;">
               ${bookingData.consultationReason}
             </p>
           </div>
@@ -854,7 +861,7 @@ export const sendDoctorCancellationNotification = async (
             Message du patient
           </h3>
           <div style="background: #ffffff; padding: 20px; border-radius: 6px; border-left: 4px solid #38b2ac;">
-            <p style="color: #2d3748; font-size: 15px; line-height: 1.6; margin: 0; font-style: italic;">
+            <p style="color: #4A4A4A; font-size: 15px; line-height: 1.6; margin: 0; font-style: italic;">
               "${bookingData.message}"
             </p>
           </div>
@@ -862,15 +869,15 @@ export const sendDoctorCancellationNotification = async (
         ` : ''}
         
         <!-- Calendar Note -->
-        <div style="background: #f0fff4; border-left: 4px solid #2d5a27; padding: 20px; margin: 30px 0;">
-          <p style="color: #4a5568; font-size: 14px; margin: 0; font-weight: 600;">
+        <div style="background: #F5F2E7; border-left: 4px solid #A8C3A0; padding: 20px; margin: 30px 0;">
+          <p style="color: #4A4A4A; font-size: 14px; margin: 0; font-weight: 600;">
             Cette réservation a été automatiquement supprimée de votre Google Calendar.
           </p>
         </div>
         
         <!-- Footer -->
-        <div style="border-top: 1px solid #e2e8f0; padding-top: 25px; margin-top: 30px;">
-          <p style="color: #718096; font-size: 14px; margin: 0; font-weight: 600;">
+        <div style="border-top: 1px solid #D4E4D0; padding-top: 25px; margin-top: 30px;">
+          <p style="color: #B4B4B4; font-size: 14px; margin: 0; font-weight: 600;">
             Système de réservation médicale
           </p>
         </div>
@@ -892,7 +899,7 @@ export const sendDoctorCancellationNotification = async (
         const timeout = setTimeout(() => {
           reject(new Error('Timeout: Email sending took too long'))
         }, 30000)
-        
+
         transporter.sendMail(mailOptions)
           .then(result => { clearTimeout(timeout); resolve(result as { messageId: string; response: string }) })
           .catch(error => { clearTimeout(timeout); reject(error) })

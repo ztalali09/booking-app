@@ -11,7 +11,7 @@ import { z } from 'zod'
 
 export async function POST(request: NextRequest) {
   const startTime = Date.now()
-  
+
   // 🔒 Rate limiting - Temporairement désactivé pour debug
   // const rateLimitResult = bookingRateLimit(request)
   // if (!rateLimitResult.success) {
@@ -31,7 +31,7 @@ export async function POST(request: NextRequest) {
   //     }
   //   )
   // }
-  
+
   try {
     // 1. Récupérer et valider les données
     const body = await request.json()
@@ -59,9 +59,9 @@ export async function POST(request: NextRequest) {
 
     // 3. Vérifier la règle des 15 minutes minimum
     const now = new Date()
-    const isToday = bookingDate.getDate() === now.getDate() && 
-                   bookingDate.getMonth() === now.getMonth() && 
-                   bookingDate.getFullYear() === now.getFullYear()
+    const isToday = bookingDate.getDate() === now.getDate() &&
+      bookingDate.getMonth() === now.getMonth() &&
+      bookingDate.getFullYear() === now.getFullYear()
 
     if (isToday) {
       const [hours, minutes] = validatedData.time.split(':').map(Number)
@@ -87,11 +87,11 @@ export async function POST(request: NextRequest) {
 
     // 4. Démarrer les tâches asynchrones (temporairement synchrone pour debug)
     console.log('🔄 Démarrage des tâches de synchronisation...')
-    
+
     // Synchronisation Google Calendar (synchrone pour debug)
     console.log('🔍 Vérification de la configuration Google Calendar...')
     console.log('GOOGLE_SERVICE_ACCOUNT_EMAIL:', process.env.GOOGLE_SERVICE_ACCOUNT_EMAIL ? '✅ Défini' : '❌ Manquant')
-    
+
     if (process.env.GOOGLE_SERVICE_ACCOUNT_EMAIL) {
       try {
         console.log('📅 Création de l\'événement Google Calendar...')
@@ -102,30 +102,31 @@ export async function POST(request: NextRequest) {
           date: booking.date,
           time: booking.time
         })
-        
+
         const googleEventId = await createCalendarEvent({
           firstName: booking.firstName,
           lastName: booking.lastName,
           email: booking.email,
           phone: booking.phone,
+          city: booking.city || undefined,
           date: booking.date,
           time: booking.time,
           consultationReason: booking.consultationReason,
           message: booking.message || undefined,
         })
-        
+
         console.log('✅ Événement Google Calendar créé:', googleEventId)
-        
+
         if (googleEventId) {
           // Mettre à jour la réservation avec l'ID de l'événement Google
           await prisma.booking.update({
             where: { id: booking.id },
-            data: { 
+            data: {
               googleCalendarEventId: googleEventId,
-              syncedWithGoogle: true 
+              syncedWithGoogle: true
             }
           })
-          
+
           console.log('✅ Réservation mise à jour avec l\'ID Google Calendar')
         } else {
           console.log('⚠️ Aucun ID d\'événement retourné par createCalendarEvent')
@@ -137,7 +138,7 @@ export async function POST(request: NextRequest) {
     } else {
       console.log('⚠️ Google Calendar non configuré (GOOGLE_SERVICE_ACCOUNT_EMAIL manquant)')
     }
-    
+
     // Autres tâches asynchrones (emails) - ATTENDRE les emails avant de répondre
     console.log('📧 Démarrage des tâches d\'envoi d\'emails...')
     try {
@@ -165,6 +166,7 @@ export async function POST(request: NextRequest) {
             lastName: booking.lastName,
             email: booking.email,
             phone: booking.phone,
+            city: booking.city || undefined,
             date: formatDateForAPI(booking.date), // YYYY-MM-DD format
             time: booking.time,
             period: booking.period,
@@ -197,7 +199,7 @@ export async function POST(request: NextRequest) {
           cancellationToken: booking.cancellationToken,
         }
       },
-      { 
+      {
         status: 201,
         headers: {
           'X-Content-Type-Options': 'nosniff',
@@ -209,15 +211,15 @@ export async function POST(request: NextRequest) {
 
   } catch (error) {
     console.error('Erreur création réservation:', error)
-    
+
     // 📊 Tracking de l'erreur
     const bookingTime = Date.now() - startTime
     trackBooking(false, bookingTime)
-    trackError(error instanceof Error ? error : new Error('Unknown error'), { 
+    trackError(error instanceof Error ? error : new Error('Unknown error'), {
       endpoint: '/api/bookings',
       operation: 'booking_creation'
     })
-    
+
     if (error instanceof z.ZodError) {
       return NextResponse.json(
         { error: "Données invalides", details: error.errors },
@@ -240,13 +242,13 @@ export async function GET(request: NextRequest) {
     const status = searchParams.get('status')
 
     const where: any = {}
-    
+
     if (date) {
       const startOfDay = new Date(date)
       startOfDay.setHours(0, 0, 0, 0)
       const endOfDay = new Date(date)
       endOfDay.setHours(23, 59, 59, 999)
-      
+
       where.date = {
         gte: startOfDay,
         lte: endOfDay,

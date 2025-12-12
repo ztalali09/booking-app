@@ -48,12 +48,12 @@ export async function getBlockedSlots(date: Date) {
     })
 
     const events = response.data.items || []
-    
+
     // Convertir les événements en créneaux bloqués
     const blockedSlots = events.map(event => {
       const start = event.start?.dateTime || event.start?.date
       const end = event.end?.dateTime || event.end?.date
-      
+
       if (!start || !end) return null
 
       return {
@@ -100,6 +100,7 @@ export async function createCalendarEvent(bookingData: {
   lastName: string
   email: string
   phone: string
+  city?: string
   date: Date
   time: string
   consultationReason: string
@@ -112,7 +113,7 @@ export async function createCalendarEvent(bookingData: {
     // Utiliser la fonction utilitaire pour créer les dates/heures
     const dateStr = formatDateForAPI(bookingData.date)
     const { start: startTime, end: endTime } = createGoogleCalendarDateTime(dateStr, bookingData.time)
-    
+
     console.log('🕐 Création événement Google Calendar:')
     console.log('  - Date réservation:', bookingData.date)
     console.log('  - Heure réservation:', bookingData.time)
@@ -123,10 +124,12 @@ export async function createCalendarEvent(bookingData: {
 
     const event = {
       summary: `Consultation - ${bookingData.firstName} ${bookingData.lastName}`,
+      location: bookingData.city ? `Intervention à domicile - ${bookingData.city}` : undefined,
       description: `
 Patient: ${bookingData.firstName} ${bookingData.lastName}
 Email: ${bookingData.email}
 Téléphone: ${bookingData.phone}
+${bookingData.city ? `Lieu: Intervention à domicile - ${bookingData.city}` : ''}
 Motif: ${bookingData.consultationReason}
 ${bookingData.message ? `Message: ${bookingData.message}` : ''}
       `.trim(),
@@ -190,6 +193,7 @@ export async function updateCalendarEvent(eventId: string, bookingData: {
   lastName: string
   email: string
   phone: string
+  city?: string
   date: Date
   time: string
   consultationReason: string
@@ -205,10 +209,12 @@ export async function updateCalendarEvent(eventId: string, bookingData: {
 
     const event = {
       summary: `Consultation - ${bookingData.firstName} ${bookingData.lastName}`,
+      location: bookingData.city ? `Intervention à domicile - ${bookingData.city}` : undefined,
       description: `
 Patient: ${bookingData.firstName} ${bookingData.lastName}
 Email: ${bookingData.email}
 Téléphone: ${bookingData.phone}
+${bookingData.city ? `Lieu: Intervention à domicile - ${bookingData.city}` : ''}
 Motif: ${bookingData.consultationReason}
 ${bookingData.message ? `Message: ${bookingData.message}` : ''}
       `.trim(),

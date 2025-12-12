@@ -4,39 +4,40 @@
 @custom-variant dark (&:is(.dark *));
 
 :root {
-  --background: oklch(1 0 0);
-  --foreground: oklch(0.145 0 0);
-  --card: oklch(1 0 0);
-  --card-foreground: oklch(0.145 0 0);
-  --popover: oklch(1 0 0);
-  --popover-foreground: oklch(0.145 0 0);
-  --primary: oklch(0.205 0 0);
-  --primary-foreground: oklch(0.985 0 0);
-  --secondary: oklch(0.97 0 0);
-  --secondary-foreground: oklch(0.205 0 0);
-  --muted: oklch(0.97 0 0);
-  --muted-foreground: oklch(0.556 0 0);
-  --accent: oklch(0.97 0 0);
-  --accent-foreground: oklch(0.205 0 0);
-  --destructive: oklch(0.577 0.245 27.325);
-  --destructive-foreground: oklch(0.577 0.245 27.325);
-  --border: oklch(0.922 0 0);
-  --input: oklch(0.922 0 0);
-  --ring: oklch(0.708 0 0);
+  /* Nouvelle palette : Beige/Ivoire, Jade doux, Rouge terre, Anthracite */
+  --background: oklch(0.96 0.01 85); /* #F5F2E7 - Beige/Ivoire */
+  --foreground: oklch(0.35 0 0); /* #4A4A4A - Anthracite moyen (texte principal) */
+  --card: oklch(0.96 0.01 85); /* #F5F2E7 - Beige/Ivoire */
+  --card-foreground: oklch(0.35 0 0); /* #4A4A4A - Anthracite moyen */
+  --popover: oklch(0.96 0.01 85); /* #F5F2E7 - Beige/Ivoire */
+  --popover-foreground: oklch(0.35 0 0); /* #4A4A4A - Anthracite moyen */
+  --primary: oklch(0.40 0.08 25); /* #7A3E3E - Rouge terre (boutons/accents) */
+  --primary-foreground: oklch(0.98 0 0); /* Blanc pour texte sur rouge terre */
+  --secondary: oklch(0.75 0.05 140); /* #A8C3A0 - Jade doux (sections) */
+  --secondary-foreground: oklch(0.35 0 0); /* #4A4A4A - Anthracite moyen */
+  --muted: oklch(0.94 0.01 85); /* #F0EDE0 - Beige légèrement plus foncé */
+  --muted-foreground: oklch(0.72 0 0); /* #B4B4B4 - Anthracite clair (texte secondaire) */
+  --accent: oklch(0.75 0.05 140); /* #A8C3A0 - Jade doux */
+  --accent-foreground: oklch(0.35 0 0); /* #4A4A4A - Anthracite moyen */
+  --destructive: oklch(0.577 0.245 27.325); /* Rouge vif pour annulations (garder) */
+  --destructive-foreground: oklch(0.98 0 0); /* Blanc */
+  --border: oklch(0.85 0.02 140); /* #D4E4D0 - Jade très clair (bordures) */
+  --input: oklch(0.96 0.01 85); /* #F5F2E7 - Beige/Ivoire */
+  --ring: oklch(0.40 0.08 25); /* #7A3E3E - Rouge terre (focus) */
   --chart-1: oklch(0.646 0.222 41.116);
   --chart-2: oklch(0.6 0.118 184.704);
   --chart-3: oklch(0.398 0.07 227.392);
   --chart-4: oklch(0.828 0.189 84.429);
   --chart-5: oklch(0.769 0.188 70.08);
   --radius: 0.625rem;
-  --sidebar: oklch(0.985 0 0);
-  --sidebar-foreground: oklch(0.145 0 0);
-  --sidebar-primary: oklch(0.205 0 0);
-  --sidebar-primary-foreground: oklch(0.985 0 0);
-  --sidebar-accent: oklch(0.97 0 0);
-  --sidebar-accent-foreground: oklch(0.205 0 0);
-  --sidebar-border: oklch(0.922 0 0);
-  --sidebar-ring: oklch(0.708 0 0);
+  --sidebar: oklch(0.96 0.01 85); /* #F5F2E7 - Beige/Ivoire */
+  --sidebar-foreground: oklch(0.35 0 0); /* #4A4A4A - Anthracite moyen */
+  --sidebar-primary: oklch(0.40 0.08 25); /* #7A3E3E - Rouge terre */
+  --sidebar-primary-foreground: oklch(0.98 0 0); /* Blanc */
+  --sidebar-accent: oklch(0.75 0.05 140); /* #A8C3A0 - Jade doux */
+  --sidebar-accent-foreground: oklch(0.35 0 0); /* #4A4A4A - Anthracite moyen */
+  --sidebar-border: oklch(0.85 0.02 140); /* #D4E4D0 - Jade très clair */
+  --sidebar-ring: oklch(0.40 0.08 25); /* #7A3E3E - Rouge terre */
 }
 
 .dark {

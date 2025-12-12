@@ -7,6 +7,7 @@ export const createBookingSchema = z.object({
   email: z.string().email("Email invalide"),
   phone: z.string().min(8, "Le numéro doit contenir au moins 8 chiffres"),
   country: z.string().default("FR"),
+  city: z.string().min(1, "La ville est requise"),
   date: z.string().refine((val) => !isNaN(Date.parse(val)), "Date invalide"), // ISO 8601 format
   time: z.string().regex(/^([0-1][0-9]|2[0-3]):[0-5][0-9]$/, "Format d'heure invalide"),
   period: z.enum(["morning", "afternoon"]),

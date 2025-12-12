@@ -3,16 +3,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
 import { getBlockedSlots, isSlotBlocked } from '@/lib/services/google-calendar'
 import { createDateFromString } from '@/lib/utils/date'
-
-// Créneaux disponibles (de 9h à 18h, par tranches de 30 minutes)
-const generateTimeSlots = () => {
-  const slots = []
-  for (let hour = 9; hour < 18; hour++) {
-    slots.push(`${hour.toString().padStart(2, '0')}:00`)
-    slots.push(`${hour.toString().padStart(2, '0')}:30`)
-  }
-  return slots
-}
+import { isDateAvailable, generateTimeSlotsForDay } from '@/lib/config/availability-config'
 
 // Vérifier si un créneau est disponible (pas de chevauchement direct)
 const isSlotAvailable = (slotTime: string, bookings: any[]) => {
@@ -47,9 +38,21 @@ export async function GET(request: NextRequest) {
     // Récupérer toutes les réservations non annulées pour cette date
     // Convertir la date YYYY-MM-DD en Date avec fuseau horaire Europe/Paris
     const date = createDateFromString(dateParam)
+    const dayOfWeek = date.getDay()
     const startOfDay = createDateFromString(dateParam)
     const endOfDay = new Date(startOfDay)
     endOfDay.setHours(23, 59, 59, 999)
+
+    // Vérifier si la date est disponible selon les règles
+    if (!isDateAvailable(date)) {
+      return NextResponse.json({
+        date: dateParam,
+        morning: [],
+        afternoon: [],
+        all: [],
+        message: "Cette date n'est pas disponible"
+      })
+    }
 
     const bookings = await prisma.booking.findMany({
       where: {
@@ -66,71 +69,65 @@ export async function GET(request: NextRequest) {
       }
     })
 
-        // Générer tous les créneaux et vérifier leur disponibilité
-        const allSlots = generateTimeSlots()
-        
-        // Récupérer les créneaux bloqués depuis Google Calendar
-        let blockedSlots: any[] = []
-        try {
-          blockedSlots = await getBlockedSlots(date)
-        } catch (error) {
-          console.error('Erreur récupération créneaux bloqués:', error)
-          // Continuer sans les créneaux bloqués si Google Calendar échoue
-        }
-        
-        // Vérifier si c'est le jour actuel
-        const today = new Date()
-        const isToday = date.getDate() === today.getDate() && 
-                        date.getMonth() === today.getMonth() && 
-                        date.getFullYear() === today.getFullYear()
-        
-        // Créer des objets avec statut pour chaque créneau
-        const slotsWithStatus = allSlots.map(slot => {
-          let available = isSlotAvailable(slot, bookings)
-          
-          // Vérifier si le créneau est bloqué dans Google Calendar
-          if (available && blockedSlots.length > 0) {
-            available = !isSlotBlocked(slot, date, blockedSlots)
-          }
-          
-          // Si c'est le jour actuel, vérifier que le créneau n'est pas passé
-          if (isToday && available) {
-            const now = new Date()
-            const currentHour = now.getHours()
-            const currentMinute = now.getMinutes()
-            const currentTime = currentHour * 60 + currentMinute
-            
-            const [hours, minutes] = slot.split(':').map(Number)
-            const slotTime = hours * 60 + minutes
-            
-            // Le créneau doit être dans le futur + 15 minutes minimum
-            const minimumAdvanceTime = currentTime + 15
-            available = slotTime > minimumAdvanceTime
-          }
-          
-          return {
-            time: slot,
-            available: available
-          }
-        })
+    // Générer les créneaux pour ce jour (selon la config - horaires personnalisés)
+    const allSlots = generateTimeSlotsForDay(dayOfWeek)
 
-        // Organiser par période avec statut
-        const morningSlots = slotsWithStatus.filter(slot => {
-          const hour = parseInt(slot.time.split(':')[0])
-          return hour < 12
-        })
+    // Récupérer les créneaux bloqués depuis Google Calendar
+    let blockedSlots: any[] = []
+    try {
+      blockedSlots = await getBlockedSlots(date)
+    } catch (error) {
+      console.error('Erreur récupération créneaux bloqués:', error)
+      // Continuer sans les créneaux bloqués si Google Calendar échoue
+    }
 
-        const afternoonSlots = slotsWithStatus.filter(slot => {
-          const hour = parseInt(slot.time.split(':')[0])
-          return hour >= 12
-        })
+    // Vérifier si c'est le jour actuel
+    const today = new Date()
+    const isToday = date.getDate() === today.getDate() &&
+      date.getMonth() === today.getMonth() &&
+      date.getFullYear() === today.getFullYear()
 
-        return NextResponse.json({
-          date: dateParam,
-          morning: morningSlots,
-          afternoon: afternoonSlots,
-          all: slotsWithStatus,
-        })
+    // Créer des objets avec statut pour chaque créneau
+    const slotsWithStatus = allSlots.map(slot => {
+      let available = isSlotAvailable(slot, bookings)
+
+      // Vérifier si le créneau est bloqué dans Google Calendar
+      if (available && blockedSlots.length > 0) {
+        available = !isSlotBlocked(slot, date, blockedSlots)
+      }
+
+      // Si c'est le jour actuel, vérifier que le créneau n'est pas passé
+      if (isToday && available) {
+        const now = new Date()
+        const currentHour = now.getHours()
+        const currentMinute = now.getMinutes()
+        const currentTime = currentHour * 60 + currentMinute
+
+        const [hours, minutes] = slot.split(':').map(Number)
+        const slotTime = hours * 60 + minutes
+
+        // Le créneau doit être dans le futur + 15 minutes minimum
+        const minimumAdvanceTime = currentTime + 15
+        available = slotTime > minimumAdvanceTime
+      }
+
+      return {
+        time: slot,
+        available: available
+      }
+    })
+
+    // RÈGLE MÉTIER : Le praticien est disponible uniquement l'après-midi
+    // Donc morning est toujours vide
+    const morningSlots: typeof slotsWithStatus = [] // Pas de créneaux le matin
+    const afternoonSlots = slotsWithStatus // Tous les créneaux sont l'après-midi
+
+    return NextResponse.json({
+      date: dateParam,
+      morning: morningSlots,
+      afternoon: afternoonSlots,
+      all: slotsWithStatus,
+    })
 
   } catch (error) {
     console.error('Erreur récupération créneaux:', error)
@@ -140,4 +137,5 @@ export async function GET(request: NextRequest) {
     )
   }
 }
+
 
