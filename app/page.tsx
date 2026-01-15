@@ -642,8 +642,98 @@ export default function BookingPage() {
     return days
   }
 
+  // Données structurées JSON-LD pour le SEO
+  const structuredData = {
+    "@context": "https://schema.org",
+    "@type": "MedicalBusiness",
+    "name": "Cyril Hudelot - Médecine Traditionnelle Chinoise",
+    "description": "Praticien en médecine traditionnelle chinoise depuis 2021. Séances de MTC à domicile dans la région d'Aubagne, La Ciotat, Cassis. Bilan énergétique, techniques de soin adaptées et conseils personnalisés.",
+    "url": process.env.NEXT_PUBLIC_APP_URL || "https://cyril-mtc.online",
+    "telephone": "+33 7 62 37 66 21",
+    "priceRange": "50€",
+    "address": {
+      "@type": "PostalAddress",
+      "addressLocality": "Aubagne",
+      "addressRegion": "Provence-Alpes-Côte d'Azur",
+      "postalCode": "13400",
+      "addressCountry": "FR"
+    },
+    "areaServed": [
+      {
+        "@type": "City",
+        "name": "Aubagne"
+      },
+      {
+        "@type": "City",
+        "name": "La Ciotat"
+      },
+      {
+        "@type": "City",
+        "name": "Cassis"
+      },
+      {
+        "@type": "City",
+        "name": "Roquefort-la-Bédoule"
+      },
+      {
+        "@type": "City",
+        "name": "Carnoux-en-Provence"
+      }
+    ],
+    "founder": {
+      "@type": "Person",
+      "name": "Cyril Hudelot",
+      "jobTitle": "Praticien en Médecine Traditionnelle Chinoise",
+      "description": "Praticien en médecine traditionnelle chinoise depuis 2021"
+    },
+    "medicalSpecialty": "Médecine Traditionnelle Chinoise",
+    "serviceType": "Consultation à domicile"
+  }
+
+  const personStructuredData = {
+    "@context": "https://schema.org",
+    "@type": "Person",
+    "name": "Cyril Hudelot",
+    "alternateName": "Hudelot Cyril",
+    "jobTitle": "Praticien en Médecine Traditionnelle Chinoise",
+    "description": "Cyril Hudelot est praticien en médecine traditionnelle chinoise depuis 2021. Il propose des séances de MTC à domicile dans la région d'Aubagne, La Ciotat et Cassis.",
+    "url": process.env.NEXT_PUBLIC_APP_URL || "https://cyril-mtc.online",
+    "telephone": "+33 7 62 37 66 21",
+    "knowsAbout": [
+      "Médecine Traditionnelle Chinoise",
+      "Bilan énergétique",
+      "Massage chinois",
+      "Moxibustion",
+      "Diététique chinoise",
+      "Médecine holistique"
+    ],
+    "areaServed": {
+      "@type": "GeoCircle",
+      "geoMidpoint": {
+        "@type": "GeoCoordinates",
+        "latitude": "43.2928",
+        "longitude": "5.5707"
+      },
+      "geoRadius": {
+        "@type": "Distance",
+        "name": "Région d'Aubagne"
+      }
+    }
+  }
+
   return (
-    <div className="min-h-screen bg-[#F5F2E7] lg:flex lg:items-center lg:justify-center lg:py-8 lg:px-4">
+    <>
+      {/* Données structurées JSON-LD pour le SEO */}
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(structuredData) }}
+      />
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(personStructuredData) }}
+      />
+      
+      <div className="min-h-screen bg-[#F5F2E7] lg:flex lg:items-center lg:justify-center lg:py-8 lg:px-4">
       {/* Conteneur mobile avec boîte et reflets */}
       <div className="lg:hidden py-8 px-1.5">
         <div className="max-w-md mx-auto bg-white rounded-3xl shadow-2xl overflow-hidden relative">
@@ -660,8 +750,8 @@ export default function BookingPage() {
                   {/* Titre stylé */}
                   <div className="text-center mb-6">
                     <div className="bg-[#A8C3A0] text-white rounded-2xl p-6 shadow-lg">
-                      <h1 className="text-2xl font-bold mb-2">Séance de Médecine Traditionnelle Chinoise</h1>
-                      <p className="text-white text-sm">Cyril Hudelot - Praticien en Médecine Traditionnelle Chinoise</p>
+                      <h1 className="text-2xl font-bold mb-2">Séance de Médecine Traditionnelle Chinoise avec Cyril Hudelot</h1>
+                      <p className="text-white text-sm">Cyril Hudelot - Praticien en Médecine Traditionnelle Chinoise | Réservation en ligne</p>
                       <div className="mt-3 flex items-center justify-center gap-2 text-white">
                         <Clock className="w-4 h-4" />
                         <span className="text-sm">1h modulable selon le besoin</span>
@@ -688,7 +778,7 @@ export default function BookingPage() {
                       </li>
                       <li className="flex items-start gap-2">
                         <span className="text-[#7A3E3E] mt-1">•</span>
-                        <span>Techniques de soin (acupuncture, massage, moxibustion...)</span>
+                        <span>Techniques de soin (massage, moxibustion...)</span>
                       </li>
                       <li className="flex items-start gap-2">
                         <span className="text-[#7A3E3E] mt-1">•</span>
@@ -737,7 +827,7 @@ export default function BookingPage() {
                           <div>
                             <p className="font-semibold text-[#4A4A4A] mb-1">Modalités</p>
                             <p className="leading-relaxed">
-                              Interventions à domicile uniquement dans la zone couverte (Aubagne, Cassis, Roquefort-la-Bédoule, Roquevaire, Carnoux-en-Provence). Paiement en espèces ou par virement.
+                              Interventions à domicile uniquement dans la zone couverte (Aubagne, Cassis, Roquefort-la-Bédoule, La Ciotat, Carnoux-en-Provence). Paiement en espèces ou par virement.
                             </p>
                           </div>
                           <div>
@@ -1516,7 +1606,7 @@ export default function BookingPage() {
           {/* Titre stylé pour desktop */}
           <div className="mb-8">
             <div className="bg-[#A8C3A0] text-white rounded-2xl p-6 shadow-lg">
-              <h1 className="text-3xl font-bold mb-3">Séance de Médecine Traditionnelle Chinoise</h1>
+              <h1 className="text-3xl font-bold mb-3">Séance de Médecine Traditionnelle Chinoise avec Cyril Hudelot</h1>
               <p className="text-white text-lg mb-4">Cyril Hudelot - Praticien en Médecine Traditionnelle Chinoise</p>
               <div className="flex items-center gap-2 text-white">
                 <Clock className="w-5 h-5" />
@@ -1586,7 +1676,7 @@ export default function BookingPage() {
               </li>
               <li className="flex items-start gap-2">
                 <span className="text-[#7A3E3E] mt-1">•</span>
-                <span>Techniques de soin (acupuncture, massage, moxibustion...)</span>
+                <span>Techniques de soin (massage, moxibustion...)</span>
               </li>
               <li className="flex items-start gap-2">
                 <span className="text-[#7A3E3E] mt-1">•</span>
@@ -1625,7 +1715,7 @@ export default function BookingPage() {
               <div>
                 <p className="font-semibold text-[#4A4A4A] mb-1">Modalités</p>
                 <p className="leading-relaxed">
-                  Interventions à domicile uniquement dans la zone couverte (Aubagne, Cassis, Roquefort-la-Bédoule, Roquevaire, Carnoux-en-Provence). Paiement en espèces ou par virement.
+                  Interventions à domicile uniquement dans la zone couverte (Aubagne, Cassis, Roquefort-la-Bédoule, La Ciotat, Carnoux-en-Provence). Paiement en espèces ou par virement.
                 </p>
               </div>
               <div>
@@ -2443,5 +2533,6 @@ export default function BookingPage() {
         </div>
       </div>
     </div>
+    </>
   )
 }

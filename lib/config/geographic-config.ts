@@ -12,7 +12,7 @@ export const GEOGRAPHIC_CONFIG = {
         { name: "Aubagne", postalCodes: ["13400"] },
         { name: "Cassis", postalCodes: ["13260"] },
         { name: "Roquefort-la-Bédoule", postalCodes: ["13830"] },
-        { name: "Roquevaire", postalCodes: ["13360"] },
+        { name: "La Ciotat", postalCodes: ["13600"] },
         { name: "Carnoux-en-Provence", postalCodes: ["13470"] },
     ],
 

@@ -1,0 +1,14 @@
+# robots.txt pour Cyril Hudelot - Médecine Traditionnelle Chinoise
+# https://cyril-mtc.online
+
+User-agent: *
+Allow: /
+Disallow: /api/
+Disallow: /doctor/
+Disallow: /cancel/
+
+# Sitemap
+Sitemap: https://cyril-mtc.online/sitemap.xml
+
+# Crawl-delay pour éviter la surcharge
+Crawl-delay: 1
