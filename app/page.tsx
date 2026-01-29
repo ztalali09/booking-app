@@ -778,7 +778,7 @@ export default function BookingPage() {
                       </li>
                       <li className="flex items-start gap-2">
                         <span className="text-[#7A3E3E] mt-1">•</span>
-                        <span>Techniques de soin (massage, moxibustion...)</span>
+                        <span>Techniques de soin (stimulation des points d'acupuncture, moxibustion...)</span>
                       </li>
                       <li className="flex items-start gap-2">
                         <span className="text-[#7A3E3E] mt-1">•</span>
@@ -806,7 +806,7 @@ export default function BookingPage() {
                       <div className="mt-4 pt-4 border-t border-[#D4E4D0] space-y-4">
                         <h3 className="text-base font-bold text-[#4A4A4A] mb-3">À propos du praticien</h3>
                         <p className="text-sm text-[#B4B4B4] leading-relaxed text-pretty mb-3">
-                          Passionné par la médecine traditionnelle chinoise, je pratique depuis quatre ans avec l'envie de transmettre les bienfaits de cette approche ancestrale. Ma pratique s'inscrit dans une démarche d'équilibre et de respect du corps.
+                          Passionné par la médecine traditionnelle chinoise, je pratique depuis 2021 avec l'envie de transmettre les bienfaits de cette approche ancestrale. Ma pratique s'inscrit dans une démarche d'équilibre et de respect du corps.
                         </p>
                         <p className="text-sm text-[#B4B4B4] leading-relaxed text-pretty mb-3">
                           Mon approche se veut humaine, à l'écoute de chaque personne, en considérant l'individu dans sa globalité pour un accompagnement sur-mesure.
@@ -827,7 +827,7 @@ export default function BookingPage() {
                           <div>
                             <p className="font-semibold text-[#4A4A4A] mb-1">Modalités</p>
                             <p className="leading-relaxed">
-                              Interventions à domicile uniquement dans la zone couverte (Aubagne, Cassis, Roquefort-la-Bédoule, La Ciotat, Carnoux-en-Provence). Paiement en espèces ou par virement.
+                              Interventions à domicile uniquement dans la zone couverte (Aubagne, Cassis, Roquefort-la-Bédoule, La Ciotat, Carnoux-en-Provence). Paiement en chèque ou en espèces.
                             </p>
                           </div>
                           <div>
@@ -1676,7 +1676,7 @@ export default function BookingPage() {
               </li>
               <li className="flex items-start gap-2">
                 <span className="text-[#7A3E3E] mt-1">•</span>
-                <span>Techniques de soin (massage, moxibustion...)</span>
+                <span>Techniques de soin (stimulation des points d'acupuncture, moxibustion...)</span>
               </li>
               <li className="flex items-start gap-2">
                 <span className="text-[#7A3E3E] mt-1">•</span>
@@ -1692,7 +1692,7 @@ export default function BookingPage() {
           <div className="mb-8 pt-6 border-t border-[#D4E4D0]">
             <h3 className="text-base font-bold text-[#4A4A4A] mb-3">À propos du praticien</h3>
             <p className="text-sm text-[#B4B4B4] leading-relaxed text-pretty mb-3">
-              Passionné par la médecine traditionnelle chinoise, je pratique depuis quatre ans avec l'envie de transmettre les bienfaits de cette approche ancestrale. Ma pratique s'inscrit dans une démarche d'équilibre et de respect du corps.
+              Passionné par la médecine traditionnelle chinoise, je pratique depuis 2021 avec l'envie de transmettre les bienfaits de cette approche ancestrale. Ma pratique s'inscrit dans une démarche d'équilibre et de respect du corps.
             </p>
             <p className="text-sm text-[#B4B4B4] leading-relaxed text-pretty mb-3">
               Mon approche se veut humaine, à l'écoute de chaque personne, en considérant l'individu dans sa globalité pour un accompagnement sur-mesure.
@@ -1715,7 +1715,7 @@ export default function BookingPage() {
               <div>
                 <p className="font-semibold text-[#4A4A4A] mb-1">Modalités</p>
                 <p className="leading-relaxed">
-                  Interventions à domicile uniquement dans la zone couverte (Aubagne, Cassis, Roquefort-la-Bédoule, La Ciotat, Carnoux-en-Provence). Paiement en espèces ou par virement.
+                  Interventions à domicile uniquement dans la zone couverte (Aubagne, Cassis, Roquefort-la-Bédoule, La Ciotat, Carnoux-en-Provence). Paiement en chèque ou en espèces.
                 </p>
               </div>
               <div>
